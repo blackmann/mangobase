@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "yarn workspaces run test --watch=false"
   },
   "keywords": [],
   "author": "",
