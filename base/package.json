@@ -1,0 +1,15 @@
+{
+  "name": "mangobase",
+  "version": "1.0.0",
+  "description": "Low-code backend framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.0"
+  }
+}
