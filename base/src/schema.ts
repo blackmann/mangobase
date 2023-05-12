@@ -19,9 +19,7 @@ interface Definition {
   schema?: Config
 }
 
-interface Config {
-  [key: string]: Definition
-}
+type Config = Record<string, Definition>
 
 class Schema {
   config: Config

@@ -1,5 +1,5 @@
-import Schema, { ValidationError } from './schema'
 import { describe, expect, it } from 'vitest'
+import Schema from './schema'
 
 describe('schema', () => {
   describe('string type', () => {
@@ -19,7 +19,7 @@ describe('schema', () => {
 
     describe('when required', () => {
       const schema = new Schema({
-        fullname: { type: 'string', required: true },
+        fullname: { required: true, type: 'string' },
       })
 
       it('returns correctly', () => {
@@ -41,11 +41,13 @@ describe('schema', () => {
 
     describe('with default value', () => {
       const schema = new Schema({
-        fullname: { type: 'string', defaultValue: 'Mock' },
+        fullname: { defaultValue: 'Mock', type: 'string' },
       })
 
       it('does not set default value when a value is passed', () => {
-        expect(schema.validateWithDefaults({ fullname: 'hello' })).toStrictEqual({
+        expect(
+          schema.validateWithDefaults({ fullname: 'hello' })
+        ).toStrictEqual({
           fullname: 'hello',
         })
       })
@@ -58,11 +60,13 @@ describe('schema', () => {
 
       describe('when field is required', () => {
         const schema = new Schema({
-          fullname: { type: 'string', required: true, defaultValue: 'Mock' },
+          fullname: { defaultValue: 'Mock', required: true, type: 'string' },
         })
 
         it('sets default value when no value is passed', () => {
-          expect(schema.validateWithDefaults({})).toStrictEqual({ fullname: 'Mock' })
+          expect(schema.validateWithDefaults({})).toStrictEqual({
+            fullname: 'Mock',
+          })
         })
       })
     })
