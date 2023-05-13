@@ -48,6 +48,22 @@ interface Options {
   parsers?: Partial<Record<DefinitionType, (value: any) => any>>
 }
 
+class ValidationError extends Error {
+  field: string
+  detail: string
+
+  constructor(field: string, detail: string) {
+    super(`${field}: ${detail}`)
+    this.field = field
+    this.detail = detail
+  }
+}
+
+interface Data {
+  name: string
+  value: any
+}
+
 class Schema {
   schema: SchemaDefinitions
   parsers: Partial<Record<DefinitionType, (value: any) => any>>
@@ -107,6 +123,10 @@ class Schema {
 
         case 'date': {
           const date = new Date(value)
+          if (typeof value === 'object') {
+            this.castOperatorValues(value, 'date', getDate)
+          }
+
           if (isNaN(date.getTime())) {
             continue
           }
@@ -116,25 +136,13 @@ class Schema {
         }
 
         case 'number': {
-          if (typeof value === 'number') {
-            res[key] = this.cast(value, 'number')
-            continue
-          }
-
           if (typeof value === 'object') {
-            // it may contain operator queries
-            for (const [k, v] of Object.values(value as Record<string, any>)) {
-              if (k.startsWith('$')) {
-                //
-              }
-            }
+            // handle only query operators
+            this.castOperatorValues(value, 'number', getNumber)
+            break
           }
 
-          if (typeof value !== 'string') {
-            continue
-          }
-
-          const num = value.includes('.') ? parseFloat(value) : parseInt(value)
+          const num = getNumber(value)
 
           if (isNaN(num)) {
             continue
@@ -169,6 +177,32 @@ class Schema {
     }
 
     return res
+  }
+
+  private castOperatorValues(
+    value: Record<string, any>,
+    type: DefinitionType,
+    parse: (value: any) => any
+  ) {
+    for (const [k, v] of Object.entries(value)) {
+      if (k.startsWith('$')) {
+        if (Array.isArray(v)) {
+          v.forEach((item, index) => {
+            const parsed = parse(item)
+            if (!isNaN(parsed)) {
+              v[index] = this.cast(parsed, type)
+            }
+          })
+
+          continue
+        }
+
+        const parsed = parse(v)
+        if (!isNaN(parsed)) {
+          value[k] = this.cast(parsed, type)
+        }
+      }
+    }
   }
 
   validate(data: any, useDefault = false) {
@@ -392,20 +426,25 @@ class Schema {
   }
 }
 
-class ValidationError extends Error {
-  field: string
-  detail: string
-
-  constructor(field: string, detail: string) {
-    super(`${field}: ${detail}`)
-    this.field = field
-    this.detail = detail
-  }
+function getNumber(value: any) {
+  return Number(value)
 }
 
-interface Data {
-  name: string
-  value: any
+function getDate(value: any) {
+  if (value === undefined) {
+    return value
+  }
+
+  if (!['string', 'number'].includes(typeof value)) {
+    return value
+  }
+
+  const date = new Date(value)
+  if (isNaN(date.getTime())) {
+    return value
+  }
+
+  return date
 }
 
 export default Schema

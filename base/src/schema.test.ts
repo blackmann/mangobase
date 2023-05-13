@@ -725,20 +725,43 @@ describe('schema', () => {
       expect(
         schema.castQuery({
           'address.line1': 'mock',
-          'address.movedOn': '2022-10-10',
+          'address.movedOn': '2023-10-10',
           happy: 'true',
         })
       ).toStrictEqual({
         'address.line1': 'mock',
-        'address.movedOn': new Date('2022-10-10'),
+        'address.movedOn': new Date('2023-10-10'),
         happy: true,
       })
 
       expect(schema.castQuery({ age: '100' })).toStrictEqual({ age: 100 })
       expect(schema.castQuery({ age: 10 })).toStrictEqual({ age: 10 })
       expect(schema.castQuery({ age: 'b' })).toStrictEqual({ age: 'b' })
-      expect(schema.castQuery({ age: { $gte: '5' } })).toEqual({
+      expect(schema.castQuery({ age: { $gte: '5' } })).toStrictEqual({
         age: { $gte: 5 },
+      })
+
+      expect(schema.castQuery({ age: { $in: ['5', '6'] } })).toStrictEqual({
+        age: { $in: [5, 6] },
+      })
+
+      expect(schema.castQuery({ age: { $in: ['a'] } })).toStrictEqual({
+        age: { $in: ['a'] },
+      })
+
+      expect(
+        schema.castQuery({ 'address.line1': { $in: ['mock 1', 'mock_2'] } })
+      ).toStrictEqual({ 'address.line1': { $in: ['mock 1', 'mock_2'] } })
+
+      expect(
+        schema.castQuery({
+          'address.movedOn': { $gt: '2023-10-10', $lt: '2023-11-10' },
+        })
+      ).toStrictEqual({
+        'address.movedOn': {
+          $gt: new Date('2023-10-10'),
+          $lt: new Date('2023-11-10'),
+        },
       })
     })
   })
