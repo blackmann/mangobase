@@ -99,7 +99,73 @@ class Schema {
     for (const [key, value] of Object.entries(res)) {
       const definition = this.getDefinitionAtPath(key)
 
-      //
+      switch (definition?.type) {
+        case 'boolean': {
+          res[key] = this.cast(['1', 'true', true].includes(value), 'boolean')
+          break
+        }
+
+        case 'date': {
+          const date = new Date(value)
+          if (isNaN(date.getTime())) {
+            continue
+          }
+
+          res[key] = this.cast(date, 'date')
+          break
+        }
+
+        case 'number': {
+          if (typeof value === 'number') {
+            res[key] = this.cast(value, 'number')
+            continue
+          }
+
+          if (typeof value === 'object') {
+            // it may contain operator queries
+            for (const [k, v] of Object.values(value as Record<string, any>)) {
+              if (k.startsWith('$')) {
+                //
+              }
+            }
+          }
+
+          if (typeof value !== 'string') {
+            continue
+          }
+
+          const num = value.includes('.') ? parseFloat(value) : parseInt(value)
+
+          if (isNaN(num)) {
+            continue
+          }
+
+          res[key] = this.cast(num, 'number')
+
+          break
+        }
+
+        case 'any':
+        case 'array':
+        case 'object': {
+          // we're only looking at primitives
+          continue
+        }
+
+        case 'id': {
+          res[key] = this.cast(value, 'id')
+          break
+        }
+
+        case 'string': {
+          res[key] = this.cast(value, 'string')
+          break
+        }
+
+        default: {
+          // maybe a query operator
+        }
+      }
     }
 
     return res

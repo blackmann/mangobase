@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "yarn workspaces run test --watch=false"
+    "test:base": "yarn workspace mangobase run test"
   },
   "keywords": [],
   "author": "",

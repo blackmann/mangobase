@@ -701,10 +701,13 @@ describe('schema', () => {
           schema: {
             line1: { required: true, type: 'string' },
             line2: { type: 'string' },
+            movedOn: { type: 'date' },
             rented: { defaultValue: true, type: 'boolean' },
           },
           type: 'object',
         },
+        age: { type: 'number' },
+        createdAt: { type: 'date' },
         fullname: { required: true, type: 'string' },
         happy: { type: 'boolean' },
         id: { type: 'id' },
@@ -719,7 +722,24 @@ describe('schema', () => {
     )
 
     test('casts queries correctly', () => {
-      expect(schema.castQuery({})).toStrictEqual({})
+      expect(
+        schema.castQuery({
+          'address.line1': 'mock',
+          'address.movedOn': '2022-10-10',
+          happy: 'true',
+        })
+      ).toStrictEqual({
+        'address.line1': 'mock',
+        'address.movedOn': new Date('2022-10-10'),
+        happy: true,
+      })
+
+      expect(schema.castQuery({ age: '100' })).toStrictEqual({ age: 100 })
+      expect(schema.castQuery({ age: 10 })).toStrictEqual({ age: 10 })
+      expect(schema.castQuery({ age: 'b' })).toStrictEqual({ age: 'b' })
+      expect(schema.castQuery({ age: { $gte: '5' } })).toEqual({
+        age: { $gte: 5 },
+      })
     })
   })
 })
