@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import Schema from './schema'
 
 describe('schema', () => {
@@ -664,6 +664,62 @@ describe('schema', () => {
           'value is not a valid date format. use number or ISO date string'
         )
       })
+    })
+  })
+
+  describe('casting', () => {
+    const schema = new Schema(
+      {
+        fullname: { required: true, type: 'string' },
+        id: { type: 'id' },
+      },
+      {
+        parsers: {
+          id: (value) => {
+            return parseInt(value)
+          },
+        },
+      }
+    )
+
+    it('parses id field correctly', () => {
+      expect(schema.validate({ fullname: 'Mock', id: '10' })).toStrictEqual({
+        fullname: 'Mock',
+        id: 10,
+      })
+    })
+
+    it('direct casting', () => {
+      expect(schema.cast(undefined, 'id')).toBe(undefined)
+    })
+  })
+
+  describe('query casting', () => {
+    const schema = new Schema(
+      {
+        address: {
+          schema: {
+            line1: { required: true, type: 'string' },
+            line2: { type: 'string' },
+            rented: { defaultValue: true, type: 'boolean' },
+          },
+          type: 'object',
+        },
+        fullname: { required: true, type: 'string' },
+        happy: { type: 'boolean' },
+        id: { type: 'id' },
+      },
+      {
+        parsers: {
+          id: (value) => {
+            return parseInt(value)
+          },
+        },
+      }
+    )
+
+    test('casts queries correctly', () => {
+      expect(schema.castQuery({})).toStrictEqual({})
     })
   })
 })
