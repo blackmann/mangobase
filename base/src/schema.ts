@@ -45,7 +45,7 @@ interface Options {
    * For example, Mongo IDs are supposed to be `mongo.ObjectId`s. So a parser may be defined
    *
    */
-  parsers?: Partial<Record<DefinitionType, (value: any) => any>>
+  parser?: (value: any, type: DefinitionType) => any
 }
 
 class ValidationError extends Error {
@@ -66,7 +66,7 @@ interface Data {
 
 class Schema {
   schema: SchemaDefinitions
-  parsers: Partial<Record<DefinitionType, (value: any) => any>>
+  parser: (value: any, type: DefinitionType) => any
 
   private validationMap = {
     any: this.validateAny.bind(this),
@@ -81,7 +81,7 @@ class Schema {
 
   constructor(schema: SchemaDefinitions, options: Options = {}) {
     this.schema = schema
-    this.parsers = options.parsers || {}
+    this.parser = options.parser || ((value) => value)
   }
 
   cast(data: any, type: DefinitionType) {
@@ -89,8 +89,7 @@ class Schema {
       return
     }
 
-    const parser = this.parsers[type]
-    return parser ? parser(data) : data
+    return this.parser.call(null, data, type)
   }
 
   /**
@@ -356,7 +355,7 @@ class Schema {
       throw new ValidationError(data.name, 'value is not of type `object`')
     }
 
-    const schema = new Schema(definition.schema!, { parsers: this.parsers })
+    const schema = new Schema(definition.schema!, { parser: this.parser })
 
     try {
       return schema.validate(data.value, useDefault)
@@ -388,7 +387,7 @@ class Schema {
       throw new ValidationError(data.name, 'value is not of type `array`')
     }
 
-    const schema = new Schema(definition.schema!, { parsers: this.parsers })
+    const schema = new Schema(definition.schema!, { parser: this.parser })
     return data.value.map((item) => {
       return schema.validate({ item }).item
     })

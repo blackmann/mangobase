@@ -674,10 +674,8 @@ describe('schema', () => {
         id: { type: 'id' },
       },
       {
-        parsers: {
-          id: (value) => {
-            return parseInt(value)
-          },
+        parser: (value, type) => {
+          return type === 'id' ? parseInt(value) : value
         },
       }
     )
@@ -713,10 +711,12 @@ describe('schema', () => {
         id: { type: 'id' },
       },
       {
-        parsers: {
-          id: (value) => {
+        parser: (value, type) => {
+          if (type === 'id') {
             return parseInt(value)
-          },
+          }
+
+          return value
         },
       }
     )

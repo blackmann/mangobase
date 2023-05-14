@@ -6,5 +6,6 @@ export default defineConfig({
     coverage: {
       enabled: true,
     },
+    reporters: ['default', 'html'],
   },
 })
