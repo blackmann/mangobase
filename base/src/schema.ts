@@ -69,14 +69,14 @@ class Schema {
   parser: (value: any, type: DefinitionType) => any
 
   private validationMap = {
-    any: this.validateAny.bind(this),
-    array: this.validateArray.bind(this),
-    boolean: this.validateBoolean.bind(this),
-    date: this.validateDate.bind(this),
-    id: this.validateId.bind(this),
-    number: this.validateNumber.bind(this),
-    object: this.validateObject.bind(this),
-    string: this.validateString.bind(this),
+    any: this.validateAny,
+    array: this.validateArray,
+    boolean: this.validateBoolean,
+    date: this.validateDate,
+    id: this.validateId,
+    number: this.validateNumber,
+    object: this.validateObject,
+    string: this.validateString,
   }
 
   constructor(schema: SchemaDefinitions, options: Options = {}) {
@@ -210,7 +210,7 @@ class Schema {
     for (const [key, definition] of Object.entries(this.schema)) {
       const value = res[key]
       const validatedValue = this.validationMap[definition.type].call(
-        null,
+        this,
         { name: key, value },
         definition,
         useDefault
@@ -247,7 +247,7 @@ class Schema {
     useDefault = false
   ) {
     if (data.value === undefined || data.value === '') {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue) {
         return definition.defaultValue
       }
 
@@ -274,7 +274,7 @@ class Schema {
     useDefault = false
   ) {
     if (data.value === undefined) {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
 
@@ -298,7 +298,7 @@ class Schema {
     useDefault = false
   ) {
     if (data.value === undefined) {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
 
@@ -322,7 +322,7 @@ class Schema {
 
   private validateAny(data: Data, definition: Definition, useDefault = false) {
     if (data.value === undefined) {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
 
@@ -340,7 +340,7 @@ class Schema {
     useDefault = false
   ) {
     if (data.value === undefined) {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
 
@@ -372,7 +372,7 @@ class Schema {
     useDefault = false
   ) {
     if (data.value === undefined) {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
 
@@ -395,7 +395,7 @@ class Schema {
 
   private validateDate(data: Data, definition: Definition, useDefault = false) {
     if (data.value === undefined) {
-      if (useDefault) {
+      if (useDefault && definition.defaultValue !== undefined) {
         return new Date(definition.defaultValue)
       }
 

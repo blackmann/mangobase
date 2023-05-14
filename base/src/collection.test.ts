@@ -26,9 +26,19 @@ const mockDb: MockedObject<Database> = {
 }
 
 describe('collections', () => {
-  describe('find', () => {
-    const collection = new Collection('mock', { db: mockDb })
+  const collectionsFindCursor = getCursor()
+  mockDb.find.mockReturnValueOnce(collectionsFindCursor)
+  collectionsFindCursor.exec.mockResolvedValue([
+    {
+      schema: {
+        age: { type: 'number' },
+        name: { required: true, type: 'string' },
+      },
+    },
+  ])
+  const collection = new Collection('mock', { db: mockDb })
 
+  describe('find', () => {
     it('returns results if there is', async () => {
       const findCursor = getCursor()
       mockDb.find.mockReturnValue(findCursor)
@@ -77,4 +87,38 @@ describe('collections', () => {
       expect(findCursor.limit).toHaveBeenCalledWith(10)
     })
   })
+
+  describe('create', () => {
+    it('returns created data [single]', async () => {
+      const createCursor = getCursor()
+      mockDb.create.mockReturnValue(createCursor)
+      createCursor.exec.mockResolvedValue({ age: 10, name: 'Mock' })
+
+      const result = await collection.create({ age: 10, name: 'Mock' })
+
+      expect(result).toStrictEqual({ age: 10, name: 'Mock' })
+    })
+
+    it('returns created data [array]', async () => {
+      const createCursor = getCursor()
+      mockDb.create.mockReturnValue(createCursor)
+      createCursor.exec.mockResolvedValue([{ age: 10, name: 'Mock' }])
+
+      const result = await collection.create([{ age: 10, name: 'Mock' }])
+
+      expect(result).toStrictEqual([{ age: 10, name: 'Mock' }])
+    })
+
+    it('throws when validation fails', async () => {
+      await expect(
+        async () => await collection.create({ age: 10 })
+      ).rejects.toThrow()
+    })
+  })
+
+  // describe('get', () => {
+  //   it('returns found data', () => {})
+
+  //   it('returns undefined if not found', () => {})
+  // })
 })

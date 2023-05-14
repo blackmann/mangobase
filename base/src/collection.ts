@@ -1,4 +1,5 @@
 import { Cursor, Database } from './database'
+import Schema from './schema'
 
 interface Pagination {
   default: number
@@ -32,15 +33,47 @@ const DEFAULT_PAGINATION: Pagination = {
   max: 100,
 }
 
+type Data = Record<string, any>
+
 class Collection {
   name: string
   db: Database
   pagination: Pagination
 
+  schema: Promise<Schema>
+
   constructor(name: string, options: Options) {
     this.name = name
     this.db = options.db
     this.pagination = options.pagination || DEFAULT_PAGINATION
+
+    this.schema = (async () => {
+      const [collection] = await options.db.find('collections', { name }).exec()
+      if (!collection) {
+        throw new Error(`no collection with \`${name}\` exists`)
+      }
+
+      return new Schema((collection as any).schema, { parser: options.db.cast })
+    })()
+  }
+
+  async create(data: Data | Data[], filter: Filter = {}) {
+    const validatedData = Array.isArray(data)
+      ? await Promise.all(
+          data.map(async (item) => (await this.schema).validate(item))
+        )
+      : (await this.schema).validate(data, true)
+
+    const cursor = this.db.create(this.name, validatedData)
+    const allowedFilters: Filter = {
+      $populate: filter.$populate,
+      $select: filter.$select,
+    }
+
+    this.applyFilter(cursor, allowedFilters)
+
+    const results = await cursor.exec()
+    return results
   }
 
   async find({ filter, query }: Query) {
@@ -56,6 +89,20 @@ class Collection {
       skip: filter?.$skip || 0,
       total,
     }
+  }
+
+  async get(id: string, filter: Filter = {}) {
+    const cursor = this.db.find(this.name, { _id: this.db.cast(id, 'id') })
+    const allowedFilters: Filter = {
+      $populate: filter.$populate,
+      $select: filter.$select,
+    }
+
+    this.applyFilter(cursor, allowedFilters)
+
+    const [result] = await cursor.exec()
+
+    return result
   }
 
   private applyFilter(cursor: Cursor, filter: Filter) {
