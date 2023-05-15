@@ -204,11 +204,16 @@ class Schema {
     }
   }
 
-  validate(data: any, useDefault = false) {
+  validate(data: any, useDefault = false, ignoreMissing = false) {
     const res = structuredClone(data)
 
     for (const [key, definition] of Object.entries(this.schema)) {
       const value = res[key]
+
+      if (value === undefined && ignoreMissing) {
+        continue
+      }
+
       const validatedValue = this.validationMap[definition.type].call(
         this,
         { name: key, value },

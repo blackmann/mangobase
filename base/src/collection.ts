@@ -117,6 +117,26 @@ class Collection {
     await cursor.exec()
   }
 
+  async patch(id: string | string[], data: Data, filter: Filter) {
+    id = Array.isArray(id)
+      ? id.map((item) => this.db.cast(item, 'id'))
+      : this.db.cast(id, 'id')
+
+    data = (await this.schema).validate(data, false, true)
+
+    const allowedFilters: Filter = {
+      $populate: filter.$populate,
+      $select: filter.$select,
+    }
+
+    const cursor = this.db.patch(this.name, id, data)
+    this.applyFilter(cursor, allowedFilters)
+
+    const results = await cursor.exec()
+
+    return results
+  }
+
   private applyFilter(cursor: Cursor, filter: Filter) {
     for (const [key, value] of Object.entries(filter)) {
       if (value === undefined) {

@@ -166,6 +166,32 @@ describe('collections', () => {
   })
 
   describe('patch', () => {
-    //
+    it('returns patched data [single]', async () => {
+      const cursor = getCursor()
+      cursor.exec.mockResolvedValue({ _id: 10 })
+      mockDb.patch.mockReturnValue(cursor)
+      const res = await collection.patch('10', {}, {})
+
+      expect(mockDb.patch).toHaveBeenCalledWith('mock', 10, {})
+      expect(res).toStrictEqual({ _id: 10 })
+    })
+
+    it('returns patched data [array]', async () => {
+      const cursor = getCursor()
+      cursor.exec.mockResolvedValue([{ _id: 10 }, { _id: 11 }])
+      mockDb.patch.mockReturnValue(cursor)
+      const res = await collection.patch(['10', '11'], {}, {})
+
+      expect(mockDb.patch).toHaveBeenCalledWith('mock', [10, 11], {})
+      expect(res).toStrictEqual([{ _id: 10 }, { _id: 11 }])
+    })
+
+    it('when validation fails', async () => {
+      const cursor = getCursor()
+      cursor.exec.mockResolvedValue({ _id: 10 })
+      mockDb.patch.mockReturnValue(cursor)
+
+      await expect(collection.patch('10', { name: true }, {})).rejects.toThrow()
+    })
   })
 })

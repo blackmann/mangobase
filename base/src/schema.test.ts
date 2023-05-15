@@ -765,4 +765,12 @@ describe('schema', () => {
       })
     })
   })
+
+  describe('ignore missing', () => {
+    const schema = new Schema({ name: { required: true, type: 'string' } })
+
+    it('should ignore missing value', () => {
+      expect(schema.validate({}, false, true)).toStrictEqual({})
+    })
+  })
 })
