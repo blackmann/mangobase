@@ -7,6 +7,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
     },
+    globalSetup: ['global.setup.ts'],
     reporters: ['default', 'html'],
   },
 })
