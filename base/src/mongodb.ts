@@ -165,3 +165,5 @@ class MongoDB implements Database {
     await this.db.collection(collection).deleteMany(query)
   }
 }
+
+export { MongoDB, MongoCursor }
