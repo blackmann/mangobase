@@ -17,7 +17,10 @@ function getCursor() {
 }
 
 const mockDb: MockedObject<Database> = {
-  cast: vi.fn((value, type) => value),
+  cast: vi.fn((value, type) => {
+    if (type === 'id') return Number(value)
+    return value
+  }),
   count: vi.fn(),
   create: vi.fn(),
   find: vi.fn(),
@@ -134,7 +137,7 @@ describe('collections', () => {
       mockDb.find.mockReturnValue(cursor)
       const result = await collection.get('10')
 
-      expect(mockDb.find).toHaveBeenCalledWith('mock', { _id: '10' })
+      expect(mockDb.find).toHaveBeenCalledWith('mock', { _id: 10 })
       expect(cursor.limit).toHaveBeenCalledWith(1)
       expect(result).toStrictEqual({ name: 'mock' })
     })
@@ -147,5 +150,22 @@ describe('collections', () => {
 
       expect(result).toBe(undefined)
     })
+  })
+
+  describe('remove', () => {
+    it('call db.remove correctly', async () => {
+      const cursor = getCursor()
+      mockDb.remove.mockReturnValue(cursor)
+
+      await collection.remove(['5', '6'])
+      expect(mockDb.remove).toHaveBeenCalledWith('mock', [5, 6])
+
+      await collection.remove('5')
+      expect(mockDb.remove).toHaveBeenCalledWith('mock', 5)
+    })
+  })
+
+  describe('patch', () => {
+    //
   })
 })

@@ -28,7 +28,7 @@ interface Database {
     id: string | string[],
     data: Record<string, any>
   ): Cursor<T | T[]>
-  remove(collection: string, id: string[]): Cursor<void>
+  remove(collection: string, id: string | string[]): Cursor<void>
 }
 
 export type { Cursor, Database }

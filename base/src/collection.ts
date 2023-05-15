@@ -108,6 +108,15 @@ class Collection {
     return result
   }
 
+  async remove(id: string | string[]) {
+    id = Array.isArray(id)
+      ? id.map((item) => this.db.cast(item, 'id'))
+      : this.db.cast(id, 'id')
+
+    const cursor = this.db.remove(this.name, id)
+    await cursor.exec()
+  }
+
   private applyFilter(cursor: Cursor, filter: Filter) {
     for (const [key, value] of Object.entries(filter)) {
       if (value === undefined) {
