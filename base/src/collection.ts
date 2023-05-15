@@ -77,15 +77,17 @@ class Collection {
   }
 
   async find({ filter, query }: Query) {
+    query = (await this.schema).castQuery(query || {})
+    filter = this.cleanFilter(filter || {})
+
     const cursor = this.db.find(this.name, query)
-    const cleanedFilter = this.cleanFilter(filter || {})
-    this.applyFilter(cursor, cleanedFilter)
+    this.applyFilter(cursor, filter)
 
     const total = await this.db.count(this.name, query).exec()
 
     return {
       data: await cursor.exec(),
-      limit: cleanedFilter.$limit,
+      limit: filter.$limit,
       skip: filter?.$skip || 0,
       total,
     }
@@ -94,6 +96,7 @@ class Collection {
   async get(id: string, filter: Filter = {}) {
     const cursor = this.db.find(this.name, { _id: this.db.cast(id, 'id') })
     const allowedFilters: Filter = {
+      $limit: 1,
       $populate: filter.$populate,
       $select: filter.$select,
     }

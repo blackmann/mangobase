@@ -73,6 +73,17 @@ describe('collections', () => {
       expect(findCursor.sort).toHaveBeenCalledWith({ createdAt: -1 })
     })
 
+    it('applies query [casted]', async () => {
+      const findCursor = getCursor()
+      mockDb.find.mockReturnValue(findCursor)
+
+      await collection.find({
+        query: { age: '10' },
+      })
+
+      expect(mockDb.find).toHaveBeenCalledWith('mock', { age: 10 })
+    })
+
     it('skips filters with no value', async () => {
       const findCursor = getCursor()
       mockDb.find.mockReturnValue(findCursor)
@@ -116,9 +127,25 @@ describe('collections', () => {
     })
   })
 
-  // describe('get', () => {
-  //   it('returns found data', () => {})
+  describe('get', () => {
+    it('returns found data', async () => {
+      const cursor = getCursor()
+      cursor.exec.mockResolvedValue([{ name: 'mock' }])
+      mockDb.find.mockReturnValue(cursor)
+      const result = await collection.get('10')
 
-  //   it('returns undefined if not found', () => {})
-  // })
+      expect(mockDb.find).toHaveBeenCalledWith('mock', { _id: '10' })
+      expect(cursor.limit).toHaveBeenCalledWith(1)
+      expect(result).toStrictEqual({ name: 'mock' })
+    })
+
+    it('returns undefined if not found', async () => {
+      const cursor = getCursor()
+      cursor.exec.mockResolvedValue([])
+      mockDb.find.mockReturnValue(cursor)
+      const result = await collection.get('10')
+
+      expect(result).toBe(undefined)
+    })
+  })
 })
