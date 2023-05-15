@@ -17,7 +17,7 @@ interface Database {
    * This is normally called during schema validation.
    */
   cast(value: any, type: DefinitionType): any
-  count(collection: string, query: Record<string, any>): Cursor<number>
+  count(collection: string, query: Record<string, any>): Promise<number>
   find<T = any>(collection: string, query: Record<string, any>): Cursor<T[]>
   /**
    * @param data data or array of data to be inserted
@@ -28,7 +28,7 @@ interface Database {
     id: string | string[],
     data: Record<string, any>
   ): Cursor<T | T[]>
-  remove(collection: string, id: string | string[]): Cursor<void>
+  remove(collection: string, id: string | string[]): Promise<void>
 }
 
 export type { Cursor, Database }

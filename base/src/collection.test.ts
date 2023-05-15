@@ -47,9 +47,7 @@ describe('collections', () => {
       mockDb.find.mockReturnValue(findCursor)
       findCursor.exec.mockResolvedValue([])
 
-      const countCursor = getCursor()
-      mockDb.count.mockReturnValue(countCursor)
-      countCursor.exec.mockResolvedValue(10)
+      mockDb.count.mockResolvedValue(10)
 
       const results = await collection.find({})
       expect(results).toStrictEqual({ data: [], limit: 50, skip: 0, total: 10 })
@@ -154,8 +152,7 @@ describe('collections', () => {
 
   describe('remove', () => {
     it('call db.remove correctly', async () => {
-      const cursor = getCursor()
-      mockDb.remove.mockReturnValue(cursor)
+      mockDb.remove.mockResolvedValue()
 
       await collection.remove(['5', '6'])
       expect(mockDb.remove).toHaveBeenCalledWith('mock', [5, 6])

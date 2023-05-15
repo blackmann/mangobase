@@ -83,7 +83,7 @@ class Collection {
     const cursor = this.db.find(this.name, query)
     this.applyFilter(cursor, filter)
 
-    const total = await this.db.count(this.name, query).exec()
+    const total = await this.db.count(this.name, query)
 
     return {
       data: await cursor.exec(),
@@ -113,8 +113,7 @@ class Collection {
       ? id.map((item) => this.db.cast(item, 'id'))
       : this.db.cast(id, 'id')
 
-    const cursor = this.db.remove(this.name, id)
-    await cursor.exec()
+    return this.db.remove(this.name, id)
   }
 
   async patch(id: string | string[], data: Data, filter: Filter) {
