@@ -1,5 +1,5 @@
 import { Cursor, Database } from './database'
-import { Db, FindCursor, MongoClient, ObjectId } from 'mongodb'
+import { Db, FindCursor, FindOptions, MongoClient, ObjectId } from 'mongodb'
 import { DefinitionType } from './schema'
 
 interface Filters {
@@ -10,17 +10,16 @@ interface Filters {
   sort?: Record<string, -1 | 1>
 }
 
-interface CursorOptions {
-  projection?: Record<string, 1>
-}
-
 class MongoCursor implements Cursor {
   private singleResult = false
   private filters: Filters = {}
 
-  private onExec: ({ projection }: CursorOptions) => Promise<FindCursor>
+  private onExec: ({ projection }: FindOptions) => Promise<FindCursor>
 
-  constructor(db: MongoDB, onExec: () => Promise<FindCursor>) {
+  constructor(
+    db: MongoDB,
+    onExec: (options: FindOptions) => Promise<FindCursor>
+  ) {
     this.onExec = onExec
   }
 
@@ -40,7 +39,12 @@ class MongoCursor implements Cursor {
   }
 
   async exec(): Promise<any> {
-    const options: CursorOptions = {}
+    const options: FindOptions = {
+      limit: this.filters.limit,
+      skip: this.filters.skip,
+      sort: this.filters.sort,
+    }
+
     if (this.filters.select?.length) {
       const projection: Record<string, 1> = {}
 
@@ -51,19 +55,7 @@ class MongoCursor implements Cursor {
       options.projection = projection
     }
 
-    let cursor = await this.onExec(options)
-
-    if (this.filters.sort) {
-      cursor = cursor.sort(this.filters.sort)
-    }
-
-    if (this.filters.skip) {
-      cursor = cursor.skip(this.filters.skip)
-    }
-
-    if (this.filters.limit) {
-      cursor = cursor.limit(this.filters.limit)
-    }
+    const cursor = await this.onExec(options)
 
     const results = await cursor.toArray()
 
@@ -123,17 +115,20 @@ class MongoDB implements Database {
 
   find(collection: string, query: any): Cursor {
     const col = this.db.collection(collection)
-    return new MongoCursor(this, async () => col.find(query))
+    return new MongoCursor(this, async (options) => col.find(query, options))
   }
 
   create(collection: string, data: any): Cursor {
     const col = this.db.collection(collection)
     const isMany = Array.isArray(data)
 
-    const cursor = new MongoCursor(this, async () => {
+    const cursor = new MongoCursor(this, async (options) => {
       data = isMany ? data : [data]
       const inserted = await col.insertMany(data)
-      return col.find({ _id: { $in: Object.values(inserted.insertedIds) } })
+      return col.find(
+        { _id: { $in: Object.values(inserted.insertedIds) } },
+        options
+      )
     })
 
     return isMany ? cursor : cursor.single

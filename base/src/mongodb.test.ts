@@ -1,5 +1,5 @@
+import { MongoCursor, MongoDB } from './mongodb'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { MongoDB } from './mongodb'
 import { ObjectId } from 'mongodb'
 
 describe('mongodb', () => {
@@ -47,6 +47,46 @@ describe('mongodb', () => {
         { _id: expect.anything(), name: 'John' },
         { _id: expect.anything(), name: 'Jane' },
       ])
+    })
+
+    describe('cursor methods', () => {
+      it('should limit results', async () => {
+        const cursor = db.find('users_find', {}).limit(1)
+        expect(await cursor.exec()).toStrictEqual([
+          { _id: expect.anything(), name: 'John' },
+        ])
+      })
+
+      it('should skip results', async () => {
+        const cursor = db.find('users_find', {}).skip(1)
+        expect(await cursor.exec()).toStrictEqual([
+          { _id: expect.anything(), name: 'Jane' },
+        ])
+      })
+
+      it('should return a single result', async () => {
+        const cursor = (db.find('users_find', {}) as MongoCursor).single
+        expect(await cursor.exec()).toStrictEqual({
+          _id: expect.anything(),
+          name: 'John',
+        })
+      })
+
+      it('should select fields', async () => {
+        const cursor = db.find('users_find', {}).select(['_id'])
+        expect(await cursor.exec()).toStrictEqual([
+          { _id: expect.anything() },
+          { _id: expect.anything() },
+        ])
+      })
+
+      it('should sort results', async () => {
+        const cursor = db.find('users_find', {}).sort({ name: -1 })
+        expect(await cursor.exec()).toStrictEqual([
+          { _id: expect.anything(), name: 'John' },
+          { _id: expect.anything(), name: 'Jane' },
+        ])
+      })
     })
   })
 

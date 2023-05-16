@@ -705,6 +705,7 @@ describe('schema', () => {
           type: 'object',
         },
         age: { type: 'number' },
+        comment: { type: 'any' },
         createdAt: { type: 'date' },
         fullname: { required: true, type: 'string' },
         happy: { type: 'boolean' },
@@ -761,6 +762,43 @@ describe('schema', () => {
         'address.movedOn': {
           $gt: new Date('2023-10-10'),
           $lt: new Date('2023-11-10'),
+        },
+      })
+
+      expect(schema.castQuery({ id: { $in: ['1', '2'] } })).toStrictEqual({
+        id: { $in: [1, 2] },
+      })
+
+      expect(schema.castQuery({ id: '5' })).toStrictEqual({ id: 5 })
+
+      expect(
+        schema.castQuery({ comment: 'hello', 'comment.hello': 6 })
+      ).toStrictEqual({
+        comment: 'hello',
+        'comment.hello': 6,
+      })
+
+      expect(schema.castQuery({ createdAt: 'hello' })).toStrictEqual({
+        createdAt: 'hello',
+      })
+
+      expect(
+        schema.castQuery({ createdAt: { $gte: undefined } })
+      ).toStrictEqual({
+        createdAt: {
+          $gte: undefined,
+        },
+      })
+
+      expect(schema.castQuery({ createdAt: { $gte: true } })).toStrictEqual({
+        createdAt: {
+          $gte: true,
+        },
+      })
+
+      expect(schema.castQuery({ createdAt: { $gte: 'hello' } })).toStrictEqual({
+        createdAt: {
+          $gte: 'hello',
         },
       })
     })

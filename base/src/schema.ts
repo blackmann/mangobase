@@ -124,6 +124,7 @@ class Schema {
           const date = new Date(value)
           if (typeof value === 'object') {
             this.castOperatorValues(value, 'date', getDate)
+            break
           }
 
           if (isNaN(date.getTime())) {
@@ -152,14 +153,12 @@ class Schema {
           break
         }
 
-        case 'any':
-        case 'array':
-        case 'object': {
-          // we're only looking at primitives
-          continue
-        }
-
         case 'id': {
+          if (typeof value === 'object') {
+            this.castOperatorValues(value, 'id', (value) => value)
+            break
+          }
+
           res[key] = this.cast(value, 'id')
           break
         }
