@@ -90,6 +90,39 @@ describe('mongodb', () => {
     })
   })
 
+  describe('find with populate', () => {
+    beforeAll(async () => {
+      await db
+        .create('users_populate', [{ name: 'John' }, { name: 'Jane' }])
+        .exec()
+
+      const users = await db.find('users_populate', {}).exec()
+
+      db.create('posts_populate', [
+        { title: 'Post 1', author: users[0]._id },
+        { title: 'Post 2', author: users[1]._id },
+      ]).exec()
+    })
+
+    it('should populate a single document', async () => {
+      const cursor = db
+        .find('posts_populate', {})
+        .populate([{ collection: 'users_populate', field: 'author' }])
+      expect(await cursor.exec()).toStrictEqual([
+        {
+          _id: expect.anything(),
+          title: 'Post 1',
+          author: { _id: expect.anything(), name: 'John' },
+        },
+        {
+          _id: expect.anything(),
+          title: 'Post 2',
+          author: { _id: expect.anything(), name: 'Jane' },
+        },
+      ])
+    })
+  })
+
   describe('create', () => {
     afterAll(async () => {
       await db.db.dropCollection('users_create')

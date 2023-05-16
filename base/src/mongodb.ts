@@ -4,13 +4,14 @@ import { DefinitionType } from './schema'
 
 interface Filters {
   limit?: number
-  populate?: string[]
+  populate?: (string | { collection: string, field: string })[]
   select?: string[]
   skip?: number
   sort?: Record<string, -1 | 1>
 }
 
 class MongoCursor implements Cursor {
+  db: MongoDB
   private singleResult = false
   private filters: Filters = {}
 
@@ -20,12 +21,8 @@ class MongoCursor implements Cursor {
     db: MongoDB,
     onExec: (options: FindOptions) => Promise<FindCursor>
   ) {
+    this.db = db
     this.onExec = onExec
-  }
-
-  populate(fields: string[]): Cursor<any> {
-    this.filters.populate = fields
-    return this
   }
 
   select(fields: string[]): Cursor<any> {
@@ -35,6 +32,18 @@ class MongoCursor implements Cursor {
 
   sort(config: Record<string, 1 | -1>): Cursor<any> {
     this.filters.sort = config
+    return this
+  }
+
+  /**
+   * Populate a field with data from another collection. When a string is used, the value
+   * will be populated from the collection with same name. When an object is used, the value
+   * will be populated from the collection with the name specified in the `collection` property.
+   * 
+   * Population is a complex operation and less performant with nested fields.
+   */
+  populate(fields: (string | { collection: string, field: string })[]): Cursor<any> {
+    this.filters.populate = fields
     return this
   }
 
@@ -59,7 +68,49 @@ class MongoCursor implements Cursor {
 
     const results = await cursor.toArray()
 
-    // TODO: handle populate
+    // handle population
+    // TODO: take care nested select fields
+    for (const field of this.filters.populate || []) {
+      const [collection, fieldToPopulate] =
+        typeof field === 'string' ? [field, field] : [field.collection, field.field]
+
+      const fieldPath = fieldToPopulate.split('.')
+
+      const ids = results.map((result: any) => {
+        let value = result
+
+        for (const key of fieldPath) {
+          value = value[key]
+        }
+
+        return value
+      }).filter(Boolean)
+
+      if (!ids.length) continue
+
+      const query = { _id: { $in: ids } }
+      const collectionResults = await this.db.find(collection, query).exec()
+
+      for (const result of results) {
+        let i = 0
+
+        let objectToPopulate = result
+        while (i < fieldPath.length - 1) {
+          objectToPopulate = objectToPopulate[fieldPath[i]]
+          i++
+        }
+
+        const field = fieldPath[i]
+        const id = objectToPopulate[field]
+
+        if (Array.isArray(id)) {
+          objectToPopulate[field] = collectionResults.filter((r: any) => id.includes(r._id))
+        } else {
+          console.log('results', objectToPopulate, field, collectionResults)
+          objectToPopulate[field] = collectionResults.find((r: any) => r._id === id)
+        }
+      }
+    }
 
     if (this.singleResult) {
       return results[0]
