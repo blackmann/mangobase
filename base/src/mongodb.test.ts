@@ -92,8 +92,14 @@ describe('mongodb', () => {
 
   describe('find with populate', () => {
     beforeAll(async () => {
+      await db.create('schools_populate', [{ name: 'School 1' }]).exec()
+      const [school] = await db.find('schools_populate', {}).exec()
+
       await db
-        .create('users_populate', [{ name: 'John' }, { name: 'Jane' }])
+        .create('users_populate', [
+          { name: 'John', school: school._id },
+          { name: 'Jane' },
+        ])
         .exec()
 
       const users = await db.find('users_populate', {}).exec()
@@ -104,15 +110,26 @@ describe('mongodb', () => {
       ]).exec()
     })
 
+    afterAll(async () => {
+      await db.db.dropCollection('schools_populate')
+      await db.db.dropCollection('users_populate')
+      await db.db.dropCollection('posts_populate')
+    })
+
     it('should populate a single document', async () => {
-      const cursor = db
-        .find('posts_populate', {})
-        .populate([{ collection: 'users_populate', field: 'author' }])
+      const cursor = db.find('posts_populate', {}).populate([
+        { collection: 'users_populate', field: 'author' },
+        { collection: 'schools_populate', field: 'author.school' },
+      ])
       expect(await cursor.exec()).toStrictEqual([
         {
           _id: expect.anything(),
           title: 'Post 1',
-          author: { _id: expect.anything(), name: 'John' },
+          author: {
+            _id: expect.anything(),
+            name: 'John',
+            school: { _id: expect.anything(), name: 'School 1' },
+          },
         },
         {
           _id: expect.anything(),

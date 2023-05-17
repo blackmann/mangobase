@@ -4,7 +4,7 @@ import { DefinitionType } from './schema'
 
 interface Filters {
   limit?: number
-  populate?: (string | { collection: string, field: string })[]
+  populate?: (string | { collection: string; field: string })[]
   select?: string[]
   skip?: number
   sort?: Record<string, -1 | 1>
@@ -39,10 +39,12 @@ class MongoCursor implements Cursor {
    * Populate a field with data from another collection. When a string is used, the value
    * will be populated from the collection with same name. When an object is used, the value
    * will be populated from the collection with the name specified in the `collection` property.
-   * 
+   *
    * Population is a complex operation and less performant with nested fields.
    */
-  populate(fields: (string | { collection: string, field: string })[]): Cursor<any> {
+  populate(
+    fields: (string | { collection: string; field: string })[]
+  ): Cursor<any> {
     this.filters.populate = fields
     return this
   }
@@ -72,19 +74,23 @@ class MongoCursor implements Cursor {
     // TODO: take care nested select fields
     for (const field of this.filters.populate || []) {
       const [collection, fieldToPopulate] =
-        typeof field === 'string' ? [field, field] : [field.collection, field.field]
+        typeof field === 'string'
+          ? [field, field]
+          : [field.collection, field.field]
 
       const fieldPath = fieldToPopulate.split('.')
 
-      const ids = results.map((result: any) => {
-        let value = result
+      const ids = results
+        .map((result: any) => {
+          let value = result
 
-        for (const key of fieldPath) {
-          value = value[key]
-        }
+          for (const key of fieldPath) {
+            value = value[key]
+          }
 
-        return value
-      }).filter(Boolean)
+          return value
+        })
+        .filter(Boolean)
 
       if (!ids.length) continue
 
@@ -103,11 +109,18 @@ class MongoCursor implements Cursor {
         const field = fieldPath[i]
         const id = objectToPopulate[field]
 
+        if (!id) {
+          continue
+        }
+
         if (Array.isArray(id)) {
-          objectToPopulate[field] = collectionResults.filter((r: any) => id.includes(r._id))
+          objectToPopulate[field] = collectionResults.filter((r: any) =>
+            id.map((i) => i.toHexString()).includes(r._id.toHexString())
+          )
         } else {
-          console.log('results', objectToPopulate, field, collectionResults)
-          objectToPopulate[field] = collectionResults.find((r: any) => r._id === id)
+          objectToPopulate[field] = collectionResults.find(
+            (r: any) => r._id.toHexString() === id.toHexString()
+          )
         }
       }
     }
