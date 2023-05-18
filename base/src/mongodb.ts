@@ -113,6 +113,7 @@ class MongoCursor implements Cursor {
           continue
         }
 
+        // TODO: Prefer to use an index instead of filter
         if (Array.isArray(id)) {
           objectToPopulate[field] = collectionResults.filter((r: any) =>
             id.map((i) => i.toHexString()).includes(r._id.toHexString())
