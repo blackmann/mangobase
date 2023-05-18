@@ -5,12 +5,10 @@ import Context from './context'
 const ALLOWED_FILTERS = ['$limit', '$populate', '$select', '$skip', '$sort']
 
 class CollectionService {
-  private app: App
-  private collection: Collection
+  collection: Collection
   name: string
 
   constructor(app: App, name: string) {
-    this.app = app
     this.name = name
     this.collection = new Collection(name, {
       db: app.database,
@@ -106,6 +104,37 @@ class CollectionService {
           case '$populate': {
             filter.$populate = Array.isArray(value) ? value : [value]
             break
+          }
+          
+          case '$select': {
+            filter.$select = Array.isArray(value) ? value : [value]
+            break
+          }
+
+          case '$skip': {
+            filter.$skip = Number(value)
+            break
+          }
+
+          case '$sort': {
+            if (typeof value !== 'object') {
+              break 
+            }
+
+            for (const [k, v] of Object.entries(value)) {
+              if (v !== '1' && v !== '-1') {
+                delete value[k]
+                continue
+              }
+
+              value[k] = Number(v)
+            }
+
+            if (Object.keys(value).length === 0) {
+              break
+            }
+
+            filter.$sort = value
           }
         }
       } else {

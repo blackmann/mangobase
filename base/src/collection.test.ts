@@ -16,16 +16,16 @@ function getCursor() {
 
   return mockCursor
 }
-
+type Data = Record<string, any>
 const mockDb: MockedObject<Database> = {
   cast: vi.fn((value, type) => {
     if (type === 'id') return Number(value)
     return value
   }),
   count: vi.fn(),
-  create: vi.fn(),
-  find: vi.fn(),
-  patch: vi.fn(),
+  create: vi.fn<[string, Data], Cursor<any>>(),
+  find: vi.fn<[string, Data], Cursor<any>>(),
+  patch: vi.fn<[string, string | string[], Data], Cursor<any>>(),
   remove: vi.fn(),
 }
 
@@ -34,7 +34,7 @@ const mockManifest: MockedObject<Manifest> = {
     age: { type: 'number' },
     name: { required: true, type: 'string' },
   })),
-  initialize: vi.fn(),
+  initialize: new Promise(() => {}),
 }
 
 describe('collections', () => {

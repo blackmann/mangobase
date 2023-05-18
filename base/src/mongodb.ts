@@ -226,4 +226,5 @@ class MongoDB implements Database {
   }
 }
 
-export { MongoDB, MongoCursor }
+export default MongoDB
+export { MongoCursor }

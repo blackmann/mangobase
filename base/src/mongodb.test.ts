@@ -1,4 +1,4 @@
-import { MongoCursor, MongoDB } from './mongodb'
+import MongoDB, { MongoCursor } from './mongodb'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ObjectId } from 'mongodb'
 
