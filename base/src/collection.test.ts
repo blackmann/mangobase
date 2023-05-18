@@ -2,6 +2,7 @@ import { Cursor, Database } from './database'
 import { describe, expect, it, vi } from 'vitest'
 import Collection from './collection'
 import { MockedObject } from 'vitest'
+import Manifest from './manifest'
 
 function getCursor() {
   const mockCursor: MockedObject<Cursor> = {
@@ -28,18 +29,19 @@ const mockDb: MockedObject<Database> = {
   remove: vi.fn(),
 }
 
+const mockManifest: MockedObject<Manifest> = {
+  getSchema: vi.fn(async (n: string) => ({
+    age: { type: 'number' },
+    name: { required: true, type: 'string' },
+  })),
+  initialize: vi.fn(),
+}
+
 describe('collections', () => {
-  const collectionsFindCursor = getCursor()
-  mockDb.find.mockReturnValueOnce(collectionsFindCursor)
-  collectionsFindCursor.exec.mockResolvedValue([
-    {
-      schema: {
-        age: { type: 'number' },
-        name: { required: true, type: 'string' },
-      },
-    },
-  ])
-  const collection = new Collection('mock', { db: mockDb })
+  const collection = new Collection('mock', {
+    db: mockDb,
+    manifest: mockManifest,
+  })
 
   describe('find', () => {
     it('returns results if there is', async () => {
