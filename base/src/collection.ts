@@ -1,4 +1,5 @@
 import { Cursor, Database } from './database'
+import Manifest from './manifest'
 import Schema from './schema'
 
 interface Pagination {
@@ -8,6 +9,7 @@ interface Pagination {
 
 interface Options {
   db: Database
+  manifest: Manifest
   pagination?: Pagination
 }
 
@@ -48,12 +50,12 @@ class Collection {
     this.pagination = options.pagination || DEFAULT_PAGINATION
 
     this.schema = (async () => {
-      const [collection] = await options.db.find('collections', { name }).exec()
-      if (!collection) {
+      const schema = await options.manifest.getSchema(name)
+      if (!schema) {
         throw new Error(`no collection with \`${name}\` exists`)
       }
 
-      return new Schema((collection as any).schema, { parser: options.db.cast })
+      return new Schema(schema, { parser: options.db.cast })
     })()
   }
 

@@ -17,6 +17,7 @@
     "vitest": "^0.31.0"
   },
   "dependencies": {
-    "mongodb": "^5.5.0"
+    "mongodb": "^5.5.0",
+    "radix3": "^1.0.1"
   }
 }

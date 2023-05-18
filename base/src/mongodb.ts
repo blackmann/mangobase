@@ -103,6 +103,7 @@ class MongoCursor implements Cursor {
         const field = fieldPath[i]
         const id = objectToPopulate[field]
 
+        // TODO: Prefer to use an index instead of filter
         if (Array.isArray(id)) {
           objectToPopulate[field] = collectionResults.filter((r: any) => id.includes(r._id))
         } else {

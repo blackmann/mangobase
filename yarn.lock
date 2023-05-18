@@ -2930,6 +2930,11 @@ queue-microtask@^1.2.2:
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
+radix3@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/radix3/-/radix3-1.0.1.tgz#de0ac16234f8a63288645854a54fc26e45a4a8eb"
+  integrity sha512-y+AcwZ3HcUIGc9zGsNVf5+BY/LxL+z+4h4J3/pp8jxSmy1STaCocPS3qrj4tA5ehUSzqtqK+0Aygvz/r/8vy4g==
+
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
