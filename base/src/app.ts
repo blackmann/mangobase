@@ -1,4 +1,5 @@
 import { Hook, HookConfig } from './hook'
+import { InternalServerError, NotFound, ServiceError } from './errors'
 import Context from './context'
 import { Database } from './database'
 import HooksRegistry from './hooks-registry'
@@ -36,15 +37,25 @@ class Pipeline {
         ctx = await hook.run(ctx, config, this.app)
 
         if (ctx.result) {
+          // if there's already a result, we wouldn't want it to be overwritten
+          // by subsequent hooks or the service. Maybe this was provided from some
+          // cache or something.
           break
         }
       } catch (err) {
-        // TODO: deal with error
+        return this.handleError(err, ctx)
       }
     }
 
     if (!ctx.result) {
-      ctx = await this.service.handle(ctx)
+      try {
+        ctx = await this.service.handle(ctx)
+        if (ctx.method !== 'remove' && !ctx.result) {
+          throw new NotFound()
+        }
+      } catch (err) {
+        return this.handleError(err, ctx)
+      }
     }
 
     // run service after hooks
@@ -52,7 +63,7 @@ class Pipeline {
       try {
         ctx = await hook.run(ctx, config, this.app)
       } catch (err) {
-        // TODO: deal with error
+        return this.handleError(err, ctx)
       }
     }
 
@@ -69,6 +80,24 @@ class Pipeline {
   before(method: Method, hook: Hook, config?: HookConfig): Pipeline {
     this.hooks.before[method].push([hook, config])
     return this
+  }
+
+  private handleError(err: any, ctx: Context): Context {
+    // TODO: put into logs
+
+    const error =
+      err instanceof ServiceError
+        ? err
+        : new InternalServerError('Unknown error', err)
+
+    ctx.result = {
+      details: error.data,
+      error: error.message || error.name,
+    }
+
+    ctx.statusCode = error.statusCode
+
+    return ctx
   }
 
   static stubHooks(): Hooks {
@@ -136,7 +165,18 @@ class App {
   }
 
   private register(path: string, pipeline: Pipeline) {
-    this.routes.insert(path, pipeline)
+    this.routes.insert(path, { pipeline })
+  }
+
+  async serve(ctx: Context): Promise<Context> {
+    const route = this.routes.lookup(ctx.path)
+    if (!route) {
+      throw new NotFound(`No service/handler found for path ${ctx.path}`)
+    }
+
+    const pipeline = route.pipeline as Pipeline
+
+    return await pipeline.run(ctx)
   }
 }
 

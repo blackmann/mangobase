@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
+import App from './app'
 import CollectionService from './collection-service'
 import { Database } from './database'
 import Manifest from './manifest'
-import App from './app'
 
 vi.mock('./collection')
 
@@ -19,11 +19,12 @@ describe('CollectionService', () => {
       const service = new CollectionService(app as unknown as App, 'mock')
       await service.handle({
         data: { name: 'mock' },
-        method: 'create',
         headers: {},
+        method: 'create',
+        path: '/',
         query: {
-          age: 'hello',
           $populate: ['address'],
+          age: 'hello',
         },
       })
 
@@ -38,9 +39,10 @@ describe('CollectionService', () => {
     it('checks', async () => {
       const service = new CollectionService(app as unknown as App, 'mock')
       await service.handle({
-        method: 'find',
         headers: {},
-        query: { name: 'mock', $limit: 1, $skip: 10, $sort: { name: '-1' } },
+        method: 'find',
+        path: '/',
+        query: { $limit: 1, $skip: 10, $sort: { name: '-1' }, name: 'mock' },
       })
 
       expect(service.collection.find).toHaveBeenCalledWith({
@@ -54,14 +56,15 @@ describe('CollectionService', () => {
     it('checks', async () => {
       const service = new CollectionService(app as unknown as App, 'mock')
       await service.handle({
-        method: 'get',
         headers: {},
-        id: '123',
+        method: 'get',
+        params: { id: '123' },
+        path: '/',
         query: {
-          name: 'mock',
           $populate: ['address'],
           $select: ['address', 'address.region'],
           $sort: { name: '100' },
+          name: 'mock',
         },
       })
 
@@ -76,11 +79,17 @@ describe('CollectionService', () => {
     it('checks', async () => {
       const service = new CollectionService(app as unknown as App, 'mock')
       await service.handle({
-        method: 'patch',
-        headers: {},
-        id: '123',
         data: { name: 'mock' },
-        query: { name: 'mock', $populate: 'address', $sort: 'invalid', $select: 'address' },
+        headers: {},
+        method: 'patch',
+        params: { id: '123' },
+        path: '/',
+        query: {
+          $populate: 'address',
+          $select: 'address',
+          $sort: 'invalid',
+          name: 'mock',
+        },
       })
 
       expect(service.collection.patch).toHaveBeenCalledWith(
@@ -95,10 +104,11 @@ describe('CollectionService', () => {
     it('checks', async () => {
       const service = new CollectionService(app as unknown as App, 'mock')
       await service.handle({
-        method: 'remove',
         headers: {},
-        id: '123',
-        query: { name: 'mock', $populate: ['address'] },
+        method: 'remove',
+        params: { id: '123' },
+        path: '/',
+        query: { $populate: ['address'], name: 'mock' },
       })
 
       expect(service.collection.remove).toHaveBeenCalledWith('123')

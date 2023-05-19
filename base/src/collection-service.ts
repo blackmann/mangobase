@@ -1,6 +1,8 @@
 import App, { Service } from './app'
 import Collection, { Filter } from './collection'
 import Context from './context'
+import { BadRequest } from './errors'
+import { ValidationError } from './schema'
 
 const ALLOWED_FILTERS = ['$limit', '$populate', '$select', '$skip', '$sort']
 
@@ -46,13 +48,25 @@ class CollectionService implements Service {
   }
 
   async create(ctx: Context): Promise<Context> {
-    const result = await this.collection.create(
-      ctx.data,
-      this.parseQuery(ctx.query).filter
-    )
-    ctx.result = result
+    try {
+      const result = await this.collection.create(
+        ctx.data,
+        this.parseQuery(ctx.query).filter
+      )
 
-    return ctx
+      ctx.result = result
+
+      return ctx
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        throw new BadRequest('Validation failed', {
+          detail: err.detail,
+          field: err.field,
+        })
+      }
+
+      throw err
+    }
   }
 
   async find(ctx: Context): Promise<Context> {
@@ -64,7 +78,7 @@ class CollectionService implements Service {
 
   async get(ctx: Context): Promise<Context> {
     const result = await this.collection.get(
-      ctx.id!,
+      ctx.params!.id,
       this.parseQuery(ctx.query).filter
     )
     ctx.result = result
@@ -74,10 +88,17 @@ class CollectionService implements Service {
 
   async patch(ctx: Context): Promise<Context> {
     const result = await this.collection.patch(
-      ctx.id!,
+      ctx.params!.id!,
       ctx.data!,
       this.parseQuery(ctx.query).filter
     )
+
+    if ((Array.isArray(result) && result.length === 0) || !result) {
+      // if there's nothing in the result, then the id is invalid and wasn't found
+      // this will imply a 404
+      return ctx
+    }
+
     ctx.result = result
 
     return ctx
@@ -86,7 +107,7 @@ class CollectionService implements Service {
   // TODO: Allow passing query parameters to remove
   // DELETE /students?name=John
   async remove(ctx: Context): Promise<Context> {
-    const result = await this.collection.remove(ctx.id!)
+    const result = await this.collection.remove(ctx.params!.id)
     ctx.result = result
 
     return ctx

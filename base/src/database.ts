@@ -3,7 +3,9 @@ import { DefinitionType } from './schema'
 interface Cursor<T = any> {
   exec(): Promise<T>
   limit(n: number): Cursor<T>
-  populate(fields: (string | { collection: string, field: string })[]): Cursor<T>
+  populate(
+    fields: (string | { collection: string; field: string })[]
+  ): Cursor<T>
   select(fields: string[]): Cursor<T>
   skip(n: number): Cursor<T>
   sort(config: Record<string, -1 | 1>): Cursor<T>
