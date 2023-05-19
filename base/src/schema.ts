@@ -15,6 +15,8 @@ interface Definition {
    * */
   type: DefinitionType
 
+  description?: string
+
   defaultValue?: any
 
   required?: boolean
@@ -449,6 +451,8 @@ function getDate(value: any) {
 
   return date
 }
+
+// TODO: Implement a schema validator, one that validates the schema itself
 
 export default Schema
 

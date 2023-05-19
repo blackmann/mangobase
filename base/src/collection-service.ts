@@ -1,10 +1,10 @@
+import App, { Service } from './app'
 import Collection, { Filter } from './collection'
-import App from './app'
 import Context from './context'
 
 const ALLOWED_FILTERS = ['$limit', '$populate', '$select', '$skip', '$sort']
 
-class CollectionService {
+class CollectionService implements Service {
   collection: Collection
   name: string
 
@@ -14,6 +14,11 @@ class CollectionService {
       db: app.database,
       manifest: app.manifest,
     })
+  }
+
+  register(app: App, install: (subpath: string) => void) {
+    install('')
+    install(':id')
   }
 
   async handle(ctx: Context): Promise<Context> {
@@ -105,7 +110,7 @@ class CollectionService {
             filter.$populate = Array.isArray(value) ? value : [value]
             break
           }
-          
+
           case '$select': {
             filter.$select = Array.isArray(value) ? value : [value]
             break
@@ -118,7 +123,7 @@ class CollectionService {
 
           case '$sort': {
             if (typeof value !== 'object') {
-              break 
+              break
             }
 
             for (const [k, v] of Object.entries(value)) {

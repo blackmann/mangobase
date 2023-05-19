@@ -1,18 +1,27 @@
+import { Hook, HookConfig } from './hook'
 import Context from './context'
 import { Database } from './database'
+import HooksRegistry from './hooks-registry'
 import Manifest from './manifest'
+import Method from './method'
 import { createRouter } from 'radix3'
 
-type Handle = (ctx: Context) => Context
+type Handle = (ctx: Context) => Promise<Context>
 
 interface Service {
   handle: Handle
   register: (app: App, install: (subpath: string) => void) => void
 }
 
+type Hooks = {
+  after: Record<`${Method}`, [Hook, HookConfig?][]>
+  before: Record<`${Method}`, [Hook, HookConfig?][]>
+}
+
 class Pipeline {
   private app: App
   private service: Service
+  private hooks: Hooks = Pipeline.stubHooks()
 
   constructor(app: App, service: Service) {
     this.app = app
@@ -21,11 +30,64 @@ class Pipeline {
 
   async run(ctx: Context): Promise<Context> {
     // run app before hooks
-    // run service before hooks
-    // run service
+
+    for (const [hook, config] of this.hooks.before[ctx.method]) {
+      try {
+        ctx = await hook.run(ctx, config, this.app)
+
+        if (ctx.result) {
+          break
+        }
+      } catch (err) {
+        // TODO: deal with error
+      }
+    }
+
+    if (!ctx.result) {
+      ctx = await this.service.handle(ctx)
+    }
+
     // run service after hooks
+    for (const [hook, config] of this.hooks.after[ctx.method]) {
+      try {
+        ctx = await hook.run(ctx, config, this.app)
+      } catch (err) {
+        // TODO: deal with error
+      }
+    }
+
     // run app after hooks
-    throw new Error('TODO: implement')
+
+    return ctx
+  }
+
+  after(method: Method, hook: Hook, config?: HookConfig): Pipeline {
+    this.hooks.after[method].push([hook, config])
+    return this
+  }
+
+  before(method: Method, hook: Hook, config?: HookConfig): Pipeline {
+    this.hooks.before[method].push([hook, config])
+    return this
+  }
+
+  static stubHooks(): Hooks {
+    return {
+      after: {
+        create: [],
+        find: [],
+        get: [],
+        patch: [],
+        remove: [],
+      },
+      before: {
+        create: [],
+        find: [],
+        get: [],
+        patch: [],
+        remove: [],
+      },
+    }
   }
 }
 
@@ -49,10 +111,12 @@ class App {
   private routes = createRouter()
   database: Database
   manifest: Manifest
+  hooksRegistry: HooksRegistry
 
   constructor(options: Options) {
     this.database = options.database
     this.manifest = new Manifest()
+    this.hooksRegistry = new HooksRegistry()
   }
 
   use(path: string, handle: Handle): Pipeline
@@ -78,3 +142,4 @@ class App {
 
 export default App
 export { Pipeline }
+export type { Handle, Service }
