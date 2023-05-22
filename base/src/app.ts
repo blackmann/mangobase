@@ -1,7 +1,7 @@
-import { Hook, HookConfig } from './hook'
 import { InternalServerError, NotFound, ServiceError } from './errors'
 import Context from './context'
 import { Database } from './database'
+import { HookConfig } from './hook'
 import HooksRegistry from './hooks-registry'
 import Manifest from './manifest'
 import Method from './method'
@@ -14,9 +14,11 @@ interface Service {
   register: (app: App, install: (subpath: string) => void) => void
 }
 
+type HookFn = (ctx: Context, config: any, app: App) => Promise<Context>
+
 type Hooks = {
-  after: Record<`${Method}`, [Hook, HookConfig?][]>
-  before: Record<`${Method}`, [Hook, HookConfig?][]>
+  after: Record<`${Method}`, [HookFn, HookConfig?][]>
+  before: Record<`${Method}`, [HookFn, HookConfig?][]>
 }
 
 class Pipeline {
@@ -34,7 +36,7 @@ class Pipeline {
 
     for (const [hook, config] of this.hooks.before[ctx.method]) {
       try {
-        ctx = await hook.run(ctx, config, this.app)
+        ctx = await hook(ctx, config, this.app)
 
         if (ctx.result) {
           // if there's already a result, we wouldn't want it to be overwritten
@@ -43,7 +45,7 @@ class Pipeline {
           break
         }
       } catch (err) {
-        return this.handleError(err, ctx)
+        return Pipeline.handleError(err, ctx)
       }
     }
 
@@ -54,35 +56,38 @@ class Pipeline {
           throw new NotFound()
         }
       } catch (err) {
-        return this.handleError(err, ctx)
+        return Pipeline.handleError(err, ctx)
       }
     }
 
-    // run service after hooks
     for (const [hook, config] of this.hooks.after[ctx.method]) {
       try {
-        ctx = await hook.run(ctx, config, this.app)
+        ctx = await hook(ctx, config, this.app)
       } catch (err) {
-        return this.handleError(err, ctx)
+        return Pipeline.handleError(err, ctx)
       }
     }
 
     // run app after hooks
 
+    if (!ctx.statusCode) {
+      ctx.statusCode = 200
+    }
+
     return ctx
   }
 
-  after(method: Method, hook: Hook, config?: HookConfig): Pipeline {
+  after(method: `${Method}`, hook: HookFn, config?: HookConfig): Pipeline {
     this.hooks.after[method].push([hook, config])
     return this
   }
 
-  before(method: Method, hook: Hook, config?: HookConfig): Pipeline {
+  before(method: `${Method}`, hook: HookFn, config?: HookConfig): Pipeline {
     this.hooks.before[method].push([hook, config])
     return this
   }
 
-  private handleError(err: any, ctx: Context): Context {
+  static handleError(err: any, ctx: Context): Context {
     // TODO: put into logs
 
     const error =
@@ -171,7 +176,8 @@ class App {
   async serve(ctx: Context): Promise<Context> {
     const route = this.routes.lookup(ctx.path)
     if (!route) {
-      throw new NotFound(`No service/handler found for path ${ctx.path}`)
+      const err = new NotFound(`No service/handler found for path ${ctx.path}`)
+      return Pipeline.handleError(err, ctx)
     }
 
     const pipeline = route.pipeline as Pipeline
