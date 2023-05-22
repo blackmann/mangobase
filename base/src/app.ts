@@ -133,7 +133,7 @@ class AnonymouseService implements Service {
 }
 
 interface Options {
-  database: Database
+  db: Database
 }
 
 class App {
@@ -143,7 +143,7 @@ class App {
   hooksRegistry: HooksRegistry
 
   constructor(options: Options) {
-    this.database = options.database
+    this.database = options.db
     this.manifest = new Manifest()
     this.hooksRegistry = new HooksRegistry()
   }
