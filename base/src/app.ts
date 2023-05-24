@@ -5,9 +5,10 @@ import { HookConfig } from './hook'
 import HooksRegistry from './hooks-registry'
 import Manifest from './manifest'
 import Method from './method'
+import Schema from './schema'
 import { createRouter } from 'radix3'
 
-type Handle = (ctx: Context) => Promise<Context>
+type Handle = (ctx: Context, app: App) => Promise<Context>
 
 interface Service {
   handle: Handle
@@ -51,7 +52,7 @@ class Pipeline {
 
     if (!ctx.result) {
       try {
-        ctx = await this.service.handle(ctx)
+        ctx = await this.service.handle(ctx, this.app)
         if (ctx.method !== 'remove' && !ctx.result) {
           throw new NotFound()
         }
@@ -137,6 +138,67 @@ class AnonymouseService implements Service {
   }
 }
 
+const collectionsService: Service & { schema: Schema } = {
+  async handle(ctx: Context, app: App) {
+    switch (ctx.method) {
+      case 'create': {
+        const data = await this.schema.validate(ctx.data, true)
+        const collection = await app.manifest.collection(data.name, data)
+
+        // TODO: Register this service
+
+        ctx.result = collection
+        ctx.statusCode = 201
+        return ctx
+      }
+      case 'find': {
+        const collections = Object.entries(app.manifest.collections)
+        ctx.result = collections
+        return ctx
+      }
+
+      case 'get': {
+        const collection = await app.manifest.collection(ctx.params!.id)
+        ctx.result = collection
+
+        return ctx
+      }
+
+      case 'patch': {
+        const existing = await app.manifest.collection(ctx.params!.id)
+
+        if (!existing) {
+          throw new NotFound()
+        }
+
+        const patch = await this.schema.validate(ctx.data, true, true)
+        const collection = await app.manifest.collection(ctx.params!.id, {
+          ...existing,
+          ...patch,
+        })
+
+        ctx.result = collection
+
+        return ctx
+      }
+
+      case 'remove': {
+        await app.manifest.removeCollection(ctx.params!.id)
+        // TODO: Close this service
+        return ctx
+      }
+    }
+  },
+
+  register(app, install) {
+    install('')
+    install(':id')
+  },
+
+  // TODO:
+  schema: new Schema({}),
+}
+
 interface Options {
   db: Database
 }
@@ -147,10 +209,20 @@ class App {
   manifest: Manifest
   hooksRegistry: HooksRegistry
 
+  private initialize: Promise<void>
+
   constructor(options: Options) {
     this.database = options.db
     this.manifest = new Manifest()
     this.hooksRegistry = new HooksRegistry()
+
+    this.initialize = (async () => {
+      this.use('collections', collectionsService)
+    })()
+  }
+
+  async init() {
+    return this.initialize
   }
 
   use(path: string, handle: Handle): Pipeline
@@ -174,6 +246,8 @@ class App {
   }
 
   async serve(ctx: Context): Promise<Context> {
+    await this.init()
+
     const route = this.routes.lookup(ctx.path)
     if (!route) {
       const err = new NotFound(`No service/handler found for path ${ctx.path}`)

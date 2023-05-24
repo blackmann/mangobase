@@ -34,6 +34,11 @@ class Manifest {
     return config
   }
 
+  async removeCollection(name: string) {
+    delete this.collections[name]
+    await this.save()
+  }
+
   async save(env?: string) {
     const dir = Manifest.getDirectory(env)
 
@@ -54,3 +59,4 @@ class Manifest {
 }
 
 export default Manifest
+export type { CollectionConfig }

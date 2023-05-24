@@ -1,8 +1,8 @@
 import { Cursor, Database } from './database'
+import Manifest, { CollectionConfig } from './manifest'
 import { describe, expect, it, vi } from 'vitest'
 import Collection from './collection'
 import { MockedObject } from 'vitest'
-import Manifest from './manifest'
 
 function getCursor() {
   const mockCursor: MockedObject<Cursor> = {
@@ -30,11 +30,19 @@ const mockDb: MockedObject<Database> = {
 }
 
 const mockManifest: MockedObject<Manifest> = {
-  getSchema: vi.fn(async (n: string) => ({
-    age: { type: 'number' },
-    name: { required: true, type: 'string' },
-  })),
-  initialize: new Promise(() => {}),
+  collection: vi.fn(
+    async (n: string) =>
+      <CollectionConfig>{
+        name: n,
+        schema: {
+          age: { type: 'number' },
+          name: { required: true, type: 'string' },
+        },
+      }
+  ),
+  collections: {},
+  removeCollection: vi.fn(),
+  save: vi.fn(),
 }
 
 describe('collections', () => {

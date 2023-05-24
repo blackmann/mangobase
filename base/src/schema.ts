@@ -206,6 +206,10 @@ class Schema {
   }
 
   validate(data: any, useDefault = false, ignoreMissing = false) {
+    if (!data) {
+      throw new Error('`data` is undefined')
+    }
+
     const res = structuredClone(data)
 
     for (const [key, definition] of Object.entries(this.schema)) {
@@ -428,6 +432,137 @@ class Schema {
     }
 
     return date
+  }
+
+  static validateSchema(schema: any, parentField?: string) {
+    if (typeof schema !== 'object' || Array.isArray(schema)) {
+      throw new Error('schema has to be an object')
+    }
+
+    for (const [name, definition] of Object.entries(
+      schema as Record<string, any>
+    )) {
+      const fieldPath = parentField ? `${parentField}.${name}` : name
+      const type = definition?.type
+      if (
+        ![
+          'any',
+          'array',
+          'boolean',
+          'date',
+          'id',
+          'number',
+          'object',
+          'string',
+        ].includes(type)
+      ) {
+        throw new ValidationError(fieldPath, '`type` is invalid or undefined')
+      }
+
+      switch (type) {
+        case 'array': {
+          if (
+            typeof definition.schema !== 'object' ||
+            Array.isArray(definition.schema)
+          ) {
+            throw new ValidationError(
+              fieldPath,
+              '`schema` is required when type is `array`'
+            )
+          }
+
+          if (!definition.schema.item) {
+            throw new ValidationError(
+              fieldPath,
+              '`schema` should be in the format `{ item: { type: "string" | ... } }'
+            )
+          }
+
+          Schema.validateSchema(definition.schema, fieldPath)
+
+          // validate the default values
+          if (definition.defaultValue) {
+            if (!Array.isArray(definition.defaultValue)) {
+              throw new ValidationError(fieldPath, '')
+            }
+
+            const itemSchema = new Schema(definition.schema)
+            for (const value of definition.defaultValue) {
+              try {
+                itemSchema.validate(value)
+              } catch (err) {
+                if (err instanceof ValidationError) {
+                  err.field = fieldPath + '.' + err.field
+                  throw err
+                }
+
+                throw err
+              }
+            }
+          }
+
+          break
+        }
+
+        case 'boolean': {
+          if (typeof definition.defaultValue !== 'boolean') {
+            throw new ValidationError(
+              fieldPath,
+              '`defaultValue` should be a boolean'
+            )
+          }
+
+          break
+        }
+        case 'id': {
+          if (
+            definition.defaultValue &&
+            typeof definition.defaultValue !== 'string'
+          ) {
+            throw new ValidationError(
+              fieldPath,
+              '`defaultValue` should be a string'
+            )
+          }
+
+          if (!definition.relation) {
+            throw new ValidationError(
+              fieldPath,
+              '`relation` is required for type `id`'
+            )
+          }
+
+          break
+        }
+        case 'number': {
+          if (
+            definition.defaultValue &&
+            typeof definition.defaultValue !== 'number'
+          ) {
+            throw new ValidationError(
+              fieldPath,
+              '`defaultValue` should be a number'
+            )
+          }
+
+          break
+        }
+
+        case 'string': {
+          if (
+            definition.defaultValue &&
+            typeof definition.defaultValue !== 'string'
+          ) {
+            throw new ValidationError(
+              fieldPath,
+              '`defaultValue` should be a string'
+            )
+          }
+
+          break
+        }
+      }
+    }
   }
 }
 

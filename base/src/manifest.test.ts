@@ -32,5 +32,10 @@ describe('Manifest', () => {
         schema: { name: { type: 'string' } },
       })
     })
+
+    it('removes collection', async () => {
+      await manifest.removeCollection('mock')
+      expect(await manifest.collection('mock')).toBe(undefined)
+    })
   })
 })

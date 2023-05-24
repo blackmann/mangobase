@@ -50,7 +50,7 @@ class Collection {
     this.pagination = options.pagination || DEFAULT_PAGINATION
 
     this.schema = (async () => {
-      const schema = await options.manifest.getSchema(name)
+      const { schema } = await options.manifest.collection(name)
       if (!schema) {
         throw new Error(`no collection with \`${name}\` exists`)
       }
