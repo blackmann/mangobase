@@ -11,9 +11,6 @@ describe('app', () => {
     it('returns a pipeline [service instance]', () => {
       const service: Service = {
         handle: async (ctx) => ctx,
-        register: () => {
-          //
-        },
       }
 
       const pipeline = app.use('mock-service', service)
@@ -28,9 +25,6 @@ describe('app', () => {
     it('returns results on successful serve', async () => {
       const service: Service = {
         handle: async (ctx) => ({ ...ctx, result: { _id: 'mock-1' } }),
-        register: (_, install) => {
-          install('')
-        },
       }
 
       app.use('mock-1', service)
@@ -64,9 +58,6 @@ describe('pipeline', () => {
   const mockHandle = vi.fn(async (ctx) => ctx)
   const service: Service = {
     handle: mockHandle,
-    register: (_, install) => {
-      install('')
-    },
   }
 
   describe('hooks', () => {
@@ -157,6 +148,183 @@ describe('pipeline', () => {
 
         expect(ctx.result.error).toBe('Unknown error')
       })
+    })
+  })
+})
+
+describe('collections service', () => {
+  const app = new App({ db })
+
+  describe('when collection is created', () => {
+    it('returns with error', async () => {
+      const res = await app.serve({
+        data: {
+          schema: {},
+        },
+        headers: {},
+        method: 'create',
+        path: 'collections',
+        query: {},
+      })
+
+      expect(res.result.error).toMatch(/name: required/)
+    })
+
+    it('returns created collection', async () => {
+      const res = await app.serve({
+        data: {
+          name: 'people',
+          schema: {
+            age: { type: 'number' },
+            name: { type: 'string' },
+          },
+        },
+        headers: {},
+        method: 'create',
+        path: 'collections',
+        query: {},
+      })
+
+      expect(res.data).toStrictEqual({
+        name: 'people',
+        schema: {
+          age: { type: 'number' },
+          name: { type: 'string' },
+        },
+      })
+    })
+  })
+
+  describe('get collections', () => {
+    it('returns saved collections', async () => {
+      const res = await app.serve({
+        headers: {},
+        method: 'find',
+        path: 'collections',
+        query: {},
+      })
+
+      expect(res.result).toStrictEqual([
+        {
+          exposed: true,
+          name: 'people',
+          schema: {
+            age: {
+              type: 'number',
+            },
+            name: {
+              type: 'string',
+            },
+          },
+          template: false,
+        },
+      ])
+    })
+  })
+
+  describe('get collection', () => {
+    it('returns collection', async () => {
+      const res = await app.serve({
+        headers: {},
+        method: 'get',
+        path: 'collections/people',
+        query: {},
+      })
+
+      expect(res.result).toStrictEqual({
+        exposed: true,
+        name: 'people',
+        schema: {
+          age: {
+            type: 'number',
+          },
+          name: {
+            type: 'string',
+          },
+        },
+        template: false,
+      })
+    })
+
+    it('returns 404 if not found', async () => {
+      const res = await app.serve({
+        headers: {},
+        method: 'get',
+        path: 'collections/persons',
+        query: {},
+      })
+
+      expect(res.statusCode).toBe(404)
+    })
+  })
+
+  describe('patch collection', () => {
+    it('updates the collection correctly', async () => {
+      const existing = await app.serve({
+        headers: {},
+        method: 'find', // this will be turned into `get`
+        path: 'collections/people',
+        query: {},
+      })
+
+      expect(existing.result.exposed).toBe(true)
+
+      const res = await app.serve({
+        data: {
+          exposed: false,
+        },
+        headers: {},
+        method: 'patch',
+        path: 'collections/people',
+        query: {},
+      })
+
+      expect(res.result.exposed).toBe(false)
+    })
+
+    it('returns 404 if the collection is not found', async () => {
+      const res = await app.serve({
+        data: {
+          exposed: false,
+        },
+        headers: {},
+        method: 'patch',
+        path: 'collections/persons',
+        query: {},
+      })
+
+      expect(res.statusCode).toBe(404)
+    })
+  })
+
+  describe('remove collection', () => {
+    it('removes collection', async () => {
+      const existing = await app.serve({
+        headers: {},
+        method: 'find',
+        path: 'collections',
+        query: {},
+      })
+
+      expect(existing.result).toHaveLength(1)
+
+      const res = await app.serve({
+        headers: {},
+        method: 'remove',
+        path: 'collections/people',
+        query: {},
+      })
+
+      expect(res.statusCode).toBe(200)
+
+      const list = await app.serve({
+        headers: {},
+        method: 'find',
+        path: 'collections',
+        query: {},
+      })
+
+      expect(list.result).toHaveLength(0)
     })
   })
 })

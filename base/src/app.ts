@@ -1,18 +1,22 @@
-import { InternalServerError, NotFound, ServiceError } from './errors'
+import {
+  BadRequest,
+  InternalServerError,
+  NotFound,
+  ServiceError,
+} from './errors'
+import Schema, { ValidationError } from './schema'
 import Context from './context'
 import { Database } from './database'
 import { HookConfig } from './hook'
 import HooksRegistry from './hooks-registry'
 import Manifest from './manifest'
 import Method from './method'
-import Schema from './schema'
 import { createRouter } from 'radix3'
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
 
 interface Service {
   handle: Handle
-  register: (app: App, install: (subpath: string) => void) => void
 }
 
 type HookFn = (ctx: Context, config: any, app: App) => Promise<Context>
@@ -92,9 +96,7 @@ class Pipeline {
     // TODO: put into logs
 
     const error =
-      err instanceof ServiceError
-        ? err
-        : new InternalServerError('Unknown error', err)
+      err instanceof ServiceError ? err : Pipeline.translateError(err)
 
     ctx.result = {
       details: error.data,
@@ -104,6 +106,14 @@ class Pipeline {
     ctx.statusCode = error.statusCode
 
     return ctx
+  }
+
+  static translateError(err: any) {
+    if (err instanceof ValidationError) {
+      return new BadRequest(err.message, err.detail)
+    }
+
+    return new InternalServerError('Unknown error', err)
   }
 
   static stubHooks(): Hooks {
@@ -132,10 +142,6 @@ class AnonymouseService implements Service {
   constructor(handle: Handle) {
     this.handle = handle
   }
-
-  register(app: App, install: (subpath: string) => void) {
-    install('')
-  }
 }
 
 const collectionsService: Service & { schema: Schema } = {
@@ -143,6 +149,8 @@ const collectionsService: Service & { schema: Schema } = {
     switch (ctx.method) {
       case 'create': {
         const data = await this.schema.validate(ctx.data, true)
+        Schema.validateSchema(data.schema)
+
         const collection = await app.manifest.collection(data.name, data)
 
         // TODO: Register this service
@@ -152,7 +160,7 @@ const collectionsService: Service & { schema: Schema } = {
         return ctx
       }
       case 'find': {
-        const collections = Object.entries(app.manifest.collections)
+        const collections = Object.values(app.manifest.collections)
         ctx.result = collections
         return ctx
       }
@@ -177,6 +185,8 @@ const collectionsService: Service & { schema: Schema } = {
           ...patch,
         })
 
+        // TODO: Re-initialize the collection service
+
         ctx.result = collection
 
         return ctx
@@ -190,13 +200,12 @@ const collectionsService: Service & { schema: Schema } = {
     }
   },
 
-  register(app, install) {
-    install('')
-    install(':id')
-  },
-
-  // TODO:
-  schema: new Schema({}),
+  schema: new Schema({
+    exposed: { defaultValue: true, type: 'boolean' },
+    name: { required: true, type: 'string' },
+    schema: { required: true, type: 'any' },
+    template: { defaultValue: false, type: 'boolean' },
+  }),
 }
 
 interface Options {
@@ -234,9 +243,8 @@ class App {
         : handleOrService
 
     const pipeline = new Pipeline(this, service)
-    service.register(this, (subpath) =>
-      this.register(`${path}/${subpath}`, pipeline)
-    )
+    this.register(`${path}`, pipeline)
+    this.register(`${path}/:id`, pipeline)
 
     return pipeline
   }
@@ -254,9 +262,18 @@ class App {
       return Pipeline.handleError(err, ctx)
     }
 
+    ctx.params = route.params
+    if (route.params?.id && ctx.method === 'find') {
+      ctx.method = 'get'
+    }
+
     const pipeline = route.pipeline as Pipeline
 
     return await pipeline.run(ctx)
+  }
+
+  async static() {
+    //
   }
 }
 
