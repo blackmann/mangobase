@@ -483,16 +483,21 @@ class Schema {
           // validate the default values
           if (definition.defaultValue) {
             if (!Array.isArray(definition.defaultValue)) {
-              throw new ValidationError(fieldPath, '')
+              throw new ValidationError(
+                fieldPath,
+                '`defaultValue` should be an array'
+              )
             }
 
             const itemSchema = new Schema(definition.schema)
+            let index = 0
             for (const value of definition.defaultValue) {
               try {
                 itemSchema.validate(value)
+                index += 1
               } catch (err) {
                 if (err instanceof ValidationError) {
-                  err.field = fieldPath + '.' + err.field
+                  err.field = fieldPath + `.${index}.` + err.field
                   throw err
                 }
 
@@ -512,6 +517,19 @@ class Schema {
             )
           }
 
+          break
+        }
+
+        case 'date': {
+          if (
+            definition.defaultValue &&
+            isNaN(new Date(definition.value).getTime())
+          ) {
+            throw new ValidationError(
+              fieldPath,
+              '`defaultValue` should be a valid date'
+            )
+          }
           break
         }
         case 'id': {
@@ -544,6 +562,36 @@ class Schema {
               '`defaultValue` should be a number'
             )
           }
+
+          break
+        }
+
+        case 'object': {
+          if (
+            typeof definition.schema !== 'object' ||
+            Array.isArray(definition.schema)
+          ) {
+            throw new ValidationError(
+              fieldPath,
+              '`schema` is required when type is `array`'
+            )
+          }
+
+          if (definition.defaultValue) {
+            if (
+              typeof definition.defaultValue !== 'object' ||
+              Array.isArray(definition.defaultValue)
+            ) {
+              throw new ValidationError(
+                fieldPath,
+                '`defaultValue` should be an object'
+              )
+            }
+
+            new Schema(definition.schema).validate(definition.defaultValue)
+          }
+
+          //
 
           break
         }
