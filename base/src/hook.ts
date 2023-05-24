@@ -1,5 +1,5 @@
 import App from './app'
-import Context from './context'
+import type { Context } from './context'
 import { Definition } from './schema'
 
 type Config = Record<string, any>

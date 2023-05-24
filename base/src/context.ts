@@ -13,4 +13,4 @@ interface Context {
   statusCode?: number
 }
 
-export default Context
+export type { Context }

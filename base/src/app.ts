@@ -5,7 +5,7 @@ import {
   ServiceError,
 } from './errors'
 import Schema, { ValidationError } from './schema'
-import Context from './context'
+import type { Context } from './context'
 import { Database } from './database'
 import { HookConfig } from './hook'
 import HooksRegistry from './hooks-registry'
@@ -273,7 +273,7 @@ class App {
   }
 
   async static() {
-    //
+    await this.init()
   }
 }
 

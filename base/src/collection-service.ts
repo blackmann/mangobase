@@ -1,7 +1,7 @@
 import App, { Service } from './app'
 import Collection, { Filter } from './collection'
 import { BadRequest } from './errors'
-import Context from './context'
+import type { Context } from './context'
 import { ValidationError } from './schema'
 
 const ALLOWED_FILTERS = ['$limit', '$populate', '$select', '$skip', '$sort']
