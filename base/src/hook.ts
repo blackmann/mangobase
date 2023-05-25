@@ -1,6 +1,7 @@
 import App from './app'
 import type { Context } from './context'
 import { Definition } from './schema'
+import Method from './method'
 
 type Config = Record<string, any>
 
@@ -19,4 +20,9 @@ interface Hook {
   run: HookFn
 }
 
-export type { Hook, HookFn, Config as HookConfig }
+type Hooks = {
+  after: Record<`${Method}`, [HookFn, Config?][]>
+  before: Record<`${Method}`, [HookFn, Config?][]>
+}
+
+export type { Hook, HookFn, Hooks, Config as HookConfig }

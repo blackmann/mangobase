@@ -1,9 +1,14 @@
 import { Hook } from './hook'
+import Schema from './schema'
 
 class HooksRegistry {
   private registry: Record<string, Hook> = {}
 
   register(hook: Hook) {
+    if (hook.configSchema) {
+      Schema.validateSchema(hook.configSchema)
+    }
+
     this.registry[hook.id] = hook
   }
 

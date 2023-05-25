@@ -1,29 +1,26 @@
 import {
   BadRequest,
   InternalServerError,
+  MethodNotAllowed,
   NotFound,
   ServiceError,
 } from './errors'
+import type { HookConfig, HookFn, Hooks } from './hook'
 import Schema, { ValidationError } from './schema'
+import CollectionService from './collection-service'
 import type { Context } from './context'
 import { Database } from './database'
-import { HookConfig } from './hook'
 import HooksRegistry from './hooks-registry'
 import Manifest from './manifest'
 import Method from './method'
 import { createRouter } from 'radix3'
 
+const INTERNAL_PATHS = ['collections', 'hooks']
+
 type Handle = (ctx: Context, app: App) => Promise<Context>
 
 interface Service {
   handle: Handle
-}
-
-type HookFn = (ctx: Context, config: any, app: App) => Promise<Context>
-
-type Hooks = {
-  after: Record<`${Method}`, [HookFn, HookConfig?][]>
-  before: Record<`${Method}`, [HookFn, HookConfig?][]>
 }
 
 class Pipeline {
@@ -80,6 +77,19 @@ class Pipeline {
     }
 
     return ctx
+  }
+
+  hook(
+    when: 'after' | 'before',
+    method: `${Method}`,
+    hook: HookFn,
+    config?: HookConfig
+  ) {
+    if (when === 'after') {
+      return this.after(method, hook, config)
+    }
+
+    return this.before(method, hook, config)
   }
 
   after(method: `${Method}`, hook: HookFn, config?: HookConfig): Pipeline {
@@ -148,7 +158,7 @@ const collectionsService: Service & { schema: Schema } = {
   async handle(ctx: Context, app: App) {
     switch (ctx.method) {
       case 'create': {
-        const data = await this.schema.validate(ctx.data, true)
+        const data = this.schema.validate(ctx.data, true)
         Schema.validateSchema(data.schema)
 
         const collection = await app.manifest.collection(data.name, data)
@@ -208,6 +218,21 @@ const collectionsService: Service & { schema: Schema } = {
   }),
 }
 
+const hooksService: Service = {
+  async handle(ctx, app) {
+    switch (ctx.method) {
+      case 'find': {
+        ctx.result = app.hooksRegistry.list()
+
+        return ctx
+      }
+
+      default:
+        throw new MethodNotAllowed()
+    }
+  },
+}
+
 interface Options {
   db: Database
 }
@@ -226,7 +251,8 @@ class App {
     this.hooksRegistry = new HooksRegistry()
 
     this.initialize = (async () => {
-      this.use('collections', collectionsService)
+      this.addService('collections', collectionsService)
+      this.addService('hooks-registry', hooksService)
     })()
   }
 
@@ -237,11 +263,21 @@ class App {
   use(path: string, handle: Handle): Pipeline
   use(path: string, service: Service): Pipeline
   use(path: string, handleOrService: Service | Handle): Pipeline {
+    if (INTERNAL_PATHS.includes(path)) {
+      throw new Error(
+        `path \`${path}\` is an internal path. Overriding it will cause problems.`
+      )
+    }
+
     const service: Service =
       typeof handleOrService === 'function'
         ? new AnonymouseService(handleOrService)
         : handleOrService
 
+    return this.addService(path, service)
+  }
+
+  private addService(path: string, service: Service) {
     const pipeline = new Pipeline(this, service)
     this.register(`${path}`, pipeline)
     this.register(`${path}/:id`, pipeline)
@@ -272,11 +308,39 @@ class App {
     return await pipeline.run(ctx)
   }
 
+  async installCollectionsServices() {
+    const collections = Object.values(this.manifest.collections)
+    for (const collection of collections) {
+      const pipeline = this.use(
+        collection.name,
+        new CollectionService(this, collection.name)
+      )
+
+      const hooks = this.manifest.getHooks(collection.name)
+      if (!hooks) {
+        continue
+      }
+
+      for (const when of ['before', 'after'] as const) {
+        for (const [method, hookList] of Object.entries(hooks[when])) {
+          for (const [hookId, config] of hookList) {
+            const hook = this.hooksRegistry.get(hookId)
+            if (!hook) {
+              throw new Error(`No hook with id: "${hookId}" exists.`)
+            }
+
+            pipeline.hook(when, method as Method, hook.run, config)
+          }
+        }
+      }
+    }
+  }
+
   async static() {
     await this.init()
   }
 }
 
 export default App
-export { Pipeline }
+export { Pipeline, INTERNAL_PATHS }
 export type { Handle, Service }
