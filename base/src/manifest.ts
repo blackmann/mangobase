@@ -30,8 +30,8 @@ type Hooks = {
 }
 
 class Manifest {
-  collections: Record<string, CollectionConfig> = {}
-  hooks: Record<string, Hooks> = {}
+  private collectionsIndex: Record<string, CollectionConfig> = {}
+  private hooksIndex: Record<string, Hooks> = {}
 
   private initialize: Promise<void>
 
@@ -43,27 +43,34 @@ class Manifest {
     return this.initialize
   }
 
-  async load() {
-    const dir = Manifest.getDirectory()
+  private async load() {
     try {
-      const collectionsJSON = await readFile(
-        [dir, COLLECTIONS_FILE].join('/'),
-        {
-          encoding: 'utf-8',
-        }
-      )
-      this.collections = JSON.parse(collectionsJSON)
-
-      const hooksJSON = await readFile([dir, HOOKS_FILE].join('/'), {
-        encoding: 'utf-8',
-      })
-      this.hooks = JSON.parse(hooksJSON)
+      await Promise.allSettled([this.loadCollections, this.loadHooks])
     } catch (err) {
       if (err instanceof Error && err.message.includes('ENOENT')) {
         // Ignore, file doesn't exist
         // TODO: Make resilient, each load, each try
+        return
       }
+
+      console.error(err)
     }
+  }
+
+  private async loadCollections() {
+    const dir = Manifest.getDirectory()
+    const collectionsJSON = await readFile([dir, COLLECTIONS_FILE].join('/'), {
+      encoding: 'utf-8',
+    })
+    this.collectionsIndex = JSON.parse(collectionsJSON)
+  }
+
+  private async loadHooks() {
+    const dir = Manifest.getDirectory()
+    const hooksJSON = await readFile([dir, HOOKS_FILE].join('/'), {
+      encoding: 'utf-8',
+    })
+    this.hooksIndex = JSON.parse(hooksJSON)
   }
 
   async collection(
@@ -73,26 +80,33 @@ class Manifest {
     await this.init()
 
     if (!config) {
-      return this.collections[name]
+      return this.collectionsIndex[name]
     }
 
-    this.collections[name] = config
+    this.collectionsIndex[name] = config
     await this.save()
 
     return config
   }
 
-  getHooks(collection: string) {
-    return this.hooks[collection]
+  async collections() {
+    await this.init()
+    return Object.values(this.collectionsIndex)
+  }
+
+  async getHooks(collection: string) {
+    await this.init()
+    return this.hooksIndex[collection]
   }
 
   async removeCollection(name: string) {
     await this.init()
-    delete this.collections[name]
+    delete this.collectionsIndex[name]
     await this.save()
   }
 
   async save(env?: string) {
+    await this.init()
     const dir = Manifest.getDirectory(env)
 
     try {
@@ -101,7 +115,7 @@ class Manifest {
       await mkdir(dir)
     }
 
-    const collectionsJson = JSON.stringify(this.collections, undefined, 2)
+    const collectionsJson = JSON.stringify(this.collectionsIndex, undefined, 2)
     await writeFile([dir, COLLECTIONS_FILE].join('/'), collectionsJson, {
       encoding: 'utf-8',
     })

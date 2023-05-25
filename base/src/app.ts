@@ -170,7 +170,7 @@ const collectionsService: Service & { schema: Schema } = {
         return ctx
       }
       case 'find': {
-        const collections = Object.values(app.manifest.collections)
+        const collections = await app.manifest.collections()
         ctx.result = collections
         return ctx
       }
@@ -253,6 +253,8 @@ class App {
     this.initialize = (async () => {
       this.addService('collections', collectionsService)
       this.addService('hooks-registry', hooksService)
+
+      this.installCollectionsServices()
     })()
   }
 
@@ -309,14 +311,14 @@ class App {
   }
 
   async installCollectionsServices() {
-    const collections = Object.values(this.manifest.collections)
+    const collections = await this.manifest.collections()
     for (const collection of collections) {
       const pipeline = this.use(
         collection.name,
         new CollectionService(this, collection.name)
       )
 
-      const hooks = this.manifest.getHooks(collection.name)
+      const hooks = await this.manifest.getHooks(collection.name)
       if (!hooks) {
         continue
       }

@@ -811,4 +811,28 @@ describe('schema', () => {
       expect(schema.validate({}, false, true)).toStrictEqual({})
     })
   })
+
+  describe('schema validation', () => {
+    it('validates', () => {
+      const schema = {
+        address: {
+          schema: {
+            line1: { required: true, type: 'string' },
+            line2: { type: 'string' },
+            movedOn: { type: 'date' },
+            rented: { defaultValue: true, type: 'boolean' },
+          },
+          type: 'object',
+        },
+        age: { type: 'number' },
+        comment: { type: 'any' },
+        createdAt: { type: 'date' },
+        fullname: { required: true, type: 'string' },
+        happy: { type: 'boolean' },
+        region: { relation: 'region', type: 'id' },
+      }
+
+      expect(() => Schema.validateSchema(schema)).not.toThrow()
+    })
+  })
 })

@@ -1,6 +1,7 @@
 import App, { Service } from './app'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { Database } from './database'
+import { context } from './context'
 
 const db = {} as unknown as Database
 
@@ -29,24 +30,14 @@ describe('app', () => {
 
       app.use('mock-1', service)
 
-      const ctx = await app.serve({
-        headers: {},
-        method: 'find',
-        path: 'mock-1',
-        query: {},
-      })
+      const ctx = await app.serve(context({ path: 'mock-1' }))
 
       expect(ctx.statusCode).toBe(200)
       expect(ctx.result).toStrictEqual({ _id: 'mock-1' })
     })
 
     it('returns 404 when no service exists', async () => {
-      const ctx = await app.serve({
-        headers: {},
-        method: 'find',
-        path: 'unknown-1',
-        query: {},
-      })
+      const ctx = await app.serve(context({ path: 'unknown-1' }))
 
       expect(ctx.statusCode).toBe(404)
     })
@@ -71,12 +62,7 @@ describe('pipeline', () => {
           throw new Error('validation maybe')
         })
 
-        const ctx = await pipeline.run({
-          headers: {},
-          method: 'find',
-          path: '',
-          query: {},
-        })
+        const ctx = await pipeline.run(context({}))
 
         expect(firstHook).toHaveBeenCalled()
         expect(ctx.statusCode).toBe(500)
@@ -98,12 +84,7 @@ describe('pipeline', () => {
           .before('find', secondHook)
           .before('find', lastHook)
 
-        const ctx = await pipeline.run({
-          headers: {},
-          method: 'find',
-          path: '',
-          query: {},
-        })
+        const ctx = await pipeline.run(context({}))
 
         expect(lastHook).not.toHaveBeenCalled()
         expect(firstHook).toHaveBeenCalled()
@@ -116,12 +97,7 @@ describe('pipeline', () => {
         const pipeline = app.use('mock-3', service)
         mockHandle.mockImplementation(async (ctx) => ctx)
 
-        const ctx = await pipeline.run({
-          headers: {},
-          method: 'find',
-          path: '',
-          query: {},
-        })
+        const ctx = await pipeline.run(context({}))
 
         expect(ctx.statusCode).toBe(404)
       })
@@ -139,12 +115,7 @@ describe('pipeline', () => {
           throw new Error('effect error')
         })
 
-        const ctx = await pipeline.run({
-          headers: {},
-          method: 'find',
-          path: '',
-          query: {},
-        })
+        const ctx = await pipeline.run(context({}))
 
         expect(ctx.result.error).toBe('Unknown error')
       })
@@ -162,6 +133,7 @@ describe('collections service', () => {
           schema: {},
         },
         headers: {},
+        locals: {},
         method: 'create',
         path: 'collections',
         query: {},
@@ -180,6 +152,7 @@ describe('collections service', () => {
           },
         },
         headers: {},
+        locals: {},
         method: 'create',
         path: 'collections',
         query: {},
@@ -199,6 +172,7 @@ describe('collections service', () => {
     it('returns saved collections', async () => {
       const res = await app.serve({
         headers: {},
+        locals: {},
         method: 'find',
         path: 'collections',
         query: {},
@@ -226,6 +200,7 @@ describe('collections service', () => {
     it('returns collection', async () => {
       const res = await app.serve({
         headers: {},
+        locals: {},
         method: 'get',
         path: 'collections/people',
         query: {},
@@ -247,12 +222,9 @@ describe('collections service', () => {
     })
 
     it('returns 404 if not found', async () => {
-      const res = await app.serve({
-        headers: {},
-        method: 'get',
-        path: 'collections/persons',
-        query: {},
-      })
+      const res = await app.serve(
+        context({ method: 'get', path: 'collections/persons' })
+      )
 
       expect(res.statusCode).toBe(404)
     })
@@ -260,38 +232,38 @@ describe('collections service', () => {
 
   describe('patch collection', () => {
     it('updates the collection correctly', async () => {
-      const existing = await app.serve({
-        headers: {},
-        method: 'find', // this will be turned into `get`
-        path: 'collections/people',
-        query: {},
-      })
+      const existing = await app.serve(
+        context({
+          method: 'find', // this will be turned into `get`
+          path: 'collections/people',
+        })
+      )
 
       expect(existing.result.exposed).toBe(true)
 
-      const res = await app.serve({
-        data: {
-          exposed: false,
-        },
-        headers: {},
-        method: 'patch',
-        path: 'collections/people',
-        query: {},
-      })
+      const res = await app.serve(
+        context({
+          data: {
+            exposed: false,
+          },
+          method: 'patch',
+          path: 'collections/people',
+        })
+      )
 
       expect(res.result.exposed).toBe(false)
     })
 
     it('returns 404 if the collection is not found', async () => {
-      const res = await app.serve({
-        data: {
-          exposed: false,
-        },
-        headers: {},
-        method: 'patch',
-        path: 'collections/persons',
-        query: {},
-      })
+      const res = await app.serve(
+        context({
+          data: {
+            exposed: false,
+          },
+          method: 'patch',
+          path: 'collections/persons',
+        })
+      )
 
       expect(res.statusCode).toBe(404)
     })
@@ -299,32 +271,47 @@ describe('collections service', () => {
 
   describe('remove collection', () => {
     it('removes collection', async () => {
-      const existing = await app.serve({
-        headers: {},
-        method: 'find',
-        path: 'collections',
-        query: {},
-      })
+      const existing = await app.serve(
+        context({
+          method: 'find',
+          path: 'collections',
+        })
+      )
 
       expect(existing.result).toHaveLength(1)
 
-      const res = await app.serve({
-        headers: {},
-        method: 'remove',
-        path: 'collections/people',
-        query: {},
-      })
+      const res = await app.serve(
+        context({
+          method: 'remove',
+          path: 'collections/people',
+        })
+      )
 
       expect(res.statusCode).toBe(200)
 
-      const list = await app.serve({
-        headers: {},
-        method: 'find',
-        path: 'collections',
-        query: {},
-      })
+      const list = await app.serve(context({ path: 'collections' }))
 
       expect(list.result).toHaveLength(0)
+    })
+  })
+
+  describe('hooks service', () => {
+    beforeAll(() => {
+      app.hooksRegistry.register({
+        id: 'stash-data',
+        name: 'Stash Data',
+        run: async (ctx) => {
+          ctx.locals.data = ctx.data
+          return ctx
+        },
+      })
+    })
+
+    it('list hooks', async () => {
+      const res = await app.serve(context({ path: 'hooks-registry' }))
+      expect(res.result).toStrictEqual([
+        { id: 'stash-data', name: 'Stash Data', run: expect.anything() },
+      ])
     })
   })
 })

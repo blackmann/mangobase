@@ -510,7 +510,10 @@ class Schema {
         }
 
         case 'boolean': {
-          if (typeof definition.defaultValue !== 'boolean') {
+          if (
+            typeof definition.defaultValue !== 'undefined' &&
+            typeof definition.defaultValue !== 'boolean'
+          ) {
             throw new ValidationError(
               fieldPath,
               '`defaultValue` should be a boolean'
