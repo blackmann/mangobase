@@ -1,24 +1,23 @@
 {
-  "name": "mangobase",
+  "name": "mangobase-mongodb",
   "version": "1.0.0",
-  "description": "Low-code backend framework",
-  "main": "dist/index.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist && node ./build.mjs && tsc",
     "test": "vitest"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "mangobase": "*"
+  },
   "devDependencies": {
     "@vitest/coverage-c8": "^0.31.0",
     "@vitest/ui": "^0.31.0",
-    "esbuild": "^0.17.19",
     "eslint-config-base": "*",
+    "mongodb-memory-server-core": "^8.12.2",
     "typescript": "^5.0.4",
     "vitest": "^0.31.1"
-  },
-  "dependencies": {
-    "mongodb": "^5.5.0",
-    "radix3": "^1.0.1"
   }
 }

@@ -1,6 +1,5 @@
-import { Cursor, Database } from './database'
+import { Cursor, Database, DefinitionType } from 'mangobase'
 import { Db, FindCursor, FindOptions, MongoClient, ObjectId } from 'mongodb'
-import { DefinitionType } from './schema'
 
 interface Filters {
   limit?: number

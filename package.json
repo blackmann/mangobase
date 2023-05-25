@@ -1,18 +1,21 @@
 {
-  "name": "mangobase",
+  "name": "mangobase-monorepo",
   "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:base": "yarn workspace mangobase run test"
+    "test:base": "yarn workspace mangobase run test",
+    "test:mongodb": "yarn workspace mangobase-mongodb run test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "workspaces": [
     "base",
-    "eslint-config-base"
+    "eslint-config-base",
+    "express-server",
+    "mongo-db"
   ],
   "devDependencies": {
     "prettier": "^2.8.8"
