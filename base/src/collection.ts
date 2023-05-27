@@ -111,11 +111,7 @@ class Collection {
   }
 
   async remove(id: string | string[]) {
-    id = Array.isArray(id)
-      ? id.map((item) => this.db.cast(item, 'id'))
-      : this.db.cast(id, 'id')
-
-    return this.db.remove(this.name, id)
+    return await this.db.remove(this.name, id)
   }
 
   async patch(id: string | string[], data: Data, filter: Filter) {

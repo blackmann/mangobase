@@ -17,6 +17,7 @@ import Method from './method'
 import { createRouter } from 'radix3'
 
 const INTERNAL_PATHS = ['collections', 'hooks']
+const DEV = ['development', undefined].includes(process.env.NODE_ENV)
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
 
@@ -124,7 +125,7 @@ class Pipeline {
       return new BadRequest(err.message, err.detail)
     }
 
-    console.error(err)
+    DEV && console.error(err)
 
     return new InternalServerError(`Unknown error: ${err.message}`, err)
   }
@@ -178,7 +179,7 @@ const collectionsService: Service & { schema: Schema } = {
 
         const collection = await app.manifest.collection(data.name, data)
 
-        // TODO: Register this service
+        app.use(collection.name, new CollectionService(app, collection.name))
 
         ctx.result = collection
         ctx.statusCode = 201
