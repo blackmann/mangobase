@@ -123,7 +123,9 @@ class Pipeline {
       return new BadRequest(err.message, err.detail)
     }
 
-    return new InternalServerError('Unknown error', err)
+    console.error(err)
+
+    return new InternalServerError(`Unknown error: ${err.message}`, err)
   }
 
   static stubHooks(): Hooks {
@@ -158,6 +160,12 @@ const collectionsService: Service & { schema: Schema } = {
   async handle(ctx: Context, app: App) {
     switch (ctx.method) {
       case 'create': {
+        if (ctx.params?.id) {
+          throw new MethodNotAllowed(
+            '`create` method not allowed on detail path'
+          )
+        }
+
         const data = this.schema.validate(ctx.data, true)
         Schema.validateSchema(data.schema)
 
@@ -169,6 +177,7 @@ const collectionsService: Service & { schema: Schema } = {
         ctx.statusCode = 201
         return ctx
       }
+
       case 'find': {
         const collections = await app.manifest.collections()
         ctx.result = collections
@@ -183,6 +192,10 @@ const collectionsService: Service & { schema: Schema } = {
       }
 
       case 'patch': {
+        if (!ctx.params?.id) {
+          throw new MethodNotAllowed('`patch` method not allowed on base path')
+        }
+
         const existing = await app.manifest.collection(ctx.params!.id)
 
         if (!existing) {
@@ -291,7 +304,7 @@ class App {
     this.routes.insert(path, { pipeline })
   }
 
-  async serve(ctx: Context): Promise<Context> {
+  async api(ctx: Context): Promise<Context> {
     await this.init()
 
     const route = this.routes.lookup(ctx.path)
@@ -338,8 +351,12 @@ class App {
     }
   }
 
-  async static() {
+  async admin() {
     await this.init()
+  }
+
+  serve<T>(server: (app: App) => T): T {
+    return server(this)
   }
 }
 

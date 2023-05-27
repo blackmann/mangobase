@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
+  "files": ["dist/index.js"],
   "scripts": {
-    "build": "rm -rf dist && node ./build.mjs && tsc",
+    "build": "rm -rf dist && node ./build.mjs && tsc -p tsconfig.build.json",
     "test": "vitest"
   },
   "author": "",

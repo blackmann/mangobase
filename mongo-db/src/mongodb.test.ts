@@ -105,8 +105,8 @@ describe('mongodb', () => {
       const users = await db.find('users_populate', {}).exec()
 
       db.create('posts_populate', [
-        { title: 'Post 1', author: users[0]._id },
-        { title: 'Post 2', author: users[1]._id },
+        { author: users[0]._id, title: 'Post 1' },
+        { author: users[1]._id, title: 'Post 2' },
       ]).exec()
     })
 
@@ -124,17 +124,17 @@ describe('mongodb', () => {
       expect(await cursor.exec()).toStrictEqual([
         {
           _id: expect.anything(),
-          title: 'Post 1',
           author: {
             _id: expect.anything(),
             name: 'John',
             school: { _id: expect.anything(), name: 'School 1' },
           },
+          title: 'Post 1',
         },
         {
           _id: expect.anything(),
-          title: 'Post 2',
           author: { _id: expect.anything(), name: 'Jane' },
+          title: 'Post 2',
         },
       ])
     })

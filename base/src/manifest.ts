@@ -45,7 +45,7 @@ class Manifest {
 
   private async load() {
     try {
-      await Promise.allSettled([this.loadCollections, this.loadHooks])
+      await Promise.allSettled([this.loadCollections(), this.loadHooks()])
     } catch (err) {
       if (err instanceof Error && err.message.includes('ENOENT')) {
         // Ignore, file doesn't exist
@@ -122,7 +122,7 @@ class Manifest {
   }
 
   static getDirectory(env?: string) {
-    return `.mb_${env || process.env.NODE_ENV}`
+    return `.mb_${env || process.env.NODE_ENV || 'development'}`
   }
 }
 

@@ -1,0 +1,17 @@
+{
+  "name": "base-express-mongo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mangobase": "*",
+    "mangobase-express-server": "*",
+    "mangobase-mongodb": "*"
+  }
+}

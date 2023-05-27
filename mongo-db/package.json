@@ -2,8 +2,9 @@
   "name": "mangobase-mongodb",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "rm -rf dist && node ./build.mjs && tsc -p tsconfig.build.json",
     "test": "vitest"
   },
   "keywords": [],
@@ -16,8 +17,12 @@
     "@vitest/coverage-c8": "^0.31.0",
     "@vitest/ui": "^0.31.0",
     "eslint-config-base": "*",
+    "mongodb": "^5.5.0",
     "mongodb-memory-server-core": "^8.12.2",
     "typescript": "^5.0.4",
     "vitest": "^0.31.1"
+  },
+  "peerDependencies": {
+    "mongodb": "^5.5.0"
   }
 }

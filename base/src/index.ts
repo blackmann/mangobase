@@ -2,9 +2,11 @@ export { default as App, Pipeline } from './app'
 export { default as CollectionService } from './collection-service'
 export { default as Collection } from './collection'
 export { context } from './context'
-export { default as HookRegistry } from './hooks-registry'
+export { default as HooksRegistry } from './hooks-registry'
 export { default as Manifest } from './manifest'
 export { default as Schema, ValidationError } from './schema'
+
+export { default as methodFromHttp } from './lib/method-from-http'
 
 export type { Handle, Service } from './app'
 export type { Filter, FilterOperators, Query } from './collection'

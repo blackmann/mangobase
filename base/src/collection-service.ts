@@ -1,6 +1,6 @@
 import App, { Service } from './app'
 import Collection, { Filter } from './collection'
-import { BadRequest } from './errors'
+import { BadRequest, MethodNotAllowed } from './errors'
 import type { Context } from './context'
 import { ValidationError } from './schema'
 
@@ -48,6 +48,14 @@ class CollectionService implements Service {
   }
 
   async create(ctx: Context): Promise<Context> {
+    if (!ctx.data) {
+      throw new ValidationError('[data]', '`data` is required')
+    }
+
+    if (ctx.params?.id) {
+      throw new MethodNotAllowed('`create` method not allowed on detail path')
+    }
+
     try {
       const result = await this.collection.create(
         ctx.data,
@@ -87,6 +95,10 @@ class CollectionService implements Service {
   }
 
   async patch(ctx: Context): Promise<Context> {
+    if (!ctx.params?.id) {
+      throw new MethodNotAllowed('`patch` method not allowed on base path')
+    }
+
     const result = await this.collection.patch(
       ctx.params!.id!,
       ctx.data!,

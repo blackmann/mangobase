@@ -30,14 +30,14 @@ describe('app', () => {
 
       app.use('mock-1', service)
 
-      const ctx = await app.serve(context({ path: 'mock-1' }))
+      const ctx = await app.api(context({ path: 'mock-1' }))
 
       expect(ctx.statusCode).toBe(200)
       expect(ctx.result).toStrictEqual({ _id: 'mock-1' })
     })
 
     it('returns 404 when no service exists', async () => {
-      const ctx = await app.serve(context({ path: 'unknown-1' }))
+      const ctx = await app.api(context({ path: 'unknown-1' }))
 
       expect(ctx.statusCode).toBe(404)
     })
@@ -128,7 +128,7 @@ describe('collections service', () => {
 
   describe('when collection is created', () => {
     it('returns with error', async () => {
-      const res = await app.serve({
+      const res = await app.api({
         data: {
           schema: {},
         },
@@ -143,7 +143,7 @@ describe('collections service', () => {
     })
 
     it('returns created collection', async () => {
-      const res = await app.serve({
+      const res = await app.api({
         data: {
           name: 'people',
           schema: {
@@ -170,7 +170,7 @@ describe('collections service', () => {
 
   describe('get collections', () => {
     it('returns saved collections', async () => {
-      const res = await app.serve({
+      const res = await app.api({
         headers: {},
         locals: {},
         method: 'find',
@@ -198,7 +198,7 @@ describe('collections service', () => {
 
   describe('get collection', () => {
     it('returns collection', async () => {
-      const res = await app.serve({
+      const res = await app.api({
         headers: {},
         locals: {},
         method: 'get',
@@ -222,7 +222,7 @@ describe('collections service', () => {
     })
 
     it('returns 404 if not found', async () => {
-      const res = await app.serve(
+      const res = await app.api(
         context({ method: 'get', path: 'collections/persons' })
       )
 
@@ -232,7 +232,7 @@ describe('collections service', () => {
 
   describe('patch collection', () => {
     it('updates the collection correctly', async () => {
-      const existing = await app.serve(
+      const existing = await app.api(
         context({
           method: 'find', // this will be turned into `get`
           path: 'collections/people',
@@ -241,7 +241,7 @@ describe('collections service', () => {
 
       expect(existing.result.exposed).toBe(true)
 
-      const res = await app.serve(
+      const res = await app.api(
         context({
           data: {
             exposed: false,
@@ -255,7 +255,7 @@ describe('collections service', () => {
     })
 
     it('returns 404 if the collection is not found', async () => {
-      const res = await app.serve(
+      const res = await app.api(
         context({
           data: {
             exposed: false,
@@ -271,7 +271,7 @@ describe('collections service', () => {
 
   describe('remove collection', () => {
     it('removes collection', async () => {
-      const existing = await app.serve(
+      const existing = await app.api(
         context({
           method: 'find',
           path: 'collections',
@@ -280,7 +280,7 @@ describe('collections service', () => {
 
       expect(existing.result).toHaveLength(1)
 
-      const res = await app.serve(
+      const res = await app.api(
         context({
           method: 'remove',
           path: 'collections/people',
@@ -289,7 +289,7 @@ describe('collections service', () => {
 
       expect(res.statusCode).toBe(200)
 
-      const list = await app.serve(context({ path: 'collections' }))
+      const list = await app.api(context({ path: 'collections' }))
 
       expect(list.result).toHaveLength(0)
     })
@@ -308,7 +308,7 @@ describe('collections service', () => {
     })
 
     it('list hooks', async () => {
-      const res = await app.serve(context({ path: 'hooks-registry' }))
+      const res = await app.api(context({ path: 'hooks-registry' }))
       expect(res.result).toStrictEqual([
         { id: 'stash-data', name: 'Stash Data', run: expect.anything() },
       ])
