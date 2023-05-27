@@ -1,5 +1,6 @@
 import {
   BadRequest,
+  Conflict,
   InternalServerError,
   MethodNotAllowed,
   NotFound,
@@ -163,6 +164,12 @@ const collectionsService: Service & { schema: Schema } = {
         if (ctx.params?.id) {
           throw new MethodNotAllowed(
             '`create` method not allowed on detail path'
+          )
+        }
+
+        if (await app.manifest.collection(ctx.data?.name)) {
+          throw new Conflict(
+            `A collection with name \`${ctx.data?.name}\` already exists`
           )
         }
 

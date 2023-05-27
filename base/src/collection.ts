@@ -119,10 +119,6 @@ class Collection {
   }
 
   async patch(id: string | string[], data: Data, filter: Filter) {
-    id = Array.isArray(id)
-      ? id.map((item) => this.db.cast(item, 'id'))
-      : this.db.cast(id, 'id')
-
     data = (await this.schema).validate(data, false, true)
 
     const allowedFilters: Filter = {

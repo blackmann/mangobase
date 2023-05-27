@@ -14,6 +14,11 @@ class BadRequest extends ServiceError {
   statusCode = 400
 }
 
+class Conflict extends ServiceError {
+  name = 'Conflict'
+  statusCode = 409
+}
+
 class InternalServerError extends ServiceError {
   name = 'InternalServerError'
   statusCode = 500
@@ -31,6 +36,7 @@ class NotFound extends ServiceError {
 
 export {
   BadRequest,
+  Conflict,
   InternalServerError,
   MethodNotAllowed,
   NotFound,

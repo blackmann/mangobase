@@ -118,9 +118,11 @@ class MongoCursor implements Cursor {
             id.map((i) => i.toHexString()).includes(r._id.toHexString())
           )
         } else {
-          objectToPopulate[field] = collectionResults.find(
+          const instance = collectionResults.find(
             (r: any) => r._id.toHexString() === id.toHexString()
           )
+
+          objectToPopulate[field] = instance || id
         }
       }
     }

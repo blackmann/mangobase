@@ -179,7 +179,7 @@ describe('collections', () => {
       mockDb.patch.mockReturnValue(cursor)
       const res = await collection.patch('10', {}, {})
 
-      expect(mockDb.patch).toHaveBeenCalledWith('mock', 10, {})
+      expect(mockDb.patch).toHaveBeenCalledWith('mock', '10', {})
       expect(res).toStrictEqual({ _id: 10 })
     })
 
@@ -189,7 +189,7 @@ describe('collections', () => {
       mockDb.patch.mockReturnValue(cursor)
       const res = await collection.patch(['10', '11'], {}, {})
 
-      expect(mockDb.patch).toHaveBeenCalledWith('mock', [10, 11], {})
+      expect(mockDb.patch).toHaveBeenCalledWith('mock', ['10', '11'], {})
       expect(res).toStrictEqual([{ _id: 10 }, { _id: 11 }])
     })
 

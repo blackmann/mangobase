@@ -66,7 +66,7 @@ describe('pipeline', () => {
 
         expect(firstHook).toHaveBeenCalled()
         expect(ctx.statusCode).toBe(500)
-        expect(ctx.result.error).toBe('Unknown error')
+        expect(ctx.result.error).toBe('Unknown error: validation maybe')
       })
 
       it('does not call subsequent hooks after result set', async () => {
@@ -117,7 +117,7 @@ describe('pipeline', () => {
 
         const ctx = await pipeline.run(context({}))
 
-        expect(ctx.result.error).toBe('Unknown error')
+        expect(ctx.result.error).toBe('Unknown error: effect error')
       })
     })
   })
