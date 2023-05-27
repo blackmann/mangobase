@@ -1,6 +1,6 @@
 import App, { Service } from './app'
-import Collection, { Filter } from './collection'
 import { BadRequest, MethodNotAllowed } from './errors'
+import Collection, { Filter } from './collection'
 import type { Context } from './context'
 import { ValidationError } from './schema'
 
