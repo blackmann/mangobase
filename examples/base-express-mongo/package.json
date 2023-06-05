@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "mangobase": "*",
-    "mangobase-express-server": "*",
-    "mangobase-mongodb": "*"
+    "@mangobase/express-server": "*",
+    "@mangobase/mongodb": "*"
   }
 }

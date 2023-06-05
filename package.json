@@ -6,12 +6,13 @@
   "main": "index.js",
   "scripts": {
     "build:base": "yarn workspace mangobase run build",
-    "build:express-server": "yarn workspace mangobase-express-server run build",
-    "build:mongodb": "yarn workspace mangobase-mongodb run build",
+    "build:express-server": "yarn workspace @mangobase/express-server run build",
+    "build:mongodb": "yarn workspace @mangobase/mongodb run build",
     "build": "yarn build:base && yarn build:express-server && yarn build:mongodb",
+    "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
     "test:base": "yarn workspace mangobase run test",
-    "test:mongodb": "yarn workspace mangobase-mongodb run test",
+    "test:mongodb": "yarn workspace @mangobase/mongodb run test",
     "test": "yarn test:base -w false && yarn test:mongodb -w false"
   },
   "keywords": [],

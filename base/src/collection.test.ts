@@ -40,7 +40,7 @@ const mockManifest: MockedObject<Manifest> = {
         },
       }
   ),
-  collections: {},
+  collections: vi.fn(async () => <CollectionConfig[]>[]),
   removeCollection: vi.fn(),
   save: vi.fn(),
 }
@@ -165,10 +165,10 @@ describe('collections', () => {
       mockDb.remove.mockResolvedValue()
 
       await collection.remove(['5', '6'])
-      expect(mockDb.remove).toHaveBeenCalledWith('mock', [5, 6])
+      expect(mockDb.remove).toHaveBeenCalledWith('mock', ['5', '6'])
 
       await collection.remove('5')
-      expect(mockDb.remove).toHaveBeenCalledWith('mock', 5)
+      expect(mockDb.remove).toHaveBeenCalledWith('mock', '5')
     })
   })
 
@@ -179,7 +179,9 @@ describe('collections', () => {
       mockDb.patch.mockReturnValue(cursor)
       const res = await collection.patch('10', {}, {})
 
-      expect(mockDb.patch).toHaveBeenCalledWith('mock', '10', {})
+      expect(mockDb.patch).toHaveBeenCalledWith('mock', '10', {
+        updated_at: expect.any(Date),
+      })
       expect(res).toStrictEqual({ _id: 10 })
     })
 
@@ -189,7 +191,9 @@ describe('collections', () => {
       mockDb.patch.mockReturnValue(cursor)
       const res = await collection.patch(['10', '11'], {}, {})
 
-      expect(mockDb.patch).toHaveBeenCalledWith('mock', ['10', '11'], {})
+      expect(mockDb.patch).toHaveBeenCalledWith('mock', ['10', '11'], {
+        updated_at: expect.any(Date),
+      })
       expect(res).toStrictEqual([{ _id: 10 }, { _id: 11 }])
     })
 

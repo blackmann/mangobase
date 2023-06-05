@@ -60,11 +60,19 @@ class Collection {
   }
 
   async create(data: Data | Data[], filter: Filter = {}) {
+    const timestamps = {
+      created_at: this.db.cast(new Date(), 'date'),
+      updated_at: this.db.cast(new Date(), 'date'),
+    }
+
     const validatedData = Array.isArray(data)
       ? await Promise.all(
-          data.map(async (item) => (await this.schema).validate(item))
+          data.map(async (item) => {
+            const validated = (await this.schema).validate(item)
+            return { ...validated, ...timestamps }
+          })
         )
-      : (await this.schema).validate(data, true)
+      : { ...(await this.schema).validate(data, true), ...timestamps }
 
     const cursor = this.db.create(this.name, validatedData)
     const allowedFilters: Filter = {
@@ -122,7 +130,10 @@ class Collection {
       $select: filter.$select,
     }
 
-    const cursor = this.db.patch(this.name, id, data)
+    const cursor = this.db.patch(this.name, id, {
+      ...data,
+      updated_at: this.db.cast(new Date(), 'date'),
+    })
     this.applyFilter(cursor, allowedFilters)
 
     const results = await cursor.exec()
