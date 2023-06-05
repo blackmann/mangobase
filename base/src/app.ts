@@ -334,6 +334,8 @@ class App {
   async installCollectionsServices() {
     const collections = await this.manifest.collections()
     for (const collection of collections) {
+      if (!collection.exposed) continue
+
       const pipeline = this.use(
         collection.name,
         new CollectionService(this, collection.name)
