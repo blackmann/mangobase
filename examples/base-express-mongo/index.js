@@ -1,6 +1,6 @@
 const { App } = require('mangobase')
-const MongoDB = require('mangobase-mongodb').default
-const expressServer = require('mangobase-express-server').default
+const MongoDB = require('@mangobase/mongodb').default
+const expressServer = require('@mangobase/express-server').default
 
 const app = new App({
   db: new MongoDB('mongodb://127.0.0.1:27017/mangobase-demo'),

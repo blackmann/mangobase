@@ -361,8 +361,13 @@ class App {
     }
   }
 
-  async admin() {
+  async admin(path: string, queryParams?: string) {
     await this.init()
+
+    const trimmedPath = path.replace(/^\//, '')
+    const fileDir = __dirname + '/admin/' + trimmedPath
+
+    return fileDir
   }
 
   serve<T>(server: (app: App) => T): T {
