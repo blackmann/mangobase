@@ -1,4 +1,12 @@
+import { NavLink } from 'react-router-dom'
+import collections, { loadCollections } from '../lib/collections'
+import React from 'preact/compat'
+
 function CollectionsPage() {
+  React.useEffect(() => {
+    loadCollections()
+  }, [])
+
   return (
     <div>
       <nav>
@@ -17,7 +25,11 @@ function CollectionsPage() {
           </div>
         </header>
         <ul>
-          Something here
+          {collections.value.map((collection) => (
+            <li key={collection.name}>
+              <NavLink to={collection.name}>{collection.name}</NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>

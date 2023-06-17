@@ -1,10 +1,12 @@
 import express from 'express'
 import type { App } from 'mangobase'
 import { context, methodFromHttp } from 'mangobase'
+import cors from 'cors'
 
 function expressServer(mangobaseApp: App) {
   const app = express()
 
+  app.use(cors())
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
