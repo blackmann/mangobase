@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf dist && node ./build.mjs && tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "build": "node ./build.mjs && tsc -p tsconfig.build.json",
     "test": "vitest"
   },
   "keywords": [],

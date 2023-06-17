@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build:admin": "yarn workspace @mangobase/admin run build",
-    "build:base": "yarn build:admin && yarn workspace mangobase run build && cp -R admin/dist base/dist/admin",
+    "build:base": "yarn workspace mangobase run build",
     "build:express-server": "yarn workspace @mangobase/express-server run build",
     "build:mongodb": "yarn workspace @mangobase/mongodb run build",
     "build": "yarn build:base && yarn build:express-server && yarn build:mongodb",
@@ -28,6 +28,7 @@
     "examples/*"
   ],
   "devDependencies": {
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "turbo": "^1.10.3"
   }
 }

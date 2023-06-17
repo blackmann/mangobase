@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
-  "files": ["dist/index.js"],
+  "files": [
+    "dist/index.js"
+  ],
   "scripts": {
-    "build": "rm -rf dist && node ./build.mjs && tsc -p tsconfig.build.json",
-    "test": "vitest"
+    "clean": "rm -rf dist",
+    "build": "node ./build.mjs && tsc -p tsconfig.build.json",
+    "test": "vitest",
+    "copy-admin": "cp -R ../admin/dist dist/admin"
   },
   "author": "",
   "license": "ISC",

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "clean": {
+      "cache": false
+    },
+    "build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "express-server#build": {
+      "outputs": ["express-server/dist/**"],
+      "dependsOn": ["build"]
+    },
+    "copy-admin": {
+      "dependsOn": ["build"],
+      "outputs": ["base/dist/admin/**"]
+    }
+  }
+}
