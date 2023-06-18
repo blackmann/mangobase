@@ -1,11 +1,16 @@
 import { NavLink } from 'react-router-dom'
 import collections, { loadCollections } from '../lib/collections'
 import React from 'preact/compat'
+import CollectionForm from '../components/collection-form'
 
 function CollectionsPage() {
+  const [showCollectionForm, setShowCollectionForm] = React.useState(false)
+
   React.useEffect(() => {
     loadCollections()
   }, [])
+
+  console.log(showCollectionForm)
 
   return (
     <div>
@@ -21,9 +26,16 @@ function CollectionsPage() {
               placeholder="Find collection"
             />
 
-            <button>Add new collection</button>
+            <button onClick={() => setShowCollectionForm(true)}>
+              Add new collection
+            </button>
           </div>
         </header>
+
+        <dialog open={showCollectionForm}>
+          <CollectionForm onHide={() => setShowCollectionForm(false)}/>
+        </dialog>
+
         <ul>
           {collections.value.map((collection) => (
             <li key={collection.name}>
