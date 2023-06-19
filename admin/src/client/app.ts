@@ -17,6 +17,11 @@ class App {
     return data.map((it: CollectionProps) => new Collection(this, it))
   }
 
+  async collection(name: string): Promise<Collection> {
+    const {data} = await this.req.get(`collections/${name}`)
+    return new Collection(this, data)
+  }
+
   async addCollection(collection: any) {
     const { data } = await this.req.post('collections', collection)
     return new Collection(this, data)

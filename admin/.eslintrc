@@ -2,5 +2,9 @@
   "extends": ["base", "preact"],
   "parserOptions": {
     "project": "./tsconfig.json"
+  },
+  "rules": {
+    "sort-imports": "warn",
+    "sort-keys": "warn"
   }
 }

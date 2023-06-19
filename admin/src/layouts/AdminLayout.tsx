@@ -1,7 +1,4 @@
-import React from 'preact/compat'
-import { NavLink } from 'react-router-dom'
-
-interface Props extends React.PropsWithChildren {}
+import { NavLink, Outlet } from 'react-router-dom'
 
 const navLinks = [
   {
@@ -22,7 +19,7 @@ const navLinks = [
   },
 ]
 
-function AdminLayout({ children }: Props) {
+function AdminLayout() {
   return (
     <div>
       <nav>
@@ -34,7 +31,7 @@ function AdminLayout({ children }: Props) {
           ))}
         </ul>
       </nav>
-      <main>{children}</main>
+      <main><Outlet /></main>
     </div>
   )
 }

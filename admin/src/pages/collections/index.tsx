@@ -1,7 +1,7 @@
-import { NavLink } from 'react-router-dom'
-import collections, { loadCollections } from '../data/collections'
+import { NavLink, Outlet } from 'react-router-dom'
+import collections, { loadCollections } from '../../data/collections'
 import React from 'preact/compat'
-import CollectionForm from '../components/collection-form'
+import CollectionForm from '../../components/collection-form'
 
 function CollectionsPage() {
   const [showCollectionForm, setShowCollectionForm] = React.useState(false)
@@ -42,6 +42,8 @@ function CollectionsPage() {
           ))}
         </ol>
       </nav>
+
+      <Outlet />
     </div>
   )
 }
