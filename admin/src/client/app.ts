@@ -16,6 +16,11 @@ class App {
     const { data } = await this.req.get('collections')
     return data.map((it: CollectionProps) => new Collection(this, it))
   }
+
+  async addCollection(collection: any) {
+    const { data } = await this.req.post('collections', collection)
+    return new Collection(this, data)
+  }
 }
 
 export default App

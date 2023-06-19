@@ -1,6 +1,13 @@
-import { useFieldArray, useForm } from 'react-hook-form'
+import {
+  FieldValues,
+  RegisterOptions,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form'
 import Field from './field'
 import React from 'preact/compat'
+import app from '../mangobase-app'
+import { loadCollections } from '../data/collections'
 
 interface Props {
   onHide?: VoidFunction
@@ -14,10 +21,23 @@ function CollectionForm({ onHide }: Props) {
     append({ name: getFieldName(), type: 'string' })
   }
 
-  function save() {}
+  async function save(form: FieldValues) {
+    const {name, options, fields } = form
+    const data = {
+      name: name,
+      expose: options.includes('expose'),
+      template: options.includes('is-template'),
+      schema: schemaFromForm(fields)
+    }
+
+    await app.addCollection(data)
+    await loadCollections()
+
+    handleOnHide()
+  }
 
   function getFieldName() {
-    const unnamedFields = (fields as unknown as {name: string}[])
+    const unnamedFields = (fields as unknown as { name: string }[])
       .filter((field) => /^field\d*$/.test(field.name))
       .sort((a, b) => a.name.localeCompare(b.name))
 
@@ -52,12 +72,12 @@ function CollectionForm({ onHide }: Props) {
 
       <div>
         <label>
-          <input type="checkbox" {...register('expose')} />
+          <input checked={true} type="checkbox" value="expose" {...register('options')} />
           Expose
         </label>
 
         <label>
-          <input type="checkbox" {...register('expose')} />
+          <input type="checkbox" value="is-template" {...register('options')} />
           Use as template
         </label>
       </div>
@@ -68,7 +88,9 @@ function CollectionForm({ onHide }: Props) {
         {fields.map((field, i) => (
           <Field
             key={field.id}
-            register={(f: string) => register(`fields.${i}.${f}`)}
+            register={(f: string, o?: RegisterOptions) =>
+              register(`fields.${i}.${f}`, o)
+            }
           />
         ))}
 
@@ -83,12 +105,28 @@ function CollectionForm({ onHide }: Props) {
 
           <div>
             <button>Create</button>
-            <button onClick={handleOnHide} type="reset">Cancel</button>
+            <button onClick={handleOnHide} type="reset">
+              Cancel
+            </button>
           </div>
         </footer>
       </fieldset>
     </form>
   )
+}
+
+interface Field {
+  name: string
+  type: string
+}
+
+function schemaFromForm(fields: Field[]) {
+  const schema: Record<string, any> = {}
+  for (const {name, ...options} of fields) {
+    schema[name] = options
+  }
+
+  return schema
 }
 
 export default CollectionForm

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import collections, { loadCollections } from '../lib/collections'
+import collections, { loadCollections } from '../data/collections'
 import React from 'preact/compat'
 import CollectionForm from '../components/collection-form'
 
@@ -9,8 +9,6 @@ function CollectionsPage() {
   React.useEffect(() => {
     loadCollections()
   }, [])
-
-  console.log(showCollectionForm)
 
   return (
     <div>
@@ -36,13 +34,13 @@ function CollectionsPage() {
           <CollectionForm onHide={() => setShowCollectionForm(false)}/>
         </dialog>
 
-        <ul>
+        <ol>
           {collections.value.map((collection) => (
             <li key={collection.name}>
               <NavLink to={collection.name}>{collection.name}</NavLink>
             </li>
           ))}
-        </ul>
+        </ol>
       </nav>
     </div>
   )

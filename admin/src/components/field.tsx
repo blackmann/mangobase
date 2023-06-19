@@ -1,20 +1,20 @@
-import { UseFormRegisterReturn } from 'react-hook-form'
+import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
 
 interface Props {
-  register: (name: string) => UseFormRegisterReturn
+  register: (name: string, o?: RegisterOptions) => UseFormRegisterReturn
 }
 
 function Field({ register }: Props) {
   return (
     <div>
       <label>
-        Name
-        <input type="text" {...register('name')} />
+        name:
+        <input type="text" {...register('name', { required: true })} />
       </label>
 
       <label>
-        Type
-        <select {...register('type')}>
+        type:
+        <select {...register('type', { required: true })}>
           <option value="string">string</option>
         </select>
       </label>
