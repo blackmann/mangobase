@@ -7,17 +7,17 @@ import {
   ServiceError,
 } from './errors'
 import type { HookConfig, HookFn, Hooks } from './hook'
+import Manifest, { CollectionConfig } from './manifest'
 import Schema, { ValidationError } from './schema'
 import CollectionService from './collection-service'
 import type { Context } from './context'
 import { Database } from './database'
 import HooksRegistry from './hooks-registry'
-import Manifest from './manifest'
 import Method from './method'
 import { createRouter } from 'radix3'
 
 const INTERNAL_PATHS = ['collections', 'hooks']
-const DEV = ['development', undefined].includes(process.env.NODE_ENV)
+const DEV = ['development', 'test', undefined].includes(process.env.NODE_ENV)
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
 
@@ -210,13 +210,25 @@ const collectionsService: Service & { schema: Schema } = {
           throw new NotFound()
         }
 
-        const patch = await this.schema.validate(ctx.data, true, true)
-        const collection = await app.manifest.collection(ctx.params!.id, {
+        const patch = await this.schema.validate(ctx.data, false, true)
+        if (patch.schema) {
+          Schema.validateSchema(patch.schema)
+        }
+
+        const collectionConfig = {
           ...existing,
           ...patch,
-        })
+        }
+        const collection = await app.manifest.collection(
+          collectionConfig.name,
+          collectionConfig
+        )
 
-        // TODO: Re-initialize the collection service
+        await app.installCollection(collection)
+        if (existing.name !== collection.name) {
+          await app.manifest.removeCollection(existing.name)
+          app.leave(existing.name)
+        }
 
         ctx.result = collection
 
@@ -225,7 +237,7 @@ const collectionsService: Service & { schema: Schema } = {
 
       case 'remove': {
         await app.manifest.removeCollection(ctx.params!.id)
-        // TODO: Close this service
+        app.leave(ctx.params!.id)
         return ctx
       }
     }
@@ -300,6 +312,11 @@ class App {
     return this.addService(path, service)
   }
 
+  leave(path: string) {
+    this.routes.remove(`${path}`)
+    this.routes.remove(`${path}/:id`)
+  }
+
   private addService(path: string, service: Service) {
     const pipeline = new Pipeline(this, service)
     this.register(`${path}`, pipeline)
@@ -334,28 +351,36 @@ class App {
   async installCollectionsServices() {
     const collections = await this.manifest.collections()
     for (const collection of collections) {
-      if (!collection.exposed) continue
+      await this.installCollection(collection)
+    }
+  }
 
-      const pipeline = this.use(
-        collection.name,
-        new CollectionService(this, collection.name)
-      )
+  async installCollection(collection: CollectionConfig) {
+    if (!collection.exposed) {
+      this.leave(collection.name)
 
-      const hooks = await this.manifest.getHooks(collection.name)
-      if (!hooks) {
-        continue
-      }
+      return
+    }
 
-      for (const when of ['before', 'after'] as const) {
-        for (const [method, hookList] of Object.entries(hooks[when])) {
-          for (const [hookId, config] of hookList) {
-            const hook = this.hooksRegistry.get(hookId)
-            if (!hook) {
-              throw new Error(`No hook with id: "${hookId}" exists.`)
-            }
+    const pipeline = this.use(
+      collection.name,
+      new CollectionService(this, collection.name)
+    )
 
-            pipeline.hook(when, method as Method, hook.run, config)
+    const hooks = await this.manifest.getHooks(collection.name)
+    if (!hooks) {
+      return
+    }
+
+    for (const when of ['before', 'after'] as const) {
+      for (const [method, hookList] of Object.entries(hooks[when])) {
+        for (const [hookId, config] of hookList) {
+          const hook = this.hooksRegistry.get(hookId)
+          if (!hook) {
+            throw new Error(`No hook with id: "${hookId}" exists.`)
           }
+
+          pipeline.hook(when, method as Method, hook.run, config)
         }
       }
     }

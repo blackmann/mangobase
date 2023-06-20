@@ -1,9 +1,12 @@
 import App, { Service } from './app'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { MockedObject, beforeAll, describe, expect, it, vi } from 'vitest'
 import { Database } from './database'
 import { context } from './context'
 
-const db = {} as unknown as Database
+const db = {
+  count: vi.fn(),
+  find: vi.fn(),
+} as unknown as MockedObject<Database>
 
 describe('app', () => {
   describe('use', () => {
@@ -252,6 +255,66 @@ describe('collections service', () => {
       )
 
       expect(res.result.exposed).toBe(false)
+
+      expect(await app.api(context({ path: 'people' }))).toStrictEqual(
+        expect.objectContaining({ statusCode: 404 })
+      )
+    })
+
+    it('disables renamed service and serves to new path', async () => {
+      await app.api(
+        context({
+          data: {
+            name: 'courses',
+            schema: {
+              title: { type: 'string' },
+            },
+          },
+          method: 'create',
+          path: 'collections',
+        })
+      )
+
+      await app.api(
+        context({
+          data: {
+            name: 'programmes',
+          },
+          method: 'patch',
+          path: 'collections/courses',
+        })
+      )
+
+      db.find.mockReturnValue({
+        exec: async () => [],
+        limit() {
+          return this
+        },
+        populate() {
+          return this
+        },
+        select() {
+          return this
+        },
+        skip() {
+          return this
+        },
+        sort() {
+          return this
+        },
+      })
+
+      db.count.mockResolvedValue(0)
+
+      expect(await app.api(context({ path: 'programmes' }))).toStrictEqual(
+        expect.objectContaining({
+          result: expect.objectContaining({ data: [] }),
+        })
+      )
+
+      // clean up
+      app.leave('programmes')
+      app.manifest.removeCollection('programmes')
     })
 
     it('returns 404 if the collection is not found', async () => {
