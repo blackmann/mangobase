@@ -1,5 +1,5 @@
 function CollectionHooks() {
-  return <></>
+  return <>Hooks will live here</>
 }
 
 export default CollectionHooks
