@@ -73,6 +73,13 @@ class Manifest {
     this.hooksIndex = JSON.parse(hooksJSON)
   }
 
+  async setHooks(collection: string, hooks: Hooks) {
+    await this.init()
+    this.hooksIndex[collection] = hooks
+
+    await this.save()
+  }
+
   async collection(
     name: string,
     config?: CollectionConfig
@@ -117,6 +124,11 @@ class Manifest {
 
     const collectionsJson = JSON.stringify(this.collectionsIndex, undefined, 2)
     await writeFile([dir, COLLECTIONS_FILE].join('/'), collectionsJson, {
+      encoding: 'utf-8',
+    })
+
+    const hooksJson = JSON.stringify(this.hooksIndex, undefined, 2)
+    await writeFile([dir, HOOKS_FILE].join('/'), hooksJson, {
       encoding: 'utf-8',
     })
   }

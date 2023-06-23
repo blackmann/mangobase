@@ -251,7 +251,7 @@ const collectionsService: Service & { schema: Schema } = {
   }),
 }
 
-const hooksService: Service = {
+const hooksRegistry: Service = {
   async handle(ctx, app) {
     switch (ctx.method) {
       case 'find': {
@@ -262,6 +262,33 @@ const hooksService: Service = {
 
       default:
         throw new MethodNotAllowed()
+    }
+  },
+}
+
+const hooksService: Service = {
+  async handle(ctx, app) {
+    switch (ctx.method) {
+      case 'patch': {
+        // the id is the collection name
+        const collection = ctx.params?.id as string
+        await app.manifest.setHooks(collection, ctx.data)
+
+        ctx.result = await app.manifest.getHooks(collection)
+
+        return ctx
+      }
+
+      case 'get': {
+        const hooks = await app.manifest.getHooks(ctx.params!.id)
+        ctx.result = hooks
+
+        return ctx
+      }
+
+      default: {
+        throw new MethodNotAllowed()
+      }
     }
   },
 }
@@ -285,7 +312,8 @@ class App {
 
     this.initialize = (async () => {
       this.addService('collections', collectionsService)
-      this.addService('hooks-registry', hooksService)
+      this.addService('hooks-registry', hooksRegistry)
+      this.addService('hooks', hooksService)
 
       this.installCollectionsServices()
     })()

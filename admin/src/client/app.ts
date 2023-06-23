@@ -3,6 +3,8 @@ import Collection, { type CollectionProps } from './collection'
 
 type Req = typeof axios
 
+
+
 class App {
   host: string
   req: Req
@@ -18,13 +20,18 @@ class App {
   }
 
   async collection(name: string): Promise<Collection> {
-    const {data} = await this.req.get(`collections/${name}`)
+    const { data } = await this.req.get(`collections/${name}`)
     return new Collection(this, data)
   }
 
   async addCollection(collection: any) {
     const { data } = await this.req.post('collections', collection)
     return new Collection(this, data)
+  }
+
+  async hookRegistry() {
+    const { data } = await this.req.get('hooks-registry')
+    return data
   }
 }
 

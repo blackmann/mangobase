@@ -12,6 +12,7 @@
     "build": "yarn build:base && yarn build:express-server && yarn build:mongodb",
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
+    "tb": "yarn turbo build --filter=!@mangobase/admin",
     "test:base": "yarn workspace mangobase run test",
     "test:mongodb": "yarn workspace @mangobase/mongodb run test",
     "test": "yarn test:base -w false && yarn test:mongodb -w false"

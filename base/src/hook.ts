@@ -15,7 +15,6 @@ interface Hook {
   id: string
   name: string
   description?: string
-  config?: Config
   configSchema?: Record<string, Definition>
   run: HookFn
 }

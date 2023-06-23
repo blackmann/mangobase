@@ -29,13 +29,11 @@ interface Definition {
 
   /** `schema` only applies when type is `object` or `array`.
    * When type is `array` the definition is nested in an `item` field.
-   * For example:
-   * ```javascript
+   * @example
    * const definition = {
    *   type: 'array',
    *   schema: { item: { type: 'string' } }
    * }
-   * ```
    * */
   schema?: SchemaDefinitions
 }
