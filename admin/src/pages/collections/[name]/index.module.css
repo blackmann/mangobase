@@ -1,0 +1,16 @@
+.tabs a {
+  text-decoration: none;
+}
+
+.tabs :is(a + a) {
+  margin-left: 0.5rem;
+}
+
+.tabs a.active {
+  color: inherit !important;
+  text-decoration: underline;
+}
+
+.tabs a:hover {
+  text-decoration: underline;
+}

@@ -7,7 +7,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
+    'preact',
     'prettier',
   ],
   overrides: [],
@@ -18,10 +18,12 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'react', 'prettier'],
   rules: {
+    'no-unused-vars': 'off',
+    'no-dupe-class-members': 'off',
     'prettier/prettier': 'warn',
     'sort-keys': 'warn',
     'sort-imports': 'warn',
     '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off'
+    '@typescript-eslint/no-non-null-assertion': 'off',
   },
 }

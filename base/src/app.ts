@@ -421,7 +421,7 @@ class App {
     await this.init()
 
     const trimmedPath = path.replace(/^\//, '')
-    const fileDir = __dirname + '/admin/' + trimmedPath
+    const fileDir = `${__dirname}/admin/${trimmedPath}`
 
     return fileDir
   }

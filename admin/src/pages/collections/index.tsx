@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import collections, { loadCollections } from '../../data/collections'
-import React from 'preact/compat'
 import CollectionForm from '../../components/collection-form'
 import Plus from '../../icons/Plus'
-import styles from './index.module.css'
+import React from 'preact/compat'
 import clsx from 'clsx'
+import styles from './index.module.css'
 
 function CollectionsPage() {
   const [showCollectionForm, setShowCollectionForm] = React.useState(false)

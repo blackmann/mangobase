@@ -1,25 +1,58 @@
 import {
-  Link,
+  NavLink,
   Outlet,
   useLoaderData,
   useRouteLoaderData,
 } from 'react-router-dom'
 import type Collection from '../../../client/collection'
 import React from 'preact/compat'
+import clsx from 'clsx'
+import styles from './index.module.css'
 
 type RouteData = { collection: Collection }
+
+const links = [
+  {
+    href: '',
+    title: 'Records',
+  },
+  {
+    href: 'hooks',
+    title: 'Hooks',
+  },
+  {
+    href: 'edit',
+    title: 'Edit',
+  },
+  {
+    href: '/logs',
+    title: 'Logs',
+  },
+]
 
 function CollectionDetail() {
   const { collection } = useLoaderData() as RouteData
 
   return (
     <>
-      <h1>{collection.name}</h1>
+      <header className="d-flex justify-content-between align-items-center mt-1">
+        <h1 className="mb-0 mt-0">{collection.name}</h1>
 
-      <div>
-        <Link to="">Records</Link> <Link to="hooks">Hooks</Link>{' '}
-        <Link to="edit">Edit</Link> <Link to="edit">Logs</Link>
-      </div>
+        <div className={styles.tabs}>
+          {links.map((link) => (
+            <NavLink
+              className={({ isActive }: { isActive: boolean }) =>
+                clsx('text-secondary', { [styles.active]: isActive })
+              }
+              end
+              key={link.href}
+              to={link.href}
+            >
+              {link.title}
+            </NavLink>
+          ))}
+        </div>
+      </header>
 
       <Outlet />
     </>
@@ -33,7 +66,7 @@ function CollectionRecords() {
   const loadNext = React.useCallback(async () => {
     const data = await collection.find()
     setPages((pages) => [...pages, data])
-  }, [])
+  }, [collection])
 
   React.useEffect(() => {
     loadNext()
@@ -55,20 +88,16 @@ function CollectionRecords() {
       </thead>
 
       <tbody>
-        {
-          pages[pages.length-1]?.data.map((row: any) => (
-            <tr key={row._id}>
-              <td>{row._id}</td>
-              {
-                fields.map((field) => (
-                  <td key={field}>{row[field]}</td>
-                ))
-              }
-              <td>{row.created_at}</td>
-              <td>{row.updated_at}</td>
-            </tr>
-          ))
-        }
+        {pages[pages.length - 1]?.data.map((row: any) => (
+          <tr key={row._id}>
+            <td>{row._id}</td>
+            {fields.map((field) => (
+              <td key={field}>{row[field]}</td>
+            ))}
+            <td>{row.created_at}</td>
+            <td>{row.updated_at}</td>
+          </tr>
+        ))}
       </tbody>
     </table>
   )
