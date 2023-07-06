@@ -20,6 +20,7 @@ module.exports = {
   rules: {
     'no-unused-vars': 'off',
     'no-dupe-class-members': 'off',
+    'no-duplicate-imports': 'off',
     'prettier/prettier': 'warn',
     'sort-keys': 'warn',
     'sort-imports': 'warn',

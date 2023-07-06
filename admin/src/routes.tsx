@@ -1,16 +1,16 @@
-import { createBrowserRouter } from 'react-router-dom'
-import AdminLayout from './layouts/AdminLayout'
-import CollectionsPage from './pages/collections'
 import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
+import AdminLayout from './layouts/AdminLayout'
 import CollectionHooks from './pages/collections/[name]/hooks'
-import app from './mangobase-app'
+import CollectionsPage from './pages/collections'
 import Wip from './pages/wip'
+import app from './mangobase-app'
+import { createBrowserRouter } from 'react-router-dom'
 
 const routes = createBrowserRouter(
   [
     {
-      path: '',
       element: <AdminLayout />,
+      path: '',
       children: [
         {
           path: 'collections',

@@ -1,8 +1,3 @@
-import React from 'preact/compat'
-import { useForm } from 'react-hook-form'
-import hooksRegistery, { loadHooksRegistry } from '../../../data/hooks-registry'
-import { useRouteLoaderData } from 'react-router-dom'
-import type Collection from '../../../client/collection'
 import {
   HooksConfig,
   Method,
@@ -10,6 +5,11 @@ import {
   hookStages,
   methods,
 } from '../../../client/collection'
+import hooksRegistery, { loadHooksRegistry } from '../../../data/hooks-registry'
+import type Collection from '../../../client/collection'
+import React from 'preact/compat'
+import { useForm } from 'react-hook-form'
+import { useRouteLoaderData } from 'react-router-dom'
 
 type RouteData = { collection: Collection }
 
@@ -18,15 +18,15 @@ function CollectionHooks() {
 
   const { getValues, handleSubmit, register, watch } = useForm({
     defaultValues: {
-      stage: 'before',
-      method: 'find',
       hook: '__none',
+      method: 'find',
+      stage: 'before',
     },
   })
 
   const [config, setConfig] = React.useState<HooksConfig>({
-    before: {},
     after: {},
+    before: {},
   })
 
   function addHook() {
@@ -35,7 +35,7 @@ function CollectionHooks() {
     const method_ = method as Method
 
     setConfig((config) => {
-      let existing = config[stage_][method_] || []
+      const existing = config[stage_][method_] || []
       if (existing.find((e) => e[0] === hook)) {
         return config
       }
@@ -53,7 +53,7 @@ function CollectionHooks() {
   React.useEffect(() => {
     loadHooksRegistry()
     collection.hooks().then((hooks) => setConfig(hooks))
-  }, [])
+  }, [collection])
 
   const $stage = watch('stage')
   const $method = watch('method')
