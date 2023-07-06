@@ -25,7 +25,7 @@ function CollectionForm({ onHide }: Props) {
     const {name, options, fields } = form
     const data = {
       name: name,
-      expose: options.includes('expose'),
+      exposed: options.includes('expose'),
       template: options.includes('is-template'),
       schema: schemaFromForm(fields)
     }

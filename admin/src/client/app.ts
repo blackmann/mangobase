@@ -15,7 +15,7 @@ class App {
   }
 
   async collections(): Promise<Collection[]> {
-    const { data } = await this.req.get('collections')
+    const { data } = await this.req.get('collections?$sort[name]=1')
     return data.map((it: CollectionProps) => new Collection(this, it))
   }
 

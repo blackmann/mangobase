@@ -5,18 +5,24 @@ type Schema = Record<string, any>
 interface CollectionProps {
   name: string
   schema: Schema
+  exposed: boolean
+  template: boolean
 }
 
 class Collection {
   app: App
   name: string
   schema: Schema
+  exposed: boolean
+  template: boolean
 
   constructor(app: App, data: CollectionProps) {
     this.app = app
 
     this.name = data.name
     this.schema = data.schema
+    this.exposed = data.exposed
+    this.template = data.template
   }
 
   async find() {

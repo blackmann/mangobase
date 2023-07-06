@@ -1,0 +1,16 @@
+.plain-button {
+  background-color: transparent;
+  padding: 0;
+}
+
+.medium {
+  font-weight: 500;
+}
+
+.mt-1 {
+  padding-top: 0.5rem
+}
+
+h1 {
+  margin-top: 0;
+}

@@ -4,7 +4,13 @@ import Collection, { Filter } from './collection'
 import type { Context } from './context'
 import { ValidationError } from './schema'
 
-const ALLOWED_FILTERS = ['$limit', '$populate', '$select', '$skip', '$sort']
+const ALLOWED_FILTERS = [
+  '$limit',
+  '$populate',
+  '$select',
+  '$skip',
+  '$sort',
+] as const
 
 class CollectionService implements Service {
   collection: Collection
@@ -132,7 +138,7 @@ class CollectionService implements Service {
     const filter: Filter = {}
     const _query: Record<string, any> = {}
     for (const [key, value] of Object.entries(query)) {
-      if (ALLOWED_FILTERS.includes(key)) {
+      if (ALLOWED_FILTERS.includes(key as any)) {
         switch (key) {
           case '$limit': {
             filter.$limit = Math.min(Number(value))
@@ -164,7 +170,6 @@ class CollectionService implements Service {
                 delete value[k]
                 continue
               }
-
               value[k] = Number(v)
             }
 

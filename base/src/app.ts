@@ -72,7 +72,7 @@ class Pipeline {
       }
     }
 
-    // run app after hooks
+    // run app after-hooks
 
     if (!ctx.statusCode) {
       ctx.statusCode = 200
@@ -187,8 +187,11 @@ const collectionsService: Service & { schema: Schema } = {
       }
 
       case 'find': {
+        const nameSort = Number(ctx.query.$sort?.name || '1')
         const collections = await app.manifest.collections()
-        ctx.result = collections
+        ctx.result = collections.sort(
+          (a, b) => a.name.localeCompare(b.name) * nameSort
+        )
         return ctx
       }
 

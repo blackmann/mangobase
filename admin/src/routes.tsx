@@ -4,6 +4,7 @@ import CollectionsPage from './pages/collections'
 import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import app from './mangobase-app'
+import Wip from './pages/wip'
 
 const routes = createBrowserRouter(
   [
@@ -36,6 +37,10 @@ const routes = createBrowserRouter(
             },
           ],
         },
+        {
+          path: '*',
+          element: <Wip />
+        }
       ],
     },
     {

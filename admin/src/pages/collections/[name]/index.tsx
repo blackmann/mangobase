@@ -18,7 +18,7 @@ function CollectionDetail() {
 
       <div>
         <Link to="">Records</Link> <Link to="hooks">Hooks</Link>{' '}
-        <Link to="edit">Edit</Link>
+        <Link to="edit">Edit</Link> <Link to="edit">Logs</Link>
       </div>
 
       <Outlet />
@@ -42,7 +42,7 @@ function CollectionRecords() {
   const fields = Object.keys(collection.schema)
 
   return (
-    <table>
+    <table className="w-100">
       <thead>
         <tr>
           <th>id</th>
