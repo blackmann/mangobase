@@ -14,3 +14,27 @@
 .tabs a:hover {
   text-decoration: underline;
 }
+
+.row td:first-child {
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.row td:last-child {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.row {
+  transition: background-color 240ms ease-out;
+}
+
+.row:hover {
+  background-color: var(--secondary-200);
+}
+
+@media (prefers-color-scheme: dark) {
+  .row:hover {
+    background-color: var(--secondary-700);
+  }
+}

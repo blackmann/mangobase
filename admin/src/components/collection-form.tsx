@@ -17,17 +17,13 @@ function CollectionForm({ onHide }: Props) {
   const { control, handleSubmit, register, reset } = useForm()
   const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
 
-  function addNewField() {
-    append({ name: getFieldName(), type: 'string' })
-  }
-
   async function save(form: FieldValues) {
-    const {name, options, fields } = form
+    const { name, options, fields } = form
     const data = {
-      name: name,
       exposed: options.includes('expose'),
+      name,
+      schema: schemaFromForm(fields),
       template: options.includes('is-template'),
-      schema: schemaFromForm(fields)
     }
 
     await app.addCollection(data)
@@ -36,7 +32,7 @@ function CollectionForm({ onHide }: Props) {
     handleOnHide()
   }
 
-  function getFieldName() {
+  const getFieldName = React.useCallback(() => {
     const unnamedFields = (fields as unknown as { name: string }[])
       .filter((field) => /^field\d*$/.test(field.name))
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -45,11 +41,15 @@ function CollectionForm({ onHide }: Props) {
     let i = 0
     while (unnamedFields[i]?.name === fieldName) {
       i += 1
-      fieldName = 'field' + (i + 1)
+      fieldName = `field${i + 1}`
     }
 
     return fieldName
-  }
+  }, [fields])
+
+  const addNewField = React.useCallback(() => {
+    append({ name: getFieldName(), type: 'string' })
+  }, [append, getFieldName])
 
   function handleOnHide() {
     reset()
@@ -61,7 +61,7 @@ function CollectionForm({ onHide }: Props) {
     if (!fields.length) {
       addNewField()
     }
-  }, [addNewField])
+  }, [addNewField, fields.length])
 
   return (
     <form onSubmit={handleSubmit(save)}>
@@ -72,7 +72,12 @@ function CollectionForm({ onHide }: Props) {
 
       <div>
         <label>
-          <input checked={true} type="checkbox" value="expose" {...register('options')} />
+          <input
+            checked={true}
+            type="checkbox"
+            value="expose"
+            {...register('options')}
+          />
           Expose
         </label>
 
@@ -97,32 +102,33 @@ function CollectionForm({ onHide }: Props) {
         <button onClick={addNewField} type="button">
           Add new field
         </button>
-        <footer>
-          <p>
-            <code>created_at</code> and <code>updated_at</code> are
-            automatically set
-          </p>
-
-          <div>
-            <button>Create</button>
-            <button onClick={handleOnHide} type="reset">
-              Cancel
-            </button>
-          </div>
-        </footer>
       </fieldset>
+
+      <footer>
+        <p>
+          <code>created_at</code> and <code>updated_at</code> are automatically
+          set
+        </p>
+
+        <div>
+          <button>Create</button>
+          <button onClick={handleOnHide} type="reset">
+            Cancel
+          </button>
+        </div>
+      </footer>
     </form>
   )
 }
 
-interface Field {
+interface FieldProps {
   name: string
   type: string
 }
 
-function schemaFromForm(fields: Field[]) {
+function schemaFromForm(fields: FieldProps[]) {
   const schema: Record<string, any> = {}
-  for (const {name, ...options} of fields) {
+  for (const { name, ...options } of fields) {
     schema[name] = options
   }
 

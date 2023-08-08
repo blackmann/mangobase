@@ -7,7 +7,15 @@ import clsx from 'clsx'
 import styles from './index.module.css'
 
 function CollectionsPage() {
-  const [showCollectionForm, setShowCollectionForm] = React.useState(false)
+  const formDialog = React.useRef<HTMLDialogElement>(null)
+
+  function showFormDialog() {
+    formDialog.current?.showModal()
+  }
+
+  function hideFormDialog() {
+    formDialog.current?.close()
+  }
 
   React.useEffect(() => {
     loadCollections()
@@ -23,7 +31,7 @@ function CollectionsPage() {
             <div>
               <button
                 className="plain-button text-secondary"
-                onClick={() => setShowCollectionForm(true)}
+                onClick={() => showFormDialog()}
               >
                 <Plus />
               </button>
@@ -38,8 +46,8 @@ function CollectionsPage() {
             placeholder="Find collection"
           />
 
-          <dialog open={showCollectionForm}>
-            <CollectionForm onHide={() => setShowCollectionForm(false)} />
+          <dialog ref={formDialog} className="dialog">
+            <CollectionForm onHide={() => hideFormDialog()} />
           </dialog>
 
           <ol className={styles.collections}>

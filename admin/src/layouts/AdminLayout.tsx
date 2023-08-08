@@ -1,31 +1,31 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import Box from '../icons/Box'
 import Debug from '../icons/Debug'
-import Options from '../icons/Options'
 import Doc from '../icons/Doc'
-import styles from './AdminLayout.module.css'
+import Options from '../icons/Options'
 import clsx from 'clsx'
+import styles from './AdminLayout.module.css'
 
 const navLinks = [
   {
-    title: 'Collections',
     href: '/collections',
     icon: <Box />,
+    title: 'Collections',
   },
   {
-    title: 'Logs',
     href: '/logs',
     icon: <Debug />,
+    title: 'Logs',
   },
   {
-    title: 'Settings',
     href: '/settings',
     icon: <Options />,
+    title: 'Settings',
   },
   {
-    title: 'Docs',
     href: '/docs',
     icon: <Doc />,
+    title: 'Docs',
   },
 ]
 
@@ -38,7 +38,9 @@ function AdminLayout() {
             <li key={link.href}>
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
-                  clsx('text-secondary', styles.navLink, { [styles.active]: isActive })
+                  clsx('text-secondary', styles.navLink, {
+                    [styles.active]: isActive,
+                  })
                 }
                 to={link.href}
                 title={link.title}

@@ -4,7 +4,9 @@ import {
   useLoaderData,
   useRouteLoaderData,
 } from 'react-router-dom'
+import CleanDate from '../../../components/date'
 import type Collection from '../../../client/collection'
+import IdTag from '../../../components/id-tag'
 import React from 'preact/compat'
 import clsx from 'clsx'
 import styles from './index.module.css'
@@ -21,12 +23,12 @@ const links = [
     title: 'Hooks',
   },
   {
-    href: 'edit',
-    title: 'Edit',
-  },
-  {
     href: '/logs',
     title: 'Logs',
+  },
+  {
+    href: 'edit',
+    title: 'Edit',
   },
 ]
 
@@ -35,10 +37,9 @@ function CollectionDetail() {
 
   return (
     <>
-      <header className="d-flex justify-content-between align-items-center mt-1">
+      <header className="mt-1">
         <h1 className="mb-0 mt-0">{collection.name}</h1>
-
-        <div className={styles.tabs}>
+        <div className={clsx(styles.tabs, 'mt-2')}>
           {links.map((link) => (
             <NavLink
               className={({ isActive }: { isActive: boolean }) =>
@@ -54,7 +55,9 @@ function CollectionDetail() {
         </div>
       </header>
 
-      <Outlet />
+      <div className="mt-3">
+        <Outlet />
+      </div>
     </>
   )
 }
@@ -75,31 +78,50 @@ function CollectionRecords() {
   const fields = Object.keys(collection.schema)
 
   return (
-    <table className="w-100">
-      <thead>
-        <tr>
-          <th>id</th>
-          {fields.map((field) => (
-            <th key={field}>{field}</th>
-          ))}
-          <th>created_at</th>
-          <th>updated_at</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {pages[pages.length - 1]?.data.map((row: any) => (
-          <tr key={row._id}>
-            <td>{row._id}</td>
+    <>
+      <input
+        className="w-100 d-block mt-2"
+        type="text"
+        name="search"
+        id="search"
+        placeholder="Filter record. See docs for examples."
+      />
+      <table cellSpacing={0} className="w-100 mt-3">
+        <thead>
+          <tr>
+            <th />
+            <th>id</th>
             {fields.map((field) => (
-              <td key={field}>{row[field]}</td>
+              <th key={field}>{field}</th>
             ))}
-            <td>{row.created_at}</td>
-            <td>{row.updated_at}</td>
+            <th>created_at</th>
+            <th>updated_at</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {pages[pages.length - 1]?.data.map((row: any) => (
+            <tr className={styles.row} key={row._id}>
+              <td style={{ width: '2rem' }}>
+                <input type="checkbox" name="select" className="ms-1" />
+              </td>
+              <td>
+                <IdTag id={row._id} />
+              </td>
+              {fields.map((field) => (
+                <td key={field}>{row[field]}</td>
+              ))}
+              <td>
+                <CleanDate date={row.created_at} />
+              </td>
+              <td>
+                <CleanDate date={row.updated_at} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   )
 }
 

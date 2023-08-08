@@ -18,3 +18,45 @@
 .mt-1 {
   padding-top: 0.5rem
 }
+
+th {
+  text-align: start;
+  color: var(--secondary-color);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+td {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+th:hover {
+  background-color: var(--secondary-100);
+}
+
+@media (prefers-color-scheme: dark) {
+  th:hover {
+    background-color: var(--secondary-700);
+  }
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.dialog {
+  border-radius: 0.5rem;
+  border: 1px solid var(--secondary-200)
+}
+
+@media (prefers-color-scheme: dark) {
+  .dialog {
+    border-color: var(--secondary-700);
+  }
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+}

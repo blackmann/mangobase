@@ -1,0 +1,13 @@
+.chip {
+  background-color: var(--secondary-200);
+  display: inline-flex;
+  border-radius: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chip {
+    background-color: var(--secondary-700);
+  }
+}
