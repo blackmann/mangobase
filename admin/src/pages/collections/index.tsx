@@ -47,6 +47,7 @@ function CollectionsPage() {
           />
 
           <dialog ref={formDialog} className="dialog">
+            <h2 className="mt-0">Add new collection</h2>
             <CollectionForm onHide={() => hideFormDialog()} />
           </dialog>
 
@@ -69,7 +70,7 @@ function CollectionsPage() {
           </ol>
         </nav>
 
-        <div className="col-md-10">
+        <div className="col">
           <Outlet />
         </div>
       </div>

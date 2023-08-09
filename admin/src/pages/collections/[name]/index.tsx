@@ -36,7 +36,7 @@ function CollectionDetail() {
   const { collection } = useLoaderData() as RouteData
 
   return (
-    <>
+    <div className={styles.main}>
       <header className="mt-1">
         <h1 className="mb-0 mt-0">{collection.name}</h1>
         <div className={clsx(styles.tabs, 'mt-2')}>
@@ -55,10 +55,10 @@ function CollectionDetail() {
         </div>
       </header>
 
-      <div className="mt-3">
+      <div className={clsx('mt-3', styles.content)}>
         <Outlet />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -89,7 +89,9 @@ function CollectionRecords() {
       <table cellSpacing={0} className="w-100 mt-3">
         <thead>
           <tr>
-            <th />
+            <th>
+              <input type="checkbox" />
+            </th>
             <th>id</th>
             {fields.map((field) => (
               <th key={field}>{field}</th>

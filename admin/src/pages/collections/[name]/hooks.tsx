@@ -1,22 +1,27 @@
-import {
-  HooksConfig,
-  Method,
-  Stage,
-  hookStages,
-  methods,
-} from '../../../client/collection'
-import hooksRegistery, { loadHooksRegistry } from '../../../data/hooks-registry'
+import 'reactflow/dist/style.css'
+
+import { Background, ReactFlow } from 'reactflow'
+import { HooksConfig, Method, Stage } from '../../../client/collection'
 import type Collection from '../../../client/collection'
 import React from 'preact/compat'
+import { SERVICE_NODE_TYPE } from '../../../components/service-node'
+import { loadHooksRegistry } from '../../../data/hooks-registry'
+import nodeTypes from '../../../lib/node-types'
+import styles from './hooks.module.css'
 import { useForm } from 'react-hook-form'
 import { useRouteLoaderData } from 'react-router-dom'
 
 type RouteData = { collection: Collection }
 
+const initialNodes = [
+  { id: '1', position: { x: 0, y: 0 }, type: SERVICE_NODE_TYPE },
+]
+const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }]
+
 function CollectionHooks() {
   const { collection } = useRouteLoaderData('collection') as RouteData
 
-  const { getValues, handleSubmit, register, watch } = useForm({
+  const { getValues, watch } = useForm({
     defaultValues: {
       hook: '__none',
       method: 'find',
@@ -61,59 +66,15 @@ function CollectionHooks() {
   const hooks = config[$stage as Stage][$method as Method] || []
 
   return (
-    <form onSubmit={handleSubmit(save)}>
-      <fieldset>
-        <legend>Stage</legend>
-        {hookStages.map((stage) => (
-          <label key={stage}>
-            <input type="radio" value={stage} {...register('stage')} />
-            {stage}
-          </label>
-        ))}
-      </fieldset>
-
-      <fieldset>
-        <legend>Method</legend>
-        {methods.map((method) => (
-          <label key={method}>
-            <input type="radio" value={method} {...register('method')} />
-            {method}
-          </label>
-        ))}
-      </fieldset>
-
-      <p>Hooks are ran in the order which you add them</p>
-
-      <ul>
-        {hooksRegistery.value
-          .filter((hook) => hooks.find((h) => h[0] === hook.id))
-          .map((hook) => (
-            <li key={hook.id}>
-              {hook.name}: {hook.description}
-            </li>
-          ))}
-      </ul>
-
-      <div>
-        <select {...register('hook')}>
-          <option value="__none" disabled>
-            Select hook
-          </option>
-          {hooksRegistery.value.map((hook) => (
-            <option key={hook.id} value={hook.id}>
-              {hook.name} <br />
-              {hook.description}
-            </option>
-          ))}
-        </select>
-
-        <button onClick={addHook} type="button">
-          Add hook
-        </button>
-      </div>
-
-      <button onClick={save}>Save</button>
-    </form>
+    <div className={styles.flowWrapper}>
+      <ReactFlow
+        nodeTypes={nodeTypes}
+        nodes={initialNodes}
+        edges={initialEdges}
+      >
+        <Background />
+      </ReactFlow>
+    </div>
   )
 }
 
