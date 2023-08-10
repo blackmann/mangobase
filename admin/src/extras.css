@@ -1,3 +1,7 @@
+:root {
+  --background-color: #f6f8fa;
+}
+
 .plain-button {
   background-color: transparent;
   padding: 0;
@@ -17,6 +21,10 @@
 
 .mt-1 {
   padding-top: 0.5rem
+}
+
+.bold {
+  font-weight: 700;
 }
 
 th {

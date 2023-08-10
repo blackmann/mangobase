@@ -1,9 +1,7 @@
-import axios from 'redaxios'
 import Collection, { type CollectionProps } from './collection'
+import axios from 'redaxios'
 
 type Req = typeof axios
-
-
 
 class App {
   host: string
