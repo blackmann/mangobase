@@ -2,6 +2,12 @@
   --background-color: #f6f8fa;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #212121;
+  }
+}
+
 .plain-button {
   background-color: transparent;
   padding: 0;

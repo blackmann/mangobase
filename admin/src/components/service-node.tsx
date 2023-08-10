@@ -1,8 +1,8 @@
 import { Handle, Position } from 'reactflow'
 import InOut from '../icons/InOut'
+import clsx from 'clsx'
 import { methods } from '../client/collection'
 import styles from './service-node.module.css'
-import clsx from 'clsx'
 
 function ServiceNode() {
   return (

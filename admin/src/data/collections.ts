@@ -1,6 +1,6 @@
-import { signal } from '@preact/signals'
 import Collection from '../client/collection'
 import app from '../mangobase-app'
+import { signal } from '@preact/signals'
 
 const collections = signal(<Collection[]>[])
 

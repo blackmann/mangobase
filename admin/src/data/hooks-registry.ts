@@ -1,5 +1,5 @@
-import { signal } from "@preact/signals"
-import app from "../mangobase-app"
+import app from '../mangobase-app'
+import { signal } from '@preact/signals'
 
 interface Hook {
   description: string
@@ -7,11 +7,11 @@ interface Hook {
   name: string
 }
 
-const hooksRegistery = signal<Hook[]>([])
+const hooksRegistry = signal<Hook[]>([])
 
 async function loadHooksRegistry() {
-  hooksRegistery.value = await app.hookRegistry()
+  hooksRegistry.value = await app.hookRegistry()
 }
 
-export default hooksRegistery
+export default hooksRegistry
 export { loadHooksRegistry }
