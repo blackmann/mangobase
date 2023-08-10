@@ -15,26 +15,27 @@ body { margin: 0; }
 
 
 :root {
-  accent-color: #ea993f;
-  --primary-color: #48202f;
-  --accent-color: #ea993f;
+  accent-color: #0E9544;
+  --primary-color: #3575DB;
+  --accent-color: #0E9544;
   --secondary-color: #838995;
-  --primary-100: #dad2d5;
-  --primary-200: #b6a6ac;
-  --primary-300: #917982;
-  --primary-400: #6d4d59;
-  --primary-500: #3a1a26;
-  --primary-600: #2b131c;
-  --primary-700: #1d0d13;
-  --primary-800: #0e0609;
-  --accent-100: #fbebd9;
-  --accent-200: #f7d6b2;
-  --accent-300: #f2c28c;
-  --accent-400: #eead65;
-  --accent-500: #bb7a32;
-  --accent-600: #8c5c26;
-  --accent-700: #5e3d19;
-  --accent-800: #2f1f0d;
+  --reset-color: #222;
+  --primary-100: #d7e3f8;
+  --primary-200: #aec8f1;
+  --primary-300: #86ace9;
+  --primary-400: #5d91e2;
+  --primary-500: #2a5eaf;
+  --primary-600: #204683;
+  --primary-700: #152f58;
+  --primary-800: #0b172c;
+  --accent-100: #cfeada;
+  --accent-200: #9fd5b4;
+  --accent-300: #6ebf8f;
+  --accent-400: #3eaa69;
+  --accent-500: #0b7736;
+  --accent-600: #085929;
+  --accent-700: #063c1b;
+  --accent-800: #031e0e;
   --secondary-100: #e6e7ea;
   --secondary-200: #cdd0d5;
   --secondary-300: #b5b8bf;
@@ -45,8 +46,26 @@ body { margin: 0; }
   --secondary-800: #1a1b1e;
 }
 
+@media (prefers-color-scheme: dark) { 
+  :root {
+    --reset-color: #F5F4F4;
+  } 
+}
+
 .text-secondary {
   color: var(--secondary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-accent {
+  color: var(--accent-color) !important;
+}
+
+.text-reset {
+  color: var(--reset-color) !important;
 }
 
 :root {
@@ -56,40 +75,40 @@ body { margin: 0; }
   background-color: #f6f8fa;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) { 
   :root {
     background-color: #212121;
     color: #F5F4F4;
-  }
+  } 
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) { 
   button.primary, .button.primary {
-    background-color: #48202f;
-  }
+    background-color: #3575DB;
+  } 
 }
 
 button.primary, .button.primary {
-  background-color: #48202f;
+  background-color: #3575DB;
   color: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) { 
   button.accent, .button.accent {
-    background-color: #ea993f;
-  }
+    background-color: #0E9544;
+  } 
 }
 
 button.accent, .button.accent {
-  background-color: #ea993f;
+  background-color: #0E9544;
   color: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) { 
   :is(.button, button) {
     color: #F5F4F4;
     background: var(--secondary-700);
-  }
+  } 
 }
 
 :is(.button, button) {
@@ -106,8 +125,13 @@ button.accent, .button.accent {
   transition: filter 240ms ease-out;
 }
 
-:is(.button, button):hover {
+:is(.button, button):not(:disabled):hover {
   filter: brightness(92%);
+}
+
+:is(.button, button):disabled {
+  cursor: not-allowed !important;
+  filter: opacity(50%);
 }
 
 :is(button, .button) + :is(button, .button) {
@@ -125,18 +149,18 @@ button.accent, .button.accent {
   border-radius: 0.35rem;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) { 
   :is(input, .input, select) {
     border: 1px solid var(--secondary-600);
     color: inherit;
     background: transparent;
-  }
+  } 
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) { 
   ::-webkit-calendar-picker-indicator {
     filter: invert(1);
-  }
+  } 
 }
 
 :is(input[type=checkbox], input[type=radio]) {

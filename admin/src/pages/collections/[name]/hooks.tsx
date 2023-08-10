@@ -13,6 +13,7 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  updateEdge,
 } from 'reactflow'
 import { Hook, HooksConfig, METHODS } from '../../../client/collection'
 import { CollectionRouteData } from '../../../routes'
@@ -52,11 +53,18 @@ class Tree {
   }
 
   *ancestry(targetHandle: string) {
+    const visited: Record<string, true> = {}
     let currentConnection = this.edges.find(
       (edge) => edge.targetHandle === targetHandle
     )
 
     while (currentConnection) {
+      if (visited[currentConnection.id]) {
+        throw new Error('Circular connection detected')
+      }
+
+      visited[currentConnection.id] = true
+
       const node = this.nodes.find(
         (node) => node.id === currentConnection?.source
       )
@@ -74,11 +82,19 @@ class Tree {
   }
 
   *descent(sourceHandle: string) {
+    const visited: Record<string, true> = {}
+
     let currentConnection = this.edges.find(
       (edge) => edge.sourceHandle === sourceHandle
     )
 
     while (currentConnection) {
+      if (visited[currentConnection.id]) {
+        throw new Error('Circular connection detected')
+      }
+
+      visited[currentConnection.id] = true
+
       const node = this.nodes.find(
         (node) => node.id === currentConnection?.target
       )
@@ -93,11 +109,16 @@ class Tree {
 function CollectionHooks() {
   const { collection } = useRouteLoaderData('collection') as CollectionRouteData
 
+  const saveDebounce = React.useRef<ReturnType<typeof setTimeout>>()
+  const edgeUpdateSuccessful = React.useRef(true)
+
   const [nodes, setNodes] = React.useState<Node[]>(initialNodes)
   const [edges, setEdges] = React.useState<Edge[]>([])
 
   const [flow, setFlow] = React.useState<ReactFlowInstance>()
-  const saveDebounce = React.useRef<ReturnType<typeof setTimeout>>()
+
+  const [existingHooks, setExistingHooks] = React.useState<HooksConfig>()
+  const [currentHooks, setCurrentHooks] = React.useState<HooksConfig>()
 
   const onNodesChange = React.useCallback(
     (changes: NodeChange[]) =>
@@ -110,6 +131,26 @@ function CollectionHooks() {
       setEdges((edges) => applyEdgeChanges(changes, edges)),
     []
   )
+
+  const onEdgeUpdateStart = React.useCallback(() => {
+    edgeUpdateSuccessful.current = false
+  }, [])
+
+  const onEdgeUpdate = React.useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      edgeUpdateSuccessful.current = true
+      setEdges((els) => updateEdge(oldEdge, newConnection, els))
+    },
+    []
+  )
+
+  const onEdgeUpdateEnd = React.useCallback((_: Edge, edge: Edge) => {
+    if (!edgeUpdateSuccessful.current) {
+      setEdges((eds) => eds.filter((e) => e.id !== edge.id))
+    }
+
+    edgeUpdateSuccessful.current = true
+  }, [])
 
   const onConnect = React.useCallback((connection: Connection) => {
     setEdges((edges) => {
@@ -126,6 +167,11 @@ function CollectionHooks() {
       return addEdge(connection, edges)
     })
   }, [])
+
+  async function saveHooks() {
+    await collection.setHooks(currentHooks!)
+    setExistingHooks(currentHooks)
+  }
 
   function addHook(hookId: string) {
     setNodes((nodes) => [
@@ -150,6 +196,8 @@ function CollectionHooks() {
       setEdges(editor.edges)
       flow.setViewport(editor.viewport)
     })
+
+    collection.hooks().then((hooks) => setExistingHooks(hooks))
   }, [collection, flow])
 
   React.useEffect(() => {
@@ -165,8 +213,7 @@ function CollectionHooks() {
   }, [collection, edges, flow, nodes])
 
   React.useEffect(() => {
-    console.log(edges, nodes)
-
+    // resolve hooks
     const tree = new Tree(edges, nodes)
 
     const serviceHooks: HooksConfig = {
@@ -174,28 +221,36 @@ function CollectionHooks() {
       before: {},
     }
 
-    for (const method of METHODS) {
-      const targetHandle = `before-${method}`
-      const beforeHooks: Hook[] = []
+    try {
+      for (const method of METHODS) {
+        const targetHandle = `before-${method}`
+        const beforeHooks: Hook[] = []
 
-      for (const [node] of tree.ancestry(targetHandle)) {
-        beforeHooks.push([node?.data.id])
+        for (const [node] of tree.ancestry(targetHandle)) {
+          beforeHooks.push([node?.data.id])
+        }
+
+        serviceHooks['before'][method] = beforeHooks
+
+        const sourceHandle = `after-${method}`
+        const afterHooks: Hook[] = []
+
+        for (const [node] of tree.descent(sourceHandle)) {
+          afterHooks.push([node?.data.id])
+        }
+
+        serviceHooks['after'][method] = afterHooks
       }
 
-      serviceHooks['before'][method] = beforeHooks
-
-      const sourceHandle = `after-${method}`
-      const afterHooks: Hook[] = []
-
-      for (const [node] of tree.descent(sourceHandle)) {
-        afterHooks.push([node?.data.id])
-      }
-
-      serviceHooks['after'][method] = afterHooks
+      setCurrentHooks(serviceHooks)
+    } catch (err) {
+      console.error('Error resolving hooks', err)
+      // [ ] Handle error
     }
-
-    console.log('servicehooks', serviceHooks)
   }, [edges, nodes])
+
+  const hooksChanged =
+    JSON.stringify(currentHooks) !== JSON.stringify(existingHooks)
 
   return (
     <div className={styles.flowWrapper}>
@@ -204,6 +259,9 @@ function CollectionHooks() {
         nodes={nodes}
         onConnect={onConnect}
         onEdgesChange={onEdgesChange}
+        onEdgeUpdate={onEdgeUpdate}
+        onEdgeUpdateStart={onEdgeUpdateStart}
+        onEdgeUpdateEnd={onEdgeUpdateEnd}
         onNodesChange={onNodesChange}
         edges={edges}
         onInit={(instance: ReactFlowInstance) => setFlow(instance)}
@@ -211,6 +269,23 @@ function CollectionHooks() {
         <Background />
         <Panel position="top-left">
           <HooksSearch onSelect={addHook} />
+        </Panel>
+
+        <Panel position="top-right">
+          <div className="text-end">
+            <button
+              className="primary"
+              disabled={!hooksChanged}
+              onClick={saveHooks}
+            >
+              Save & activate hooks
+            </button>
+            {hooksChanged && (
+              <p className="m-0 text-secondary">
+                Changes detected in the hooks
+              </p>
+            )}
+          </div>
         </Panel>
       </ReactFlow>
     </div>

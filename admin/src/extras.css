@@ -33,6 +33,10 @@
   font-weight: 700;
 }
 
+.text-end {
+  text-align: right;
+}
+
 th {
   text-align: start;
   color: var(--secondary-color);
