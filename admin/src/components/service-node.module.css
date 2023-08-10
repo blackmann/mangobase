@@ -6,21 +6,6 @@
   overflow: hidden;
 }
 
-.handle {
-  border: 0;
-  position: relative;
-  transform: none;
-  top: 0;
-  left: -0.55rem;
-  height: 1.1rem;
-  width: 1.1rem;
-  background-color: var(--secondary-300);
-}
-
-.handle.out {
-  left: unset;
-  right: -0.55rem;
-}
 
 @media (prefers-color-scheme: dark) {
   .handle {

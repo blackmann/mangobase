@@ -1,0 +1,29 @@
+.hookNode {
+  background-color: var(--background-color);
+  border: 1px solid var(--secondary-200);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  width: 20rem;
+}
+
+.head {
+  align-items: center;
+  display: flex;
+  padding: 0.5rem 0;
+}
+
+.head header {
+  display: flex;
+  flex: 1;
+}
+
+.hookTitle {
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hookNode {
+    background-color: var(--secondary-700);
+    border-color: var(--secondary-600);
+  }
+}

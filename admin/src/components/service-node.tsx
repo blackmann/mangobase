@@ -1,6 +1,6 @@
-import { Handle, Position } from 'reactflow'
+import FlowHandle from './flow-handle'
 import InOut from '../icons/InOut'
-import clsx from 'clsx'
+import { Position } from 'reactflow'
 import { methods } from '../client/collection'
 import styles from './service-node.module.css'
 
@@ -21,20 +21,18 @@ function ServiceNode() {
       <ul className={styles.methods}>
         {methods.map((method) => (
           <li key={method}>
-            <Handle
+            <FlowHandle
               id={`before-${method}`}
-              className={styles.handle}
               position={Position.Left}
               type="target"
             />
 
             <div className={styles.methodLabel}>{method}</div>
 
-            <Handle
+            <FlowHandle
               id={`after-${method}`}
-              className={clsx(styles.handle, styles.out)}
               position={Position.Right}
-              type="target"
+              type="source"
             />
           </li>
         ))}
