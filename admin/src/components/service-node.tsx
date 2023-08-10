@@ -1,10 +1,18 @@
+import { Connection, Position } from 'reactflow'
 import FlowHandle from './flow-handle'
 import InOut from '../icons/InOut'
-import { Position } from 'reactflow'
 import { methods } from '../client/collection'
 import styles from './service-node.module.css'
 
 function ServiceNode() {
+  function checkSourceConnection(connection: Connection) {
+    return connection.source !== 'service'
+  }
+
+  function checkTargetConnection(connection: Connection) {
+    return connection.target !== 'service'
+  }
+
   return (
     <div className={styles.serviceNode}>
       <header className={styles.header}>
@@ -25,6 +33,7 @@ function ServiceNode() {
               id={`before-${method}`}
               position={Position.Left}
               type="target"
+              isValidConnection={checkSourceConnection}
             />
 
             <div className={styles.methodLabel}>{method}</div>
@@ -33,6 +42,7 @@ function ServiceNode() {
               id={`after-${method}`}
               position={Position.Right}
               type="source"
+              isValidConnection={checkTargetConnection}
             />
           </li>
         ))}

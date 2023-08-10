@@ -2,6 +2,7 @@ import 'reactflow/dist/style.css'
 
 import {
   Background,
+  Connection,
   Edge,
   EdgeChange,
   Node,
@@ -9,6 +10,7 @@ import {
   Panel,
   ReactFlow,
   ReactFlowInstance,
+  addEdge,
   applyEdgeChanges,
   applyNodeChanges,
 } from 'reactflow'
@@ -54,6 +56,22 @@ function CollectionHooks() {
     []
   )
 
+  const onConnect = React.useCallback((connection: Connection) => {
+    setEdges((edges) => {
+      edges = edges.filter((edge) => {
+        if (connection.source === 'service') {
+          return edge.sourceHandle !== connection.sourceHandle
+        }
+
+        return (
+          `${edge.target}-${edge.targetHandle}` !==
+          `${connection.target}-${connection.targetHandle}`
+        )
+      })
+      return addEdge(connection, edges)
+    })
+  }, [])
+
   function addHook(hookId: string) {
     setNodes((nodes) => [
       ...nodes,
@@ -91,11 +109,16 @@ function CollectionHooks() {
     }, DEBOUNCE_THRESHOLD)
   }, [collection, edges, flow, nodes])
 
+  React.useEffect(() => {
+    // resolve hooks
+  }, [edges, nodes])
+
   return (
     <div className={styles.flowWrapper}>
       <ReactFlow
         nodeTypes={nodeTypes}
         nodes={nodes}
+        onConnect={onConnect}
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
         edges={edges}

@@ -34,7 +34,11 @@ function HookNode({ data }: Props) {
           </div>
         </header>
 
-        <FlowHandle type="source" position={Position.Right} />
+        <FlowHandle
+          id={`out-${data.id}`}
+          type="source"
+          position={Position.Right}
+        />
       </div>
     </div>
   )

@@ -152,15 +152,18 @@ class Manifest {
       await mkdir(dir)
     }
 
-    const collectionsJson = JSON.stringify(this.collectionsIndex, undefined, 2)
-    await writeFile([dir, COLLECTIONS_FILE].join('/'), collectionsJson, {
-      encoding: 'utf-8',
-    })
+    const dataOuts = [
+      [this.collectionsIndex, COLLECTIONS_FILE],
+      [this.hooksIndex, HOOKS_FILE],
+      [this.editorsIndex, EDITORS_FILE],
+    ]
 
-    const hooksJson = JSON.stringify(this.hooksIndex, undefined, 2)
-    await writeFile([dir, HOOKS_FILE].join('/'), hooksJson, {
-      encoding: 'utf-8',
-    })
+    for (const [index, file] of dataOuts) {
+      const data = JSON.stringify(index, undefined, 2)
+      await writeFile([dir, file].join('/'), data, {
+        encoding: 'utf-8',
+      })
+    }
   }
 
   static getDirectory(env?: string) {

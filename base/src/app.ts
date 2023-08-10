@@ -25,6 +25,8 @@ interface Service {
   handle: Handle
 }
 
+// [ ] Rename project: mangobase -> frontend
+
 class Pipeline {
   private app: App
   private service: Service
@@ -420,7 +422,7 @@ class App {
     this.leave(devPath)
     this.leave(exposedPath)
 
-    const path = collection.exposed ? devPath : exposedPath
+    const path = collection.exposed ? exposedPath : devPath
 
     const pipeline = this.use(
       path,
