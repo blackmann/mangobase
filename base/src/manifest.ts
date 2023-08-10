@@ -5,6 +5,7 @@ import { SchemaDefinitions } from './schema'
 
 const COLLECTIONS_FILE = 'collections.json'
 const HOOKS_FILE = 'hooks.json'
+const EDITORS_FILE = 'editors.json'
 
 interface CollectionConfig {
   name: string
@@ -22,6 +23,9 @@ interface CollectionConfig {
   template?: boolean
 }
 
+// [ ] Type editor
+type Editor = { [key: string]: any }
+
 type HookId = string
 
 type Hooks = {
@@ -32,6 +36,7 @@ type Hooks = {
 class Manifest {
   private collectionsIndex: Record<string, CollectionConfig> = {}
   private hooksIndex: Record<string, Hooks> = {}
+  private editorsIndex: Record<string, Editor> = {}
 
   private initialize: Promise<void>
 
@@ -39,17 +44,21 @@ class Manifest {
     this.initialize = this.load()
   }
 
-  async init() {
+  init() {
     return this.initialize
   }
 
   private async load() {
     try {
-      await Promise.allSettled([this.loadCollections(), this.loadHooks()])
+      await Promise.allSettled([
+        this.loadCollections(),
+        this.loadHooks(),
+        this.loadEditors(),
+      ])
     } catch (err) {
       if (err instanceof Error && err.message.includes('ENOENT')) {
         // Ignore, file doesn't exist
-        // TODO: Make resilient, each load, each try
+        // [ ] Make resilient, each load, each try
         return
       }
 
@@ -73,9 +82,25 @@ class Manifest {
     this.hooksIndex = JSON.parse(hooksJSON)
   }
 
+  private async loadEditors() {
+    const dir = Manifest.getDirectory()
+    const editorsJSON = await readFile([dir, EDITORS_FILE].join('/'), {
+      encoding: 'utf-8',
+    })
+
+    this.editorsIndex = JSON.parse(editorsJSON)
+  }
+
   async setHooks(collection: string, hooks: Hooks) {
     await this.init()
     this.hooksIndex[collection] = hooks
+
+    await this.save()
+  }
+
+  async setEditor(collection: string, editor: Editor) {
+    await this.init()
+    this.editorsIndex[collection] = editor
 
     await this.save()
   }
@@ -104,6 +129,11 @@ class Manifest {
   async getHooks(collection: string) {
     await this.init()
     return this.hooksIndex[collection]
+  }
+
+  async getEditor(collection: string) {
+    await this.init()
+    return this.editorsIndex[collection]
   }
 
   async removeCollection(name: string) {

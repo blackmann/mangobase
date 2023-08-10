@@ -1,6 +1,8 @@
 import type App from './app'
+import { ReactFlowJsonObject } from 'reactflow'
 
 type Schema = Record<string, any>
+type Editor = ReactFlowJsonObject
 
 interface CollectionProps {
   name: string
@@ -25,18 +27,35 @@ class Collection {
     this.template = data.template
   }
 
+  private get base() {
+    if (this.exposed) {
+      return this.name
+    }
+
+    return `_x/${this.name}`
+  }
+
   async find() {
-    const { data } = await this.app.req.get(`/${this.name}`)
+    const { data } = await this.app.req.get(`/${this.base}`)
     return data
   }
 
   async hooks() {
-    const { data } = await this.app.req.get(`/hooks/${this.name}`)
+    const { data } = await this.app.req.get(`/_dev/hooks/${this.name}`)
     return data
   }
 
+  async editor() {
+    const { data } = await this.app.req.get(`/_dev/editors/${this.name}`)
+    return data as Editor
+  }
+
   async setHooks(hooks: HooksConfig) {
-    await this.app.req.patch(`/hooks/${this.name}`, hooks)
+    await this.app.req.patch(`/_dev/hooks/${this.name}`, hooks)
+  }
+
+  async setEditor(editor: Editor) {
+    await this.app.req.patch(`/_dev/editors/${this.name}`, editor)
   }
 }
 

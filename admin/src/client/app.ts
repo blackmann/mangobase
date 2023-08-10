@@ -28,7 +28,7 @@ class App {
   }
 
   async hookRegistry() {
-    const { data } = await this.req.get('hooks-registry')
+    const { data } = await this.req.get('_dev/hooks-registry')
     return data
   }
 }

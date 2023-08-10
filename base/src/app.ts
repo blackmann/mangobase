@@ -254,6 +254,29 @@ const collectionsService: Service & { schema: Schema } = {
   }),
 }
 
+const editorService: Service = {
+  async handle(ctx, app) {
+    switch (ctx.method) {
+      case 'get': {
+        const editor = await app.manifest.getEditor(ctx.params?.id)
+        ctx.result = editor
+        return ctx
+      }
+
+      case 'patch': {
+        const collection = ctx.params?.id as string
+        await app.manifest.setEditor(collection, ctx.data)
+
+        ctx.result = ctx.data
+
+        return ctx
+      }
+      default:
+        throw new MethodNotAllowed()
+    }
+  },
+}
+
 const hooksRegistry: Service = {
   async handle(ctx, app) {
     switch (ctx.method) {
@@ -274,6 +297,7 @@ const hooksService: Service = {
     switch (ctx.method) {
       case 'patch': {
         // the id is the collection name
+        // [ ] Validate hook
         const collection = ctx.params?.id as string
         await app.manifest.setHooks(collection, ctx.data)
 
@@ -315,8 +339,9 @@ class App {
 
     this.initialize = (async () => {
       this.addService('collections', collectionsService)
-      this.addService('hooks-registry', hooksRegistry)
-      this.addService('hooks', hooksService)
+      this.addService('_dev/hooks-registry', hooksRegistry)
+      this.addService('_dev/hooks', hooksService)
+      this.addService('_dev/editors', editorService)
 
       this.installCollectionsServices()
     })()
@@ -387,14 +412,18 @@ class App {
   }
 
   async installCollection(collection: CollectionConfig) {
-    if (!collection.exposed) {
-      this.leave(collection.name)
+    // remove old [possible] installations of this collection
+    // [ ] Add middleware to prevent `_x/*` and `_dev/*` access by non-admin users
+    const devPath = `_x/${collection.name}`
+    const exposedPath = collection.name
 
-      return
-    }
+    this.leave(devPath)
+    this.leave(exposedPath)
+
+    const path = collection.exposed ? devPath : exposedPath
 
     const pipeline = this.use(
-      collection.name,
+      path,
       new CollectionService(this, collection.name)
     )
 

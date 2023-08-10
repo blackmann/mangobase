@@ -4,7 +4,7 @@ const candidates =
 function randomStr(length = 8) {
   return Array.from({ length })
     .map(() => candidates[Math.floor(Math.random() * candidates.length)])
-    .join(',')
+    .join('')
 }
 
 export default randomStr
