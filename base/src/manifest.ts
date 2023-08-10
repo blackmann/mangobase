@@ -155,7 +155,7 @@ class Manifest {
     const dataOuts = [
       [this.collectionsIndex, COLLECTIONS_FILE],
       [this.hooksIndex, HOOKS_FILE],
-      [this.editorsIndex, EDITORS_FILE],
+      // [this.editorsIndex, EDITORS_FILE],
     ]
 
     for (const [index, file] of dataOuts) {

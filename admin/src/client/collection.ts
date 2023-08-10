@@ -59,16 +59,16 @@ class Collection {
   }
 }
 
-const hookStages = ['before', 'after'] as const
-const methods = ['find', 'get', 'create', 'patch', 'remove'] as const
+const HOOK_STAGES = ['before', 'after'] as const
+const METHODS = ['find', 'get', 'create', 'patch', 'remove'] as const
 
-type Stage = `${(typeof hookStages)[number]}`
-type Method = `${(typeof methods)[number]}`
+type Stage = `${(typeof HOOK_STAGES)[number]}`
+type Method = `${(typeof METHODS)[number]}`
 type HookId = string
 type HookOptions = Record<string, any>
 type Hook = [HookId, HookOptions?]
 type HooksConfig = Record<Stage, Partial<Record<Method, Hook[]>>>
 
 export default Collection
-export { hookStages, methods }
+export { HOOK_STAGES, METHODS }
 export type { CollectionProps, Stage, Method, HookOptions, Hook, HooksConfig }

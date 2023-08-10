@@ -14,6 +14,7 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
 } from 'reactflow'
+import { Hook, HooksConfig, METHODS } from '../../../client/collection'
 import { CollectionRouteData } from '../../../routes'
 import { HOOK_NODE_TYPE } from '../../../components/hook-node'
 import HooksSearch from '../../../components/hooks-search'
@@ -34,6 +35,60 @@ const initialNodes = [
 ]
 
 const DEBOUNCE_THRESHOLD = 500
+
+class Tree {
+  private edges: Edge[]
+  private nodes: Node[]
+
+  constructor(edges: Edge[], nodes: Node[]) {
+    this.edges = edges
+    this.nodes = nodes
+  }
+
+  ancestor(connection: Edge) {
+    return this.edges.find(
+      (edge) => edge.source !== 'service' && edge.target === connection?.source
+    )
+  }
+
+  *ancestry(targetHandle: string) {
+    let currentConnection = this.edges.find(
+      (edge) => edge.targetHandle === targetHandle
+    )
+
+    while (currentConnection) {
+      const node = this.nodes.find(
+        (node) => node.id === currentConnection?.source
+      )
+
+      yield [node, currentConnection]
+
+      currentConnection = this.ancestor(currentConnection)
+    }
+  }
+
+  descendant(connection: Edge) {
+    return this.edges.find(
+      (edge) => edge.target !== 'service' && edge.source === connection?.target
+    )
+  }
+
+  *descent(sourceHandle: string) {
+    let currentConnection = this.edges.find(
+      (edge) => edge.sourceHandle === sourceHandle
+    )
+
+    while (currentConnection) {
+      const node = this.nodes.find(
+        (node) => node.id === currentConnection?.target
+      )
+
+      yield [node, currentConnection]
+
+      currentConnection = this.descendant(currentConnection)
+    }
+  }
+}
 
 function CollectionHooks() {
   const { collection } = useRouteLoaderData('collection') as CollectionRouteData
@@ -110,7 +165,36 @@ function CollectionHooks() {
   }, [collection, edges, flow, nodes])
 
   React.useEffect(() => {
-    // resolve hooks
+    console.log(edges, nodes)
+
+    const tree = new Tree(edges, nodes)
+
+    const serviceHooks: HooksConfig = {
+      after: {},
+      before: {},
+    }
+
+    for (const method of METHODS) {
+      const targetHandle = `before-${method}`
+      const beforeHooks: Hook[] = []
+
+      for (const [node] of tree.ancestry(targetHandle)) {
+        beforeHooks.push([node?.data.id])
+      }
+
+      serviceHooks['before'][method] = beforeHooks
+
+      const sourceHandle = `after-${method}`
+      const afterHooks: Hook[] = []
+
+      for (const [node] of tree.descent(sourceHandle)) {
+        afterHooks.push([node?.data.id])
+      }
+
+      serviceHooks['after'][method] = afterHooks
+    }
+
+    console.log('servicehooks', serviceHooks)
   }, [edges, nodes])
 
   return (

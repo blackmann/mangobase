@@ -1,7 +1,7 @@
 import { Connection, Position } from 'reactflow'
 import FlowHandle from './flow-handle'
 import InOut from '../icons/InOut'
-import { methods } from '../client/collection'
+import { METHODS } from '../client/collection'
 import styles from './service-node.module.css'
 
 function ServiceNode() {
@@ -27,7 +27,7 @@ function ServiceNode() {
       </header>
 
       <ul className={styles.methods}>
-        {methods.map((method) => (
+        {METHODS.map((method) => (
           <li key={method}>
             <FlowHandle
               id={`before-${method}`}
