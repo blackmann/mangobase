@@ -36,7 +36,7 @@ function CollectionDetail() {
   const { collection } = useLoaderData() as RouteData
 
   return (
-    <div className={styles.main}>
+    <div className={clsx('container-fluid', styles.main)}>
       <header className="mt-1">
         <h1 className="mb-0 mt-0">{collection.name}</h1>
         <div className={clsx(styles.tabs, 'mt-2')}>

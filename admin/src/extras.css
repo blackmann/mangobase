@@ -37,6 +37,12 @@
   text-align: right;
 }
 
+thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--background-color);
+}
+
 th {
   text-align: start;
   color: var(--secondary-color);

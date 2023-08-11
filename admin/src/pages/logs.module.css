@@ -1,0 +1,10 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.data {
+  height: 0;
+  overflow-y: scroll;
+}

@@ -3,6 +3,7 @@ import AdminLayout from './layouts/AdminLayout'
 import Collection from './client/collection'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import CollectionsPage from './pages/collections'
+import Logs from './pages/logs'
 import Wip from './pages/wip'
 import app from './mangobase-app'
 import { createBrowserRouter } from 'react-router-dom'
@@ -14,43 +15,47 @@ interface CollectionRouteData {
 const routes = createBrowserRouter(
   [
     {
-      element: <AdminLayout />,
-      path: '',
       children: [
         {
-          path: 'collections',
-          element: <CollectionsPage />,
           children: [
             {
+              children: [
+                {
+                  element: <CollectionRecords />,
+                  path: '',
+                },
+                {
+                  element: <CollectionHooks />,
+                  path: 'hooks',
+                },
+              ],
+              element: <CollectionDetail />,
               id: 'collection',
-              path: ':name',
               loader: async ({ params }) => {
                 const collection = await app.collection(params.name!)
                 return { collection }
               },
-              element: <CollectionDetail />,
-              children: [
-                {
-                  path: '',
-                  element: <CollectionRecords />,
-                },
-                {
-                  path: 'hooks',
-                  element: <CollectionHooks />,
-                },
-              ],
+              path: ':name',
             },
           ],
+          element: <CollectionsPage />,
+          path: 'collections',
         },
         {
+          element: <Logs />,
+          path: 'logs',
+        },
+        {
+          element: <Wip />,
           path: '*',
-          element: <Wip />
-        }
+        },
       ],
+      element: <AdminLayout />,
+      path: '',
     },
     {
-      path: '*',
       element: <>Come back later, after!</>,
+      path: '*',
     },
   ],
   {
