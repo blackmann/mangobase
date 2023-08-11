@@ -16,6 +16,7 @@ import { Database } from './database'
 import HooksRegistry from './hooks-registry'
 import Method from './method'
 import { createRouter } from 'radix3'
+import users from './users'
 
 const INTERNAL_PATHS = [
   'collections',
@@ -332,10 +333,14 @@ const hooksService: Service = {
       case 'patch': {
         // the id is the collection name
         // [ ] Validate hook
-        const collection = ctx.params?.id as string
-        await app.manifest.setHooks(collection, ctx.data)
+        const collectionName = ctx.params?.id as string
+        await app.manifest.setHooks(collectionName, ctx.data)
 
-        ctx.result = await app.manifest.getHooks(collection)
+        // reinstall collection with hooks
+        const collection = await app.manifest.collection(collectionName)
+        await app.installCollection(collection)
+
+        ctx.result = await app.manifest.getHooks(collectionName)
 
         return ctx
       }
@@ -381,14 +386,15 @@ class App {
       this.addService(App.onDev`hooks`, hooksService)
       this.addService(App.onDev`editors`, editorService)
 
-      await this.plug(logger)
+      await this.internalPlug(logger)
+      await this.internalPlug(users)
 
       this.installCollectionsServices()
     })()
   }
 
-  async init() {
-    return await this.initialize
+  init() {
+    return this.initialize
   }
 
   use(path: string, handle: Handle): Pipeline
@@ -540,6 +546,10 @@ class App {
     }
 
     return ctx
+  }
+
+  private async internalPlug<T>(plugin: (app: App) => Promise<T>): Promise<T> {
+    return await plugin(this)
   }
 
   async plug<T>(plugin: (app: App) => Promise<T>): Promise<T> {
