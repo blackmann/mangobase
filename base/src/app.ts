@@ -9,6 +9,7 @@ import {
 import type { HookConfig, HookFn, Hooks } from './hook'
 import Manifest, { CollectionConfig } from './manifest'
 import Schema, { ValidationError } from './schema'
+import logger, { logEnd, logStart } from './logger'
 import CollectionService from './collection-service'
 import type { Context } from './context'
 import { Database } from './database'
@@ -34,12 +35,16 @@ interface Service {
 
 class Pipeline {
   private app: App
-  private service: Service
+  private _service: Service
   private hooks: Hooks = Pipeline.stubHooks()
 
   constructor(app: App, service: Service) {
     this.app = app
-    this.service = service
+    this._service = service
+  }
+
+  get service() {
+    return this._service
   }
 
   async run(ctx: Context): Promise<Context> {
@@ -98,6 +103,10 @@ class Pipeline {
     return ctx
   }
 
+  async runErrorHooks(ctx: Context): Promise<Context> {
+    return this.app.runError(ctx)
+  }
+
   hook(
     when: 'after' | 'before',
     method: `${Method}`,
@@ -121,7 +130,11 @@ class Pipeline {
     return this
   }
 
-  static handleError(err: any, ctx: Context): Context {
+  static async handleError(
+    err: any,
+    ctx: Context,
+    clean?: (ctx: Context) => Promise<Context>
+  ): Promise<Context> {
     // TODO: put into logs
 
     const error =
@@ -133,6 +146,10 @@ class Pipeline {
     }
 
     ctx.statusCode = error.statusCode
+
+    if (clean) {
+      ctx = await clean(ctx)
+    }
 
     return ctx
   }
@@ -349,6 +366,7 @@ class App {
 
   private beforeHooks: HookFn[] = []
   private afterHooks: HookFn[] = []
+  private errorHooks: HookFn[] = []
 
   private initialize: Promise<void>
 
@@ -359,9 +377,11 @@ class App {
 
     this.initialize = (async () => {
       this.addService('collections', collectionsService)
-      this.addService('_dev/hooks-registry', hooksRegistry)
-      this.addService('_dev/hooks', hooksService)
-      this.addService('_dev/editors', editorService)
+      this.addService(App.onDev`hooks-registry`, hooksRegistry)
+      this.addService(App.onDev`hooks`, hooksService)
+      this.addService(App.onDev`editors`, editorService)
+
+      await this.plug(logger)
 
       this.installCollectionsServices()
     })()
@@ -409,8 +429,14 @@ class App {
     return this.routes.lookup(path)?.pipeline
   }
 
+  service(path: string): Service | undefined {
+    return this.pipeline(path)?.service
+  }
+
   async api(ctx: Context): Promise<Context> {
     await this.init()
+
+    await logStart(ctx, undefined, this)
 
     const route = this.routes.lookup(ctx.path)
     if (!route) {
@@ -425,7 +451,10 @@ class App {
 
     const pipeline = route.pipeline as Pipeline
 
-    return await pipeline.run(ctx)
+    ctx = await pipeline.run(ctx)
+    logEnd(ctx, undefined, this)
+
+    return ctx
   }
 
   async installCollectionsServices() {
@@ -470,12 +499,19 @@ class App {
     }
   }
 
-  before(...hooks: HookFn[]) {
+  before(...hooks: HookFn[]): App {
     this.beforeHooks.push(...hooks)
+    return this
   }
 
-  after(...hooks: HookFn[]) {
+  after(...hooks: HookFn[]): App {
     this.afterHooks.push(...hooks)
+    return this
+  }
+
+  error(...hooks: HookFn[]): App {
+    this.errorHooks.push(...hooks)
+    return this
   }
 
   async runBefore(ctx: Context): Promise<Context> {
@@ -489,6 +525,18 @@ class App {
   async runAfter(ctx: Context): Promise<Context> {
     for (const hook of this.afterHooks) {
       ctx = await hook(ctx, undefined, this)
+    }
+
+    return ctx
+  }
+
+  async runError(ctx: Context): Promise<Context> {
+    for (const hook of this.errorHooks) {
+      try {
+        ctx = await hook(ctx, undefined, this)
+      } catch (err) {
+        console.error('Error running error hook', hook.name, err)
+      }
     }
 
     return ctx
@@ -510,6 +558,17 @@ class App {
 
   serve<T>(server: (app: App) => T): T {
     return server(this)
+  }
+
+  /**
+   * @example
+   * const path = App.onDev`songs`
+   * assert(path === '_dev/songs')
+   *
+   * @returns path standardized for dev
+   */
+  static onDev([path]: TemplateStringsArray) {
+    return `_dev/${path}`
   }
 }
 

@@ -12,22 +12,28 @@ const ALLOWED_FILTERS = [
   '$sort',
 ] as const
 
+interface Options {
+  schema?: Schema
+}
+
 class CollectionService implements Service {
   collection: Collection
   name: string
 
-  constructor(app: App, name: string) {
+  constructor(app: App, name: string, { schema }: Options = {}) {
     this.name = name
     this.collection = new Collection(name, {
       db: app.database,
-      schema: (async () => {
-        const { schema } = await app.manifest.collection(name)
-        if (!schema) {
-          throw new Error(`no collection with \`${name}\` exists`)
-        }
+      schema: schema
+        ? Promise.resolve(schema)
+        : (async () => {
+            const { schema } = await app.manifest.collection(name)
+            if (!schema) {
+              throw new Error(`no collection with \`${name}\` exists`)
+            }
 
-        return new Schema(schema, { parser: app.database.cast })
-      })(),
+            return new Schema(schema, { parser: app.database.cast })
+          })(),
     })
   }
 

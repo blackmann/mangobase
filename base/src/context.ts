@@ -12,6 +12,7 @@ interface Context {
   query: Record<string, any>
   result?: any
   statusCode?: number
+  url: string
 }
 
 function context(ctx: Partial<Context>): Context {
@@ -21,6 +22,7 @@ function context(ctx: Partial<Context>): Context {
     method: 'find',
     path: '',
     query: {},
+    url: '',
     ...ctx,
   }
 }

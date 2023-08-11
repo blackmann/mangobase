@@ -18,6 +18,7 @@ function expressServer(mangobaseApp: App) {
       method: methodFromHttp(req.method),
       path: req.path.replace(/^\/api\/?/, ''),
       query: req.query,
+      url: req.url,
     })
 
     mangobaseApp.api(ctx).then((context) => {
