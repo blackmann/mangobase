@@ -1,8 +1,8 @@
 import App, { Service } from './app'
 import { BadRequest, MethodNotAllowed } from './errors'
 import Collection, { Filter } from './collection'
+import Schema, { ValidationError } from './schema'
 import type { Context } from './context'
-import { ValidationError } from './schema'
 
 const ALLOWED_FILTERS = [
   '$limit',
@@ -20,7 +20,14 @@ class CollectionService implements Service {
     this.name = name
     this.collection = new Collection(name, {
       db: app.database,
-      manifest: app.manifest,
+      schema: (async () => {
+        const { schema } = await app.manifest.collection(name)
+        if (!schema) {
+          throw new Error(`no collection with \`${name}\` exists`)
+        }
+
+        return new Schema(schema, { parser: app.database.cast })
+      })(),
     })
   }
 

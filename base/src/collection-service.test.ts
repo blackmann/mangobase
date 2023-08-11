@@ -11,7 +11,11 @@ const mockDatabase = {} as unknown as Database
 
 const app: Partial<App> = {
   database: mockDatabase,
-  manifest: {} as unknown as Manifest,
+  manifest: {
+    collection() {
+      return { schema: {} }
+    },
+  } as unknown as Manifest,
 }
 
 describe('CollectionService', () => {

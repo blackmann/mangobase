@@ -16,7 +16,12 @@ import HooksRegistry from './hooks-registry'
 import Method from './method'
 import { createRouter } from 'radix3'
 
-const INTERNAL_PATHS = ['collections', 'hooks']
+const INTERNAL_PATHS = [
+  'collections',
+  '_dev/hooks',
+  '_dev/hooks-registry',
+  '_dev/editors',
+]
 const DEV = ['development', 'test', undefined].includes(process.env.NODE_ENV)
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
@@ -38,7 +43,11 @@ class Pipeline {
   }
 
   async run(ctx: Context): Promise<Context> {
-    // run app before hooks
+    try {
+      ctx = await this.app.runBefore(ctx)
+    } catch (err) {
+      return Pipeline.handleError(err, ctx)
+    }
 
     for (const [hook, config] of this.hooks.before[ctx.method]) {
       try {
@@ -78,6 +87,12 @@ class Pipeline {
 
     if (!ctx.statusCode) {
       ctx.statusCode = 200
+    }
+
+    try {
+      ctx = await this.app.runAfter(ctx)
+    } catch (err) {
+      return Pipeline.handleError(err, ctx)
     }
 
     return ctx
@@ -332,6 +347,9 @@ class App {
   manifest: Manifest
   hooksRegistry: HooksRegistry
 
+  private beforeHooks: HookFn[] = []
+  private afterHooks: HookFn[] = []
+
   private initialize: Promise<void>
 
   constructor(options: Options) {
@@ -350,7 +368,7 @@ class App {
   }
 
   async init() {
-    return this.initialize
+    return await this.initialize
   }
 
   use(path: string, handle: Handle): Pipeline
@@ -385,6 +403,10 @@ class App {
 
   private register(path: string, pipeline: Pipeline) {
     this.routes.insert(path, { pipeline })
+  }
+
+  pipeline(path: string): Pipeline | null {
+    return this.routes.lookup(path)?.pipeline
   }
 
   async api(ctx: Context): Promise<Context> {
@@ -446,6 +468,35 @@ class App {
         }
       }
     }
+  }
+
+  before(...hooks: HookFn[]) {
+    this.beforeHooks.push(...hooks)
+  }
+
+  after(...hooks: HookFn[]) {
+    this.afterHooks.push(...hooks)
+  }
+
+  async runBefore(ctx: Context): Promise<Context> {
+    for (const hook of this.beforeHooks) {
+      ctx = await hook(ctx, undefined, this)
+    }
+
+    return ctx
+  }
+
+  async runAfter(ctx: Context): Promise<Context> {
+    for (const hook of this.afterHooks) {
+      ctx = await hook(ctx, undefined, this)
+    }
+
+    return ctx
+  }
+
+  async plug<T>(plugin: (app: App) => Promise<T>): Promise<T> {
+    await this.init()
+    return await plugin(this)
   }
 
   async admin(path: string, queryParams?: string) {

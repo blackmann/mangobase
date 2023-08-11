@@ -5,7 +5,7 @@ import allHooks from './hooks'
 class HooksRegistry {
   private registry: Record<string, Hook> = {}
 
-  constructor() {
+  installCommon() {
     for (const hook of allHooks) {
       this.registry[hook.id] = hook
     }

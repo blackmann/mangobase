@@ -14,4 +14,4 @@ const allHooks = [LogData]
 
 export default allHooks
 
-export { LogData as RestrictToMethods }
+export { LogData }

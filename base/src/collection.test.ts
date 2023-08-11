@@ -3,6 +3,7 @@ import Manifest, { CollectionConfig } from './manifest'
 import { describe, expect, it, vi } from 'vitest'
 import Collection from './collection'
 import { MockedObject } from 'vitest'
+import Schema from './schema'
 
 function getCursor() {
   const mockCursor: MockedObject<Cursor> = {
@@ -48,7 +49,11 @@ const mockManifest: MockedObject<Manifest> = {
 describe('collections', () => {
   const collection = new Collection('mock', {
     db: mockDb,
-    manifest: mockManifest,
+    schema: new Promise((res) => {
+      mockManifest
+        .collection('mock')
+        .then(({ schema }) => res(new Schema(schema)))
+    }),
   })
 
   describe('find', () => {

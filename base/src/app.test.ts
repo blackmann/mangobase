@@ -371,7 +371,7 @@ describe('collections service', () => {
     })
 
     it('list hooks', async () => {
-      const res = await app.api(context({ path: 'hooks-registry' }))
+      const res = await app.api(context({ path: '_dev/hooks-registry' }))
       expect(res.result).toStrictEqual([
         { id: 'stash-data', name: 'Stash Data', run: expect.anything() },
       ])
