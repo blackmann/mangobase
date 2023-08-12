@@ -17,7 +17,7 @@ interface Options {
 }
 
 class CollectionService implements Service {
-  _collection: Collection
+  private _collection: Collection
   name: string
 
   constructor(app: App, name: string, { schema }: Options = {}) {
@@ -86,6 +86,7 @@ class CollectionService implements Service {
       )
 
       ctx.result = result
+      ctx.statusCode = 201
 
       return ctx
     } catch (err) {

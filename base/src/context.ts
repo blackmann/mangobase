@@ -13,6 +13,7 @@ interface Context {
   result?: any
   statusCode?: number
   url: string
+  user?: any
 }
 
 function context(ctx: Partial<Context>): Context {

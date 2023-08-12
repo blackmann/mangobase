@@ -8,6 +8,7 @@ const app = new App({
 
 app.hooksRegistry.installCommon()
 
+process.env.SECRET_KEY = 'test-key'
 const PORT = process.env.PORT || 3000
 
 app.serve(expressServer).listen(PORT, () => {

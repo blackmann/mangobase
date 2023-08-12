@@ -167,6 +167,10 @@ class MongoDB implements Database {
   cast(value: any, type: DefinitionType) {
     switch (type) {
       case 'id': {
+        if (typeof value !== 'string') {
+          return value
+        }
+
         return ObjectId.createFromHexString(value)
       }
 

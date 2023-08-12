@@ -1,4 +1,4 @@
-import { BadRequest, MethodNotAllowed } from './errors'
+import { BadRequest, MethodNotAllowed, ServiceError } from './errors'
 import { CollectionHooks, HOOKS_STUB } from './manifest'
 import App from './app'
 import CollectionService from './collection-service'
@@ -6,12 +6,16 @@ import { Hook } from './hook'
 import { SchemaDefinitions } from './schema'
 import bcrypt from 'bcryptjs'
 import { context } from './context'
+import jsonwebtoken from 'jsonwebtoken'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
+interface JWTStructure {
+  user: string
+}
 
 const schema: SchemaDefinitions = {
   password: { required: true, type: 'string' },
-  user: { required: true, type: 'id' },
+  user: { relation: 'users', required: true, type: 'id' },
 }
 
 const RequirePassword: Hook = {
@@ -19,9 +23,13 @@ const RequirePassword: Hook = {
   id: 'auth-require-password',
   name: 'Require Password',
   run: async (ctx) => {
-    if (typeof ctx.data?.['password'] !== 'string') {
+    const password = ctx.data?.['password']
+    if (typeof password !== 'string') {
       throw new BadRequest('`password` field is required or should be a string')
     }
+
+    ctx.locals['password'] = password
+    delete ctx.data!['password']
 
     return ctx
   },
@@ -32,7 +40,7 @@ const CreatePasswordAuthCredential: Hook = {
   id: 'create-auth-credential',
   name: 'Create Password Auth Credential',
   run: async (ctx, _, app) => {
-    const password = ctx.data?.['password']
+    const password = ctx.locals['password']
     if (typeof password !== 'string') {
       throw new BadRequest('`password` field is missing')
     }
@@ -43,7 +51,7 @@ const CreatePasswordAuthCredential: Hook = {
 
     if (!ctx.result || !(await usersCollection.get(ctx.result._id))) {
       throw new BadRequest(
-        'No user in result. Make sure this hook (create-auth-credential) is an after hook for users service.'
+        `No user in result. Make sure this hook \`${CreatePasswordAuthCredential.id}\` is an after:create hook for users service.`
       )
     }
 
@@ -57,7 +65,7 @@ const CreatePasswordAuthCredential: Hook = {
       context({
         data: {
           password: hashedPassword,
-          user: ctx.result._id,
+          user: ctx.result._id.toString(),
         },
         method: 'create',
       })
@@ -103,16 +111,111 @@ async function baseAuthentication(app: App) {
     usersHooks.before.create.push([RequirePassword.id])
   }
 
-  app.use('login', async (ctx) => {
+  if (
+    !usersHooks['after']['create'].find(
+      ([hookId]) => hookId === CreatePasswordAuthCredential.id
+    )
+  ) {
+    usersHooks.after.create.push([CreatePasswordAuthCredential.id])
+  }
+
+  await app.pipeline(App.onDev('hooks-registry'))?.run(
+    context({
+      data: usersHooks,
+      method: 'patch',
+      params: { id: 'users' },
+    })
+  )
+
+  app.use('login', async (ctx, app) => {
+    checkSecretKeyEnv()
+
     if (ctx.method !== 'create') {
       throw new MethodNotAllowed()
     }
+
+    if (!(ctx.data?.username && ctx.data?.password)) {
+      throw new BadRequest('`username` and `password` required')
+    }
+
+    const usersService = app.service('users') as CollectionService
+    const {
+      data: [user],
+    } = await usersService.collection.find({
+      query: { username: ctx.data.username },
+    })
+
+    if (!user) {
+      throw new BadRequest('Incorrect username/password combination')
+    }
+
+    const credentialService = app.service(
+      App.unexposed(name)
+    ) as CollectionService
+
+    const {
+      data: [credential],
+    } = await credentialService.collection.find({
+      query: { user: user._id.toString() },
+    })
+
+    if (
+      !credential ||
+      !(await bcrypt.compare(ctx.data.password, credential.password))
+    ) {
+      throw new BadRequest('Incorrect username/password combination.')
+    }
+
+    // [ ] Sign with distinction for admin access
+    // [ ] Use `expiresIn` settings from dashboard
+    const jwt = jsonwebtoken.sign({ user: user._id }, process.env.SECRET_KEY!, {
+      expiresIn: '7d',
+    })
+
+    ctx.result = {
+      auth: { token: jwt, type: 'Bearer' },
+      user,
+    }
+
+    return ctx
+  })
+
+  app.before(async (ctx) => {
+    checkSecretKeyEnv()
+
+    const authHeader = ctx.headers['authorization']
+    if (authHeader) {
+      const [, token] = (authHeader as string).split(' ')
+      try {
+        const { user: userId } = jsonwebtoken.verify(
+          token,
+          process.env.SECRET_KEY!
+        ) as JWTStructure
+
+        const usersCollection = (app.service('users') as CollectionService)
+          .collection
+        const user = await usersCollection.get(userId)
+
+        ctx.user = user
+      } catch (err) {
+        console.log(err)
+        //
+      }
+    }
+
     return ctx
   })
 }
 
 async function anonymousAuthentication(app: App) {
   // just a stub
+}
+
+function checkSecretKeyEnv() {
+  if (!process.env.SECRET_KEY) {
+    // [ ] Add link to docs on how to solve
+    throw new ServiceError('Your environment is missing `SECRET_KEY` variable.')
+  }
 }
 
 export { RequirePassword, anonymousAuthentication, baseAuthentication }
