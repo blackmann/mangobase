@@ -11,16 +11,18 @@ class HooksRegistry {
     }
   }
 
-  register(hook: Hook) {
-    if (hook.configSchema) {
-      Schema.validateSchema(hook.configSchema)
-    }
+  register(...hooks: Hook[]) {
+    for (const hook of hooks) {
+      if (hook.configSchema) {
+        Schema.validateSchema(hook.configSchema)
+      }
 
-    if (this.registry[hook.id]) {
-      throw new Error(`A hook with id ${hook.id} is already registered`)
-    }
+      if (this.registry[hook.id]) {
+        throw new Error(`A hook with id ${hook.id} is already registered`)
+      }
 
-    this.registry[hook.id] = hook
+      this.registry[hook.id] = hook
+    }
   }
 
   get(id: string): Hook {

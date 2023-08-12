@@ -17,12 +17,12 @@ interface Options {
 }
 
 class CollectionService implements Service {
-  collection: Collection
+  _collection: Collection
   name: string
 
   constructor(app: App, name: string, { schema }: Options = {}) {
     this.name = name
-    this.collection = new Collection(name, {
+    this._collection = new Collection(name, {
       db: app.database,
       schema: schema
         ? Promise.resolve(schema)
@@ -35,6 +35,10 @@ class CollectionService implements Service {
             return new Schema(schema, { parser: app.database.cast })
           })(),
     })
+  }
+
+  get collection() {
+    return this._collection
   }
 
   register(app: App, install: (subpath: string) => void) {

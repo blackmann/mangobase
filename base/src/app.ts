@@ -15,6 +15,7 @@ import type { Context } from './context'
 import { Database } from './database'
 import HooksRegistry from './hooks-registry'
 import Method from './method'
+import { baseAuthentication } from './authentication'
 import { createRouter } from 'radix3'
 import users from './users'
 
@@ -24,7 +25,8 @@ const INTERNAL_PATHS = [
   '_dev/hooks-registry',
   '_dev/editors',
 ]
-const DEV = ['development', 'test', undefined].includes(process.env.NODE_ENV)
+
+const DEV = process.env.NODE_ENV !== 'production'
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
 
@@ -388,6 +390,7 @@ class App {
 
       await this.internalPlug(logger)
       await this.internalPlug(users)
+      await this.internalPlug(baseAuthentication)
 
       this.installCollectionsServices()
     })()

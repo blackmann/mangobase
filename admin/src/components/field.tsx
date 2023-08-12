@@ -7,7 +7,7 @@ interface Props {
 const fieldTypes = [
   { title: 'string', value: 'string' },
   { title: 'number', value: 'number' },
-  { title: 'object id', value: 'object_id' },
+  { title: 'object id', value: 'id' },
 ]
 
 function Field({ register }: Props) {

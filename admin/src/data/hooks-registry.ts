@@ -10,7 +10,9 @@ interface Hook {
 const hooksRegistry = signal<Hook[]>([])
 
 async function loadHooksRegistry() {
-  hooksRegistry.value = await app.hookRegistry()
+  hooksRegistry.value = (await app.hookRegistry()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  )
 }
 
 export default hooksRegistry

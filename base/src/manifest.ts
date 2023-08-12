@@ -171,5 +171,11 @@ class Manifest {
   }
 }
 
+const HOOKS_STUB: Hooks = {
+  after: { create: [], find: [], get: [], patch: [], remove: [] },
+  before: { create: [], find: [], get: [], patch: [], remove: [] },
+}
+
 export default Manifest
-export type { CollectionConfig }
+export { HOOKS_STUB }
+export type { CollectionConfig, Hooks as CollectionHooks }
