@@ -91,8 +91,6 @@ class Pipeline {
       }
     }
 
-    // run app after-hooks
-
     if (!ctx.statusCode) {
       ctx.statusCode = 200
     }
@@ -384,9 +382,9 @@ class App {
 
     this.initialize = (async () => {
       this.addService('collections', collectionsService)
-      this.addService(App.onDev`hooks-registry`, hooksRegistry)
-      this.addService(App.onDev`hooks`, hooksService)
-      this.addService(App.onDev`editors`, editorService)
+      this.addService(App.onDev('hooks-registry'), hooksRegistry)
+      this.addService(App.onDev('hooks'), hooksService)
+      this.addService(App.onDev('editors'), editorService)
 
       await this.internalPlug(logger)
       await this.internalPlug(users)
@@ -476,13 +474,13 @@ class App {
   async installCollection(collection: CollectionConfig) {
     // remove old [possible] installations of this collection
     // [ ] Add middleware to prevent `_x/*` and `_dev/*` access by non-admin users
-    const devPath = `_x/${collection.name}`
+    const unexposedPath = App.unexposed(collection.name)
     const exposedPath = collection.name
 
-    this.leave(devPath)
+    this.leave(unexposedPath)
     this.leave(exposedPath)
 
-    const path = collection.exposed ? exposedPath : devPath
+    const path = collection.exposed ? exposedPath : unexposedPath
 
     const pipeline = this.use(
       path,
@@ -573,15 +571,12 @@ class App {
     return server(this)
   }
 
-  /**
-   * @example
-   * const path = App.onDev`songs`
-   * assert(path === '_dev/songs')
-   *
-   * @returns path standardized for dev
-   */
-  static onDev([path]: TemplateStringsArray) {
+  static onDev(path: string) {
     return `_dev/${path}`
+  }
+
+  static unexposed(path: string) {
+    return `_x/${path}`
   }
 }
 

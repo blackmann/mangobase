@@ -3,7 +3,7 @@ import CollectionService from './collection-service'
 import { HookFn } from './hook'
 import Schema from './schema'
 
-const getPath = () => App.onDev`logs`
+const getPath = () => App.onDev('logs')
 
 async function logger(app: App) {
   const schema = new Schema(

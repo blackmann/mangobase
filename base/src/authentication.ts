@@ -5,6 +5,7 @@ import CollectionService from './collection-service'
 import { Hook } from './hook'
 import { SchemaDefinitions } from './schema'
 import bcrypt from 'bcryptjs'
+import { context } from './context'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
 
@@ -46,15 +47,28 @@ const CreatePasswordAuthCredential: Hook = {
       )
     }
 
-    const { collection: authCredentialsCollection } = app.service(
-      'auth-credentials'
-    ) as CollectionService
+    const credentialsPipeline = app.pipeline(App.unexposed('auth-credentials'))!
 
     const hashedPassword = await bcrypt.hash(password, ROUNDS)
-    await authCredentialsCollection.create({
-      password: hashedPassword,
-      user: ctx.result._id,
-    })
+
+    // we're using the pipeline so that if any hooks are attached to the auth credentials
+    // service, they get executed
+    const res = await credentialsPipeline.run(
+      context({
+        data: {
+          password: hashedPassword,
+          user: ctx.result._id,
+        },
+        method: 'create',
+      })
+    )
+
+    if (res.statusCode !== 201) {
+      throw new BadRequest(
+        'Failed to create auth credentials. User account may be created already.',
+        res.result
+      )
+    }
 
     return ctx
   },

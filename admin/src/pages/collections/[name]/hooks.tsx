@@ -13,6 +13,9 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  getConnectedEdges,
+  getIncomers,
+  getOutgoers,
   updateEdge,
 } from 'reactflow'
 import { Hook, HooksConfig, METHODS } from '../../../client/collection'
@@ -168,6 +171,33 @@ function CollectionHooks() {
     })
   }, [])
 
+  const onNodesDelete = React.useCallback(
+    (deleted: Node[]) => {
+      setEdges(
+        deleted.reduce((acc, node) => {
+          const incomers = getIncomers(node, nodes, edges)
+          const outgoers = getOutgoers(node, nodes, edges)
+          const connectedEdges = getConnectedEdges([node], edges)
+
+          const remainingEdges = acc.filter(
+            (edge) => !connectedEdges.includes(edge)
+          )
+
+          const createdEdges = incomers.flatMap(({ id: source }) =>
+            outgoers.map(({ id: target }) => ({
+              id: `${source}->${target}`,
+              source,
+              target,
+            }))
+          )
+
+          return [...remainingEdges, ...createdEdges]
+        }, edges)
+      )
+    },
+    [nodes, edges]
+  )
+
   async function saveHooks() {
     await collection.setHooks(currentHooks!)
     setExistingHooks(currentHooks)
@@ -263,6 +293,7 @@ function CollectionHooks() {
         onEdgeUpdateStart={onEdgeUpdateStart}
         onEdgeUpdateEnd={onEdgeUpdateEnd}
         onNodesChange={onNodesChange}
+        onNodesDelete={onNodesDelete}
         edges={edges}
         onInit={(instance: ReactFlowInstance) => setFlow(instance)}
       >
