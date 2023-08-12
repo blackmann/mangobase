@@ -17,6 +17,12 @@
   overflow-y: auto;
 }
 
+@media (prefers-color-scheme: dark) {
+  .results {
+    border-color: var(--secondary-600);
+  }
+}
+
 .results ul {
   list-style: none;
   padding: 0;
@@ -35,6 +41,12 @@
 
 .resultsItem+.resultsItem {
   border-top: 1px solid var(--secondary-200);
+}
+
+@media (prefers-color-scheme: dark) {
+  .resultsItem+.resultsItem {
+    border-color: var(--secondary-600);
+  }
 }
 
 .resultsItem:hover {

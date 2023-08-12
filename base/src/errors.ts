@@ -34,6 +34,11 @@ class NotFound extends ServiceError {
   statusCode = 404
 }
 
+class Unauthorized extends ServiceError {
+  name = 'Unauthorized'
+  statusCode = 401
+}
+
 export {
   BadRequest,
   Conflict,
@@ -41,4 +46,5 @@ export {
   MethodNotAllowed,
   NotFound,
   ServiceError,
+  Unauthorized,
 }

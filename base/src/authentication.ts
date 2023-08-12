@@ -1,4 +1,9 @@
-import { BadRequest, MethodNotAllowed, ServiceError } from './errors'
+import {
+  BadRequest,
+  MethodNotAllowed,
+  ServiceError,
+  Unauthorized,
+} from './errors'
 import { CollectionHooks, HOOKS_STUB } from './manifest'
 import App from './app'
 import CollectionService from './collection-service'
@@ -30,6 +35,32 @@ const RequirePassword: Hook = {
 
     ctx.locals['password'] = password
     delete ctx.data!['password']
+
+    return ctx
+  },
+}
+
+const RequireAuth: Hook = {
+  description: 'Allow only authenticated users',
+  id: 'require-auth',
+  name: 'Require Auth',
+  run: async (ctx) => {
+    if (!ctx.user) {
+      throw new Unauthorized()
+    }
+    return ctx
+  },
+}
+
+const AssignAuthUser: Hook = {
+  description:
+    'Assigns `user` field of data to the id of the authenticated user.',
+  id: 'assign-auth-user',
+  name: 'Assign Auth User',
+  run: async (ctx) => {
+    if (ctx.data) {
+      ctx.data.user = ctx.user
+    }
 
     return ctx
   },
@@ -89,7 +120,13 @@ async function baseAuthentication(app: App) {
     await app.manifest.collection(name, { name, schema })
   }
 
-  app.hooksRegistry.register(RequirePassword, CreatePasswordAuthCredential)
+  app.hooksRegistry.register(
+    RequirePassword,
+    CreatePasswordAuthCredential,
+    RequireAuth,
+    AssignAuthUser
+  )
+
   app.use('auth-credentials', new CollectionService(app, name))
 
   let usersHooks: CollectionHooks
