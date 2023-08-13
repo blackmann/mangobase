@@ -4,6 +4,13 @@
   padding: 0;
 }
 
+.nav {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .navLink {
   padding: 0.5rem;
   display: flex;

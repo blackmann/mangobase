@@ -1,0 +1,11 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10%;
+}
+
+.form {
+  width: 16rem;
+  max-width: 24rem;
+}

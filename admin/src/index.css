@@ -46,10 +46,10 @@ body { margin: 0; }
   --secondary-800: #1a1b1e;
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
   :root {
     --reset-color: #F5F4F4;
-  } 
+  }
 }
 
 .text-secondary {
@@ -75,17 +75,17 @@ body { margin: 0; }
   background-color: #f6f8fa;
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
   :root {
     background-color: #212121;
     color: #F5F4F4;
-  } 
+  }
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
   button.primary, .button.primary {
     background-color: #3575DB;
-  } 
+  }
 }
 
 button.primary, .button.primary {
@@ -93,10 +93,10 @@ button.primary, .button.primary {
   color: #fff;
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
   button.accent, .button.accent {
     background-color: #0E9544;
-  } 
+  }
 }
 
 button.accent, .button.accent {
@@ -104,11 +104,11 @@ button.accent, .button.accent {
   color: #fff;
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
   :is(.button, button) {
     color: #F5F4F4;
     background: var(--secondary-700);
-  } 
+  }
 }
 
 :is(.button, button) {
@@ -149,18 +149,18 @@ button.accent, .button.accent {
   border-radius: 0.35rem;
 }
 
-@media (prefers-color-scheme: dark) { 
-  :is(input, .input, select) {
+@media (prefers-color-scheme: dark) {
+  :is(input, .input, select):not([type=radio], [type=checkbox]) {
     border: 1px solid var(--secondary-600);
     color: inherit;
     background: transparent;
-  } 
+  }
 }
 
-@media (prefers-color-scheme: dark) { 
+@media (prefers-color-scheme: dark) {
   ::-webkit-calendar-picker-indicator {
     filter: invert(1);
-  } 
+  }
 }
 
 :is(input[type=checkbox], input[type=radio]) {

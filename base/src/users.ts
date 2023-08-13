@@ -6,6 +6,7 @@ const usersSchema: SchemaDefinitions = {
   avatar: { type: 'string' },
   email: { required: true, type: 'string', unique: true },
   fullname: { required: true, type: 'string' },
+  // basic, super-admin, admin
   role: { defaultValue: 'basic', required: true, type: 'string' },
   username: { required: true, type: 'string', unique: true },
   verified: { type: 'boolean' },

@@ -70,7 +70,7 @@ function CollectionsPage() {
           </ol>
         </nav>
 
-        <div className="col">
+        <div className="col-md-10">
           <Outlet />
         </div>
       </div>
