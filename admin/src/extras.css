@@ -37,6 +37,10 @@
   text-align: right;
 }
 
+.text-center {
+  text-align: center;
+}
+
 thead {
   position: sticky;
   top: 0;
@@ -84,4 +88,24 @@ th:hover {
 fieldset {
   border: 0;
   padding: 0;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-300);
+  border-radius: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--secondary-600);
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }

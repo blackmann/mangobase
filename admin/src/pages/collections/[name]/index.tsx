@@ -111,7 +111,13 @@ function CollectionRecords() {
                 <IdTag id={row._id} />
               </td>
               {fields.map((field) => (
-                <td key={field}>{row[field]}</td>
+                <td key={field}>
+                  {collection.schema[field].type === 'id' ? (
+                    <IdTag id={row[field]} />
+                  ) : (
+                    row[field]
+                  )}
+                </td>
               ))}
               <td>
                 <CleanDate date={row.created_at} />

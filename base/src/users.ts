@@ -6,7 +6,8 @@ const usersSchema: SchemaDefinitions = {
   avatar: { type: 'string' },
   email: { required: true, type: 'string', unique: true },
   fullname: { required: true, type: 'string' },
-  // basic, super-admin, admin
+  // basic, dev
+  // [ ] Prevent anyone from just creating a 'dev' account. Use hook
   role: { defaultValue: 'basic', required: true, type: 'string' },
   username: { required: true, type: 'string', unique: true },
   verified: { type: 'boolean' },

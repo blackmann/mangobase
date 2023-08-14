@@ -14,7 +14,7 @@ function expressServer(mangobaseApp: App) {
     // todo: handle options
     const ctx = context({
       data: req.body,
-      headers: {},
+      headers: req.headers as Record<string, string | string[]>,
       method: methodFromHttp(req.method),
       path: req.path.replace(/^\/api\/?/, ''),
       query: req.query,

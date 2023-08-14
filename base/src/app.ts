@@ -72,10 +72,10 @@ class Pipeline {
       }
     }
 
-    if (!ctx.result) {
+    if (ctx.result === undefined) {
       try {
         ctx = await this.service.handle(ctx, this.app)
-        if (ctx.method !== 'remove' && !ctx.result) {
+        if (ctx.method !== 'remove' && ctx.result === undefined) {
           throw new NotFound()
         }
       } catch (err) {
@@ -289,6 +289,21 @@ const collectionsService: Service & { schema: Schema } = {
   }),
 }
 
+const devSetupService: Service = {
+  async handle(ctx, app) {
+    if (ctx.method !== 'find') {
+      throw new MethodNotAllowed()
+    }
+
+    const usersService = app.service('users') as CollectionService
+    const collection = usersService.collection
+    const { data } = await collection.find({ query: { role: 'dev' } })
+    ctx.result = data.length > 0
+
+    return ctx
+  },
+}
+
 const editorService: Service = {
   async handle(ctx, app) {
     switch (ctx.method) {
@@ -385,6 +400,7 @@ class App {
       this.addService(App.onDev('hooks-registry'), hooksRegistry)
       this.addService(App.onDev('hooks'), hooksService)
       this.addService(App.onDev('editors'), editorService)
+      this.addService(App.onDev('dev-setup'), devSetupService)
 
       await this.internalPlug(logger)
       await this.internalPlug(users)

@@ -156,7 +156,7 @@ async function baseAuthentication(app: App) {
     usersHooks.after.create.push([CreatePasswordAuthCredential.id])
   }
 
-  await app.pipeline(App.onDev('hooks-registry'))?.run(
+  await app.pipeline(App.onDev('hooks-registry'))!.run(
     context({
       data: usersHooks,
       method: 'patch',
@@ -203,7 +203,7 @@ async function baseAuthentication(app: App) {
       throw new BadRequest('Incorrect username/password combination.')
     }
 
-    // [ ] Sign with distinction for admin access
+    // [ ] Sign with distinction for dev access
     // [ ] Use `expiresIn` settings from dashboard
     const jwt = jsonwebtoken.sign({ user: user._id }, process.env.SECRET_KEY!, {
       expiresIn: '7d',

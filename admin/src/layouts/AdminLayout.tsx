@@ -1,12 +1,14 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import AVATAR_COLORS from '../lib/avatar-colors'
+import Avatar from 'boring-avatars'
 import Box from '../icons/Box'
 import Debug from '../icons/Debug'
 import Doc from '../icons/Doc'
 import Options from '../icons/Options'
+import React from 'preact/compat'
+import app from '../mangobase-app'
 import clsx from 'clsx'
 import styles from './AdminLayout.module.css'
-import Avatar from 'boring-avatars'
-import AVATAR_COLORS from '../lib/avatar-colors'
 
 const navLinks = [
   {
@@ -32,6 +34,19 @@ const navLinks = [
 ]
 
 function AdminLayout() {
+  const navigate = useNavigate()
+  const auth = app.get('auth')
+
+  React.useEffect(() => {
+    !auth && navigate('/login')
+  }, [auth, navigate])
+
+  if (!auth) {
+    return null
+  }
+
+  const { user } = auth
+
   return (
     <div className="d-flex">
       <nav class={styles.nav}>
@@ -58,7 +73,7 @@ function AdminLayout() {
             <NavLink to="/settings/profile">
               <Avatar
                 colors={AVATAR_COLORS}
-                name="cory"
+                name={user.username}
                 variant="beam"
                 size={32}
               />
