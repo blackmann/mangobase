@@ -13,27 +13,27 @@ import styles from './index.module.css'
 
 type RouteData = { collection: Collection }
 
-const links = [
-  {
-    href: '',
-    title: 'Records',
-  },
-  {
-    href: 'hooks',
-    title: 'Hooks',
-  },
-  {
-    href: '/logs',
-    title: 'Logs',
-  },
-  {
-    href: 'edit',
-    title: 'Edit',
-  },
-]
-
 function CollectionDetail() {
   const { collection } = useLoaderData() as RouteData
+
+  const links = [
+    {
+      href: '',
+      title: 'Records',
+    },
+    {
+      href: 'hooks',
+      title: 'Hooks',
+    },
+    {
+      href: `/logs/?label[$startswith]=/api/${collection.name}`,
+      title: 'Logs',
+    },
+    {
+      href: 'edit',
+      title: 'Edit',
+    },
+  ]
 
   return (
     <div className={clsx('container-fluid', styles.main)}>

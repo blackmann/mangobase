@@ -8,13 +8,16 @@ import styles from './index.module.css'
 
 function CollectionsPage() {
   const formDialog = React.useRef<HTMLDialogElement>(null)
+  const [showingForm, setShowingForm] = React.useState(false)
 
   function showFormDialog() {
     formDialog.current?.showModal()
+    setShowingForm(true)
   }
 
   function hideFormDialog() {
     formDialog.current?.close()
+    setShowingForm(false)
   }
 
   React.useEffect(() => {
@@ -48,7 +51,9 @@ function CollectionsPage() {
 
           <dialog ref={formDialog} className="dialog">
             <h2 className="mt-0">Add new collection</h2>
-            <CollectionForm onHide={() => hideFormDialog()} />
+            {showingForm && (
+              <CollectionForm key="new" onHide={() => hideFormDialog()} />
+            )}
           </dialog>
 
           <ol className={styles.collections}>

@@ -11,12 +11,20 @@ import app from '../mangobase-app'
 import { loadCollections } from '../data/collections'
 import styles from './collection-form.module.css'
 
-interface Props {
-  onHide?: VoidFunction
+interface ExistingCollection {
+  exposed: boolean
+  name: string
+  schema: Record<string, any>
+  template: boolean
 }
 
-function CollectionForm({ onHide }: Props) {
-  const { control, handleSubmit, register, reset, watch } = useForm()
+interface Props {
+  onHide?: VoidFunction
+  collection?: ExistingCollection
+}
+
+function CollectionForm({ collection, onHide }: Props) {
+  const { control, handleSubmit, register, reset, setValue, watch } = useForm()
   const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
 
   function handleRemove(index: number) {
@@ -64,10 +72,30 @@ function CollectionForm({ onHide }: Props) {
   }
 
   React.useEffect(() => {
-    if (!fields.length) {
-      addNewField()
+    if (!collection) return
+
+    setValue('name', collection.name)
+    setValue('exposed', collection.exposed)
+
+    for (const [field, options] of Object.entries(collection.schema)) {
+      append({
+        name: field,
+        required: options.required,
+        type: options.type,
+        unique: options.unique,
+      })
     }
-  }, [addNewField, fields.length])
+  }, [append, collection, setValue])
+
+  React.useEffect(() => {
+    if (collection || fields.length) {
+      return
+    }
+
+    addNewField()
+  }, [addNewField, collection, fields])
+
+  const submitLabel = collection ? 'Update' : 'Create'
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(save)}>
@@ -141,7 +169,7 @@ function CollectionForm({ onHide }: Props) {
         </p>
 
         <div>
-          <button className="primary">Create</button>
+          <button className="primary">{submitLabel}</button>
           <button onClick={handleOnHide} type="reset">
             Cancel
           </button>

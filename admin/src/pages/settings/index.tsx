@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import clsx from 'clsx'
+import styles from './index.module.css'
 
 const links = [
   {
@@ -16,11 +18,21 @@ function Settings() {
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-2">
-          <nav>
+          <header className={styles.navHeader}>Settings</header>
+          <nav className={styles.nav}>
             <ul>
               {links.map((link) => (
                 <li key={link.path}>
-                  <NavLink to={link.path}>{link.title}</NavLink>
+                  <NavLink
+                    className={({ isActive }: { isActive: boolean }) =>
+                      clsx('text-secondary', styles.navLink, {
+                        [styles.active]: isActive,
+                      })
+                    }
+                    to={link.path}
+                  >
+                    {link.title}
+                  </NavLink>
                 </li>
               ))}
             </ul>

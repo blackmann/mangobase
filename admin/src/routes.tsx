@@ -3,6 +3,7 @@ import AdminLayout from './layouts/AdminLayout'
 import Collection from './client/collection'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import CollectionsPage from './pages/collections'
+import Devs from './pages/settings/devs'
 import Edit from './pages/collections/[name]/edit'
 import Login from './pages/login'
 import Logs from './pages/logs'
@@ -58,6 +59,10 @@ const routes = createBrowserRouter(
             {
               element: <Profile />,
               path: 'profile',
+            },
+            {
+              element: <Devs />,
+              path: 'devs',
             },
           ],
           element: <Settings />,
