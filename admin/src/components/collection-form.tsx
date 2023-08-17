@@ -16,8 +16,12 @@ interface Props {
 }
 
 function CollectionForm({ onHide }: Props) {
-  const { control, handleSubmit, register, reset } = useForm()
+  const { control, handleSubmit, register, reset, watch } = useForm()
   const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
+
+  function handleRemove(index: number) {
+    remove(index)
+  }
 
   async function save(form: FieldValues) {
     const { name, options, fields } = form
@@ -117,9 +121,11 @@ function CollectionForm({ onHide }: Props) {
         {fields.map((field, i) => (
           <Field
             key={field.id}
+            onRemove={() => handleRemove(i)}
             register={(f: string, o?: RegisterOptions) =>
               register(`fields.${i}.${f}`, o)
             }
+            watch={(key) => watch(`fields.${i}.${key}`)}
           />
         ))}
 

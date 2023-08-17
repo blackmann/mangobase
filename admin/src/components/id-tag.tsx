@@ -5,6 +5,7 @@ interface Props {
 }
 
 function IdTag({ id }: Props) {
+  if (!id) return null
   return <Chip>{id.substring(14)}</Chip>
 }
 

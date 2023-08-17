@@ -1,0 +1,10 @@
+.field {
+  display: flex;
+  padding: 1rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .field+.field {
+    border-color: var(--secondary-700);
+  }
+}

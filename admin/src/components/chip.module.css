@@ -1,13 +1,26 @@
 .chip {
-  background-color: var(--secondary-200);
+  background-color: var(--secondary-100);
   display: inline-flex;
   border-radius: 0.75rem;
   padding: 0.25rem 0.5rem;
   font-weight: 500;
 }
 
+.chip:global(.primary) {
+  background-color: var(--primary-color);
+}
+
+.chip:global(.secondary) {
+  background-color: var(--secondary-color);
+}
+
+.chip:global(.accent) {
+  background-color: var(--accent-color);
+  color: #fefefe;
+}
+
 @media (prefers-color-scheme: dark) {
   .chip {
-    background-color: var(--secondary-700);
+    background-color: var(--secondary-600);
   }
 }

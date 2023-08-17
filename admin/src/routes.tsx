@@ -3,13 +3,14 @@ import AdminLayout from './layouts/AdminLayout'
 import Collection from './client/collection'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import CollectionsPage from './pages/collections'
+import Edit from './pages/collections/[name]/edit'
 import Login from './pages/login'
 import Logs from './pages/logs'
+import Profile from './pages/settings/profile'
+import Settings from './pages/settings'
 import Wip from './pages/wip'
 import app from './mangobase-app'
 import { createBrowserRouter } from 'react-router-dom'
-import Settings from './pages/settings'
-import Profile from './pages/settings/profile'
 
 interface CollectionRouteData {
   collection: Collection
@@ -30,6 +31,10 @@ const routes = createBrowserRouter(
                 {
                   element: <CollectionHooks />,
                   path: 'hooks',
+                },
+                {
+                  element: <Edit />,
+                  path: 'edit',
                 },
               ],
               element: <CollectionDetail />,
