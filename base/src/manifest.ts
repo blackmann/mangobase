@@ -147,9 +147,9 @@ class Manifest {
     const dir = Manifest.getDirectory(env)
 
     try {
-      await stat(dir)
-    } catch (err) {
       await mkdir(dir)
+    } catch (err) {
+      //
     }
 
     const dataOuts = [

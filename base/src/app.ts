@@ -34,8 +34,6 @@ interface Service {
   handle: Handle
 }
 
-// [ ] Rename project: mangobase -> frontend
-
 class Pipeline {
   private app: App
   private _service: Service

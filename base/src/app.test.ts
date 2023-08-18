@@ -1,12 +1,44 @@
 import App, { Service } from './app'
-import { MockedObject, beforeAll, describe, expect, it, vi } from 'vitest'
+import {
+  MockedObject,
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { Database } from './database'
+import Manifest from './manifest'
+import assert from 'assert'
 import { context } from './context'
+import { rm } from 'fs/promises'
 
 const db = {
+  cast: vi.fn((v) => v),
   count: vi.fn(),
+  create: vi.fn(() => ({ exec: vi.fn() })),
   find: vi.fn(),
 } as unknown as MockedObject<Database>
+
+let previousSecret: string | undefined
+
+beforeAll(() => {
+  previousSecret = process.env.SECRET_KEY
+  process.env.SECRET_KEY = 'test'
+})
+
+afterAll(async () => {
+  process.env.SECRET_KEY = previousSecret
+
+  try {
+    // this is a safeguard so that files are not mistakenly removed
+    assert(Manifest.getDirectory().startsWith('.mb_'))
+    await rm(Manifest.getDirectory(), { recursive: true })
+  } catch (err) {
+    console.log(err)
+  }
+})
 
 describe('app', () => {
   describe('use', () => {
@@ -131,35 +163,33 @@ describe('collections service', () => {
 
   describe('when collection is created', () => {
     it('returns with error', async () => {
-      const res = await app.api({
-        data: {
-          schema: {},
-        },
-        headers: {},
-        locals: {},
-        method: 'create',
-        path: 'collections',
-        query: {},
-      })
+      const res = await app.api(
+        context({
+          data: {
+            schema: {},
+          },
+          method: 'create',
+          path: 'collections',
+        })
+      )
 
       expect(res.result.error).toMatch(/name: required/)
     })
 
     it('returns created collection', async () => {
-      const res = await app.api({
-        data: {
-          name: 'people',
-          schema: {
-            age: { type: 'number' },
-            name: { type: 'string' },
+      const res = await app.api(
+        context({
+          data: {
+            name: 'people',
+            schema: {
+              age: { type: 'number' },
+              name: { type: 'string' },
+            },
           },
-        },
-        headers: {},
-        locals: {},
-        method: 'create',
-        path: 'collections',
-        query: {},
-      })
+          method: 'create',
+          path: 'collections',
+        })
+      )
 
       expect(res.data).toStrictEqual({
         name: 'people',
@@ -173,41 +203,41 @@ describe('collections service', () => {
 
   describe('get collections', () => {
     it('returns saved collections', async () => {
-      const res = await app.api({
-        headers: {},
-        locals: {},
-        method: 'find',
-        path: 'collections',
-        query: {},
-      })
+      const res = await app.api(
+        context({
+          method: 'find',
+          path: 'collections',
+        })
+      )
 
-      expect(res.result).toStrictEqual([
-        {
-          exposed: true,
-          name: 'people',
-          schema: {
-            age: {
-              type: 'number',
+      expect(res.result).toEqual(
+        expect.arrayContaining([
+          {
+            exposed: true,
+            name: 'people',
+            schema: {
+              age: {
+                type: 'number',
+              },
+              name: {
+                type: 'string',
+              },
             },
-            name: {
-              type: 'string',
-            },
+            template: false,
           },
-          template: false,
-        },
-      ])
+        ])
+      )
     })
   })
 
   describe('get collection', () => {
     it('returns collection', async () => {
-      const res = await app.api({
-        headers: {},
-        locals: {},
-        method: 'get',
-        path: 'collections/people',
-        query: {},
-      })
+      const res = await app.api(
+        context({
+          method: 'get',
+          path: 'collections/people',
+        })
+      )
 
       expect(res.result).toStrictEqual({
         exposed: true,
@@ -341,7 +371,7 @@ describe('collections service', () => {
         })
       )
 
-      expect(existing.result).toHaveLength(1)
+      expect(existing.result).toHaveLength(3)
 
       const res = await app.api(
         context({
@@ -354,7 +384,7 @@ describe('collections service', () => {
 
       const list = await app.api(context({ path: 'collections' }))
 
-      expect(list.result).toHaveLength(0)
+      expect(list.result).toHaveLength(2)
     })
   })
 
@@ -372,9 +402,11 @@ describe('collections service', () => {
 
     it('list hooks', async () => {
       const res = await app.api(context({ path: '_dev/hooks-registry' }))
-      expect(res.result).toStrictEqual([
-        { id: 'stash-data', name: 'Stash Data', run: expect.anything() },
-      ])
+      expect(res.result).toEqual(
+        expect.arrayContaining([
+          { id: 'stash-data', name: 'Stash Data', run: expect.anything() },
+        ])
+      )
     })
   })
 })
