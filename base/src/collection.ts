@@ -85,7 +85,6 @@ class Collection {
     this.applyFilter(cursor, filter)
 
     const total = await this.db.count(this.name, query)
-
     return {
       data: await cursor.exec(),
       limit: filter.$limit,

@@ -82,7 +82,9 @@ class CollectionService implements Service {
     try {
       const result = await this.collection.create(
         ctx.data,
-        this.parseQuery(ctx.query).filter
+        (
+          await this.parseQuery(ctx.query)
+        ).filter
       )
 
       ctx.result = result
@@ -102,7 +104,7 @@ class CollectionService implements Service {
   }
 
   async find(ctx: Context): Promise<Context> {
-    const result = await this.collection.find(this.parseQuery(ctx.query))
+    const result = await this.collection.find(await this.parseQuery(ctx.query))
     ctx.result = result
 
     return ctx
@@ -111,7 +113,9 @@ class CollectionService implements Service {
   async get(ctx: Context): Promise<Context> {
     const result = await this.collection.get(
       ctx.params!.id,
-      this.parseQuery(ctx.query).filter
+      (
+        await this.parseQuery(ctx.query)
+      ).filter
     )
     ctx.result = result
 
@@ -126,7 +130,9 @@ class CollectionService implements Service {
     const result = await this.collection.patch(
       ctx.params!.id!,
       ctx.data!,
-      this.parseQuery(ctx.query).filter
+      (
+        await this.parseQuery(ctx.query)
+      ).filter
     )
 
     if ((Array.isArray(result) && result.length === 0) || !result) {
@@ -149,10 +155,10 @@ class CollectionService implements Service {
     return ctx
   }
 
-  private parseQuery(query: Record<string, any>): {
+  private async parseQuery(query: Record<string, any>): Promise<{
     filter: Filter
     query: any
-  } {
+  }> {
     const filter: Filter = {}
     const _query: Record<string, any> = {}
     for (const [key, value] of Object.entries(query)) {
@@ -164,7 +170,16 @@ class CollectionService implements Service {
           }
 
           case '$populate': {
-            filter.$populate = Array.isArray(value) ? value : [value]
+            const fields = Array.isArray(value) ? value : [value]
+            const schema = await this.collection.schema
+            filter.$populate = fields.map((field) => {
+              const relation = schema.schema[field].relation
+              if (!relation) {
+                return field
+              }
+
+              return { collection: relation, field }
+            })
             break
           }
 

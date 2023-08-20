@@ -260,7 +260,7 @@ function CollectionHooks() {
           beforeHooks.push([node?.data.id])
         }
 
-        serviceHooks['before'][method] = beforeHooks
+        serviceHooks['before'][method] = beforeHooks.reverse()
 
         const sourceHandle = `after-${method}`
         const afterHooks: Hook[] = []
