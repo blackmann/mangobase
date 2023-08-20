@@ -173,6 +173,10 @@ class CollectionService implements Service {
             const fields = Array.isArray(value) ? value : [value]
             const schema = await this.collection.schema
             filter.$populate = fields.map((field) => {
+              if (!schema) {
+                return field
+              }
+
               const relation = schema.schema[field].relation
               if (!relation) {
                 return field
