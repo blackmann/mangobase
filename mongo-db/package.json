@@ -1,11 +1,15 @@
 {
   "name": "@mangobase/mongodb",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "clean": "rm -rf dist",
     "build": "node ./build.mjs && tsc -p tsconfig.build.json",
+    "prepare": "yarn build",
     "test": "vitest"
   },
   "keywords": [],
