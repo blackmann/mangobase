@@ -129,40 +129,7 @@ async function baseAuthentication(app: App) {
 
   app.use('auth-credentials', new CollectionService(app, name))
 
-  let usersHooks: CollectionHooks
-
-  {
-    if (!(await app.manifest.getHooks('users'))) {
-      await app.manifest.setHooks('users', HOOKS_STUB)
-    }
-
-    usersHooks = await app.manifest.getHooks('users')
-  }
-
-  if (
-    !usersHooks['before']['create'].find(
-      ([hookId]) => hookId === RequirePassword.id
-    )
-  ) {
-    // [ ] Reconcile hooks editor to show this hook
-    usersHooks.before.create.push([RequirePassword.id])
-  }
-
-  if (
-    !usersHooks['after']['create'].find(
-      ([hookId]) => hookId === CreatePasswordAuthCredential.id
-    )
-  ) {
-    usersHooks.after.create.push([CreatePasswordAuthCredential.id])
-  }
-
-  await app.pipeline(App.onDev('hooks-registry'))!.run(
-    context({
-      data: usersHooks,
-      method: 'patch',
-      params: { id: 'users' },
-    })
-  )
+  await upsertHooks(app)
 
   app.use('login', async (ctx, app) => {
     checkSecretKeyEnv()
@@ -242,6 +209,62 @@ async function baseAuthentication(app: App) {
 
     return ctx
   })
+
+  // [ ] Watch out for trailing slash? Should we standardize and remove/add trailing slashes?
+  app.after(async (ctx) => {
+    if (ctx.method === 'patch' && ctx.path === `${App.onDev('hooks')}/users`) {
+      const usersHooks = await upsertHooks(app)
+      ctx.result = usersHooks
+    }
+
+    return ctx
+  })
+}
+
+async function upsertHooks(app: App) {
+  let usersHooks: CollectionHooks
+  let dirty = false
+  {
+    if (!(await app.manifest.getHooks('users'))) {
+      await app.manifest.setHooks('users', HOOKS_STUB)
+      dirty = true
+    }
+
+    usersHooks = await app.manifest.getHooks('users')
+  }
+
+  if (
+    !usersHooks['before']['create'].find(
+      ([hookId]) => hookId === RequirePassword.id
+    )
+  ) {
+    // [ ] Reconcile hooks editor to show this hook
+    usersHooks.before.create.push([RequirePassword.id])
+    dirty = true
+  }
+
+  if (
+    !usersHooks['after']['create'].find(
+      ([hookId]) => hookId === CreatePasswordAuthCredential.id
+    )
+  ) {
+    usersHooks.after.create.push([CreatePasswordAuthCredential.id])
+    dirty = true
+  }
+
+  if (dirty) {
+    const { data } = await app.pipeline(App.onDev('hooks'))!.run(
+      context({
+        data: usersHooks,
+        method: 'patch',
+        params: { id: 'users' },
+      })
+    )
+
+    return data
+  }
+
+  return usersHooks
 }
 
 async function anonymousAuthentication(app: App) {

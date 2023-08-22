@@ -40,7 +40,7 @@ class Collection {
     return data
   }
 
-  async hooks() {
+  async hooks(): Promise<HooksConfig> {
     const { data } = await this.app.req.get(`/_dev/hooks/${this.name}`)
     return data
   }

@@ -185,7 +185,12 @@ function CollectionHooks() {
 
           const createdEdges = incomers.flatMap(({ id: source }) =>
             outgoers.map(({ id: target }) => ({
-              id: `${source}->${target}`,
+              id: getEdgeId({
+                source,
+                sourceHandle: null,
+                target,
+                targetHandle: null,
+              }),
               source,
               target,
             }))
@@ -228,6 +233,131 @@ function CollectionHooks() {
     })
 
     collection.hooks().then((hooks) => setExistingHooks(hooks))
+
+    Promise.allSettled([collection.editor(), collection.hooks()]).then(
+      ([editor, hooks]) => {
+        if (editor.status === 'fulfilled' && hooks.status === 'fulfilled') {
+          // we need to check if the saved hooks and the ones displayed in the editor
+          // match up correctly. If not, we reconstruct the editor entirely.
+          // Unfortunately, we can't merge some nodes if the original was.
+          try {
+            const hooksFromEditor = resolveHooks(
+              editor.value.edges,
+              editor.value.nodes
+            )
+            if (!compareHooks(hooksFromEditor, hooks.value)) {
+              const nodes: Node[] = [...initialNodes]
+              const serviceNode = nodes[0]
+              const edges: Edge[] = []
+              let methodIndex = 0
+              for (const method of METHODS) {
+                // before
+                {
+                  let currentNode = serviceNode
+                  const methodHooks = hooks.value['before'][method] || []
+                  methodHooks.reverse()
+
+                  let hookNodeIndex = 0
+                  for (const [hookId, config] of methodHooks) {
+                    const node = {
+                      data: { config, id: hookId },
+                      id: randomStr(),
+                      position: {
+                        x: 70 - 350 * hookNodeIndex,
+                        y: 100 + methodIndex * 50,
+                      },
+                      type: HOOK_NODE_TYPE,
+                    }
+
+                    nodes.push(node)
+
+                    const targetHandle =
+                      currentNode.type === 'service-node-type'
+                        ? `before-${method}`
+                        : `in-${currentNode.id}`
+
+                    const props = {
+                      source: node.id,
+                      sourceHandle: `out-${node.id}`,
+                      target: currentNode.id,
+                      targetHandle,
+                    }
+
+                    edges.push({
+                      id: getEdgeId(props),
+                      ...props,
+                    })
+
+                    currentNode = node
+                    hookNodeIndex++
+                  }
+                }
+
+                // after
+                {
+                  let previousNode = serviceNode
+                  const methodHooks = hooks.value['after'][method] || []
+
+                  let hookNodeIndex = 0
+                  for (const [hookId, config] of methodHooks) {
+                    const node = {
+                      data: { config, id: hookId },
+                      id: randomStr(),
+                      position: {
+                        x: 800 + 350 * hookNodeIndex,
+                        y: 100 + methodIndex * 50,
+                      },
+                      type: HOOK_NODE_TYPE,
+                    }
+
+                    nodes.push(node)
+
+                    const sourceHandle =
+                      previousNode.type === 'service-node-type'
+                        ? `after-${method}`
+                        : `out-${previousNode.id}`
+
+                    const props = {
+                      source: previousNode.id,
+                      sourceHandle,
+                      target: node.id,
+                      targetHandle: `in-${node.id}`,
+                    }
+                    edges.push({
+                      id: getEdgeId(props),
+                      ...props,
+                    })
+
+                    previousNode = node
+                    hookNodeIndex++
+                  }
+                }
+
+                methodIndex++
+              }
+
+              setEdges(edges)
+              setNodes(nodes)
+              flow.setViewport(editor.value.viewport)
+
+              return
+            }
+          } catch (err) {
+            console.error('Error syncing hooks with editor', err)
+          }
+        }
+
+        if (editor.status === 'fulfilled') {
+          setNodes(editor.value.nodes)
+          setEdges(editor.value.edges)
+          flow.setViewport(editor.value.viewport)
+        }
+
+        if (hooks.status === 'fulfilled') {
+          setExistingHooks(hooks.value)
+        }
+      }
+    )
   }, [collection, flow])
 
   React.useEffect(() => {
@@ -243,35 +373,8 @@ function CollectionHooks() {
   }, [collection, edges, flow, nodes])
 
   React.useEffect(() => {
-    // resolve hooks
-    const tree = new Tree(edges, nodes)
-
-    const serviceHooks: HooksConfig = {
-      after: {},
-      before: {},
-    }
-
     try {
-      for (const method of METHODS) {
-        const targetHandle = `before-${method}`
-        const beforeHooks: Hook[] = []
-
-        for (const [node] of tree.ancestry(targetHandle)) {
-          beforeHooks.push([node?.data.id])
-        }
-
-        serviceHooks['before'][method] = beforeHooks.reverse()
-
-        const sourceHandle = `after-${method}`
-        const afterHooks: Hook[] = []
-
-        for (const [node] of tree.descent(sourceHandle)) {
-          afterHooks.push([node?.data.id])
-        }
-
-        serviceHooks['after'][method] = afterHooks
-      }
-
+      const serviceHooks: HooksConfig = resolveHooks(edges, nodes)
       setCurrentHooks(serviceHooks)
     } catch (err) {
       console.error('Error resolving hooks', err)
@@ -279,8 +382,7 @@ function CollectionHooks() {
     }
   }, [edges, nodes])
 
-  const hooksChanged =
-    JSON.stringify(currentHooks) !== JSON.stringify(existingHooks)
+  const hooksChanged = !compareHooks(currentHooks, existingHooks)
 
   return (
     <div className={styles.flowWrapper}>
@@ -321,6 +423,49 @@ function CollectionHooks() {
       </ReactFlow>
     </div>
   )
+}
+
+function resolveHooks(edges: Edge[], nodes: Node[]) {
+  const tree = new Tree(edges, nodes)
+
+  const serviceHooks: HooksConfig = {
+    after: {},
+    before: {},
+  }
+
+  for (const method of METHODS) {
+    const targetHandle = `before-${method}`
+    const beforeHooks: Hook[] = []
+
+    for (const [node] of tree.ancestry(targetHandle)) {
+      beforeHooks.push([node?.data.id])
+    }
+
+    serviceHooks['before'][method] = beforeHooks.reverse()
+
+    const sourceHandle = `after-${method}`
+    const afterHooks: Hook[] = []
+
+    for (const [node] of tree.descent(sourceHandle)) {
+      afterHooks.push([node?.data.id])
+    }
+
+    serviceHooks['after'][method] = afterHooks
+  }
+  return serviceHooks
+}
+
+function getEdgeId({ source, sourceHandle, target, targetHandle }: Connection) {
+  return `reactflow__edge-${source}${sourceHandle || ''}-${target}${
+    targetHandle || ''
+  }`
+}
+
+function compareHooks(
+  currentHooks: HooksConfig | undefined,
+  existingHooks: HooksConfig | undefined
+) {
+  return JSON.stringify(currentHooks) === JSON.stringify(existingHooks)
 }
 
 export default CollectionHooks

@@ -6,9 +6,10 @@ import styles from './hook-node.module.css'
 
 interface Props {
   data: { id: string }
+  id: string
 }
 
-function HookNode({ data }: Props) {
+function HookNode({ data, id: nodeId }: Props) {
   const hookInfo = hooksRegistry.value.find(({ id }) => data.id === id)
 
   if (!hookInfo) {
@@ -19,7 +20,7 @@ function HookNode({ data }: Props) {
     <div className={styles.hookNode}>
       <div className={styles.head}>
         <FlowHandle
-          id={`in-${data.id}`}
+          id={`in-${nodeId}`}
           position={Position.Left}
           type="target"
         />
@@ -35,7 +36,7 @@ function HookNode({ data }: Props) {
         </header>
 
         <FlowHandle
-          id={`out-${data.id}`}
+          id={`out-${nodeId}`}
           type="source"
           position={Position.Right}
         />
