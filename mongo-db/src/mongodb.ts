@@ -1,5 +1,18 @@
-import { Cursor, Database, DefinitionType } from 'mangobase'
-import { Db, FindCursor, FindOptions, MongoClient, ObjectId } from 'mongodb'
+import type {
+  Cursor,
+  Database,
+  DefinitionType,
+  Index,
+  Migration,
+} from 'mangobase'
+import {
+  Db,
+  FindCursor,
+  FindOptions,
+  IndexDescription,
+  MongoClient,
+  ObjectId,
+} from 'mongodb'
 
 interface Filters {
   limit?: number
@@ -227,6 +240,64 @@ class MongoDB implements Database {
     const objectIds = ids.map((id) => this.cast(id, 'id'))
     const query = { _id: { $in: objectIds } }
     await this.db.collection(collection).deleteMany(query)
+  }
+
+  async migrate(collection: string, migration: Migration): Promise<void> {
+    //
+
+    for (const step of migration.steps) {
+      switch (step.type) {
+        case 'rename-collection': {
+          await this.db.collection(collection).rename(step.to)
+
+          break
+        }
+
+        case 'rename-field': {
+          await this.db
+            .collection(collection)
+            .updateMany({}, { $rename: { [step.from]: step.to } })
+
+          // [ ] Update index to match; maybe it should be called from app-level?
+          break
+        }
+
+        case 'remove-field': {
+          await this.db
+            .collection(collection)
+            .updateMany({}, { $unset: { [step.field]: '' } })
+
+          break
+        }
+
+        default: {
+          // no-op
+        }
+      }
+    }
+  }
+
+  async syncIndex(collection: string, indexes: Index[]): Promise<void> {
+    const existingIndexes: IndexDescription[] = await this.db
+      .collection(collection)
+      .listIndexes()
+      .toArray()
+
+    const indexNames = new Set<string>()
+    for (const index of indexes) {
+      const name = await this.db.createIndex(
+        collection,
+        index.fields,
+        index.option
+      )
+      indexNames.add(name)
+    }
+
+    for (const index of existingIndexes) {
+      if (!indexNames.has(index.name!)) {
+        await this.db.collection(collection).dropIndex(index.name!)
+      }
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { HookConfig } from './hook'
+import { Index } from './database'
 import Method from './method'
 import { SchemaDefinitions } from './schema'
 
@@ -21,6 +22,7 @@ interface CollectionConfig {
    * Default is `false`
    */
   template?: boolean
+  indexes: Index[]
 }
 
 // [ ] Type editor

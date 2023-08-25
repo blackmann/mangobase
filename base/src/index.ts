@@ -11,7 +11,13 @@ export { default as methodFromHttp } from './lib/method-from-http'
 export type { Handle, Service } from './app'
 export type { Filter, FilterOperators, Query } from './collection'
 export type { Context } from './context'
-export type { Cursor, Database } from './database'
+export type {
+  Cursor,
+  Database,
+  Index,
+  Migration,
+  MigrationStep,
+} from './database'
 export type { Hook, HookFn, Hooks, HookConfig } from './hook'
 export type { CollectionConfig } from './manifest'
 export type { default as Method } from './method'

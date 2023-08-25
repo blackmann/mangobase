@@ -13,6 +13,13 @@ interface Cursor<T = any> {
 
 type Data = Record<string, any>
 
+interface Index {
+  fields: string[]
+  option: {
+    unique?: boolean
+  }
+}
+
 interface RenameField {
   type: 'rename-field'
   from: string
@@ -32,7 +39,6 @@ interface AddField {
 
 interface RenameCollection {
   type: 'rename-collection'
-  from: string
   to: string
 }
 
@@ -62,7 +68,11 @@ interface Database {
     data: Record<string, any>
   ): Cursor<T | T[]>
   remove(collection: string, id: string | string[]): Promise<void>
-  migrate(migration: Migration): Promise<void>
+  migrate(collection: string, migration: Migration): Promise<void>
+  /**
+   * This method removes and adds the indexes as necessary
+   */
+  syncIndex(collection: string, indexes: Index[]): Promise<void>
 }
 
-export type { Cursor, Database }
+export type { Cursor, Database, Index, Migration, MigrationStep }
