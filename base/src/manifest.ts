@@ -1,4 +1,4 @@
-import { mkdir, readFile, stat, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from 'fs/promises'
 import { HookConfig } from './hook'
 import Method from './method'
 import { SchemaDefinitions } from './schema'
@@ -27,6 +27,7 @@ interface CollectionConfig {
 type Editor = { [key: string]: any }
 
 type HookId = string
+type CollectionName = string
 
 type Hooks = {
   after: Record<`${Method}`, [HookId, HookConfig?][]>
@@ -34,9 +35,9 @@ type Hooks = {
 }
 
 class Manifest {
-  private collectionsIndex: Record<string, CollectionConfig> = {}
-  private hooksIndex: Record<string, Hooks> = {}
-  private editorsIndex: Record<string, Editor> = {}
+  private collectionsIndex: Record<CollectionName, CollectionConfig> = {}
+  private hooksIndex: Record<CollectionName, Hooks> = {}
+  private editorsIndex: Record<CollectionName, Editor> = {}
 
   private initialize: Promise<void>
 
@@ -139,7 +140,26 @@ class Manifest {
   async removeCollection(name: string) {
     await this.init()
     delete this.collectionsIndex[name]
+    delete this.hooksIndex[name]
+    delete this.editorsIndex[name]
     await this.save()
+  }
+
+  async renameCollection(from: string, to: string) {
+    if (this.collectionsIndex[to]) {
+      throw new Error(
+        `A collection with name \`${to}\` already exists. Cannot rename \`${from} to \`${to}\``
+      )
+    }
+
+    this.collectionsIndex[to] = this.collectionsIndex[from]
+    delete this.collectionsIndex[from]
+
+    this.hooksIndex[to] = this.hooksIndex[from]
+    delete this.hooksIndex[from]
+
+    this.editorsIndex[to] = this.editorsIndex[from]
+    delete this.editorsIndex[from]
   }
 
   async save(env?: string) {

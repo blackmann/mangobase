@@ -1,5 +1,5 @@
+import Schema, { findRelations } from './schema'
 import { describe, expect, it, test } from 'vitest'
-import Schema from './schema'
 
 describe('schema', () => {
   describe('string type', () => {
@@ -675,7 +675,7 @@ describe('schema', () => {
       },
       {
         parser: (value, type) => {
-          return type === 'id' ? parseInt(value) : value
+          return type === 'id' ? parseInt(value, 10) : value
         },
       }
     )
@@ -714,7 +714,7 @@ describe('schema', () => {
       {
         parser: (value, type) => {
           if (type === 'id') {
-            return parseInt(value)
+            return parseInt(value, 10)
           }
 
           return value
@@ -835,4 +835,12 @@ describe('schema', () => {
       expect(() => Schema.validateSchema(schema)).not.toThrow()
     })
   })
+})
+
+test('findRelation', () => {
+  expect(findRelations({}, 'mock')).toStrictEqual([])
+
+  expect(
+    findRelations({ address: { relation: 'mock', type: 'id' } }, 'mock')
+  ).toStrictEqual([['address']])
 })

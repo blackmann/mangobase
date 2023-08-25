@@ -94,7 +94,12 @@ class MongoCursor implements Cursor {
       if (!ids.length) continue
 
       const query = { _id: { $in: ids } }
-      const collectionResults = await this.db.find(collection, query).exec()
+      const populationResults = await this.db.find(collection, query).exec()
+
+      const resultsIndex: Record<string, any> = {}
+      for (const item of populationResults) {
+        resultsIndex[item._id.toHexString()] = item
+      }
 
       for (const result of results) {
         let i = 0
@@ -111,18 +116,12 @@ class MongoCursor implements Cursor {
         if (!id) {
           continue
         }
-
-        // TODO: Prefer to use an index instead of filter
         if (Array.isArray(id)) {
-          objectToPopulate[field] = collectionResults.filter((r: any) =>
+          objectToPopulate[field] = populationResults.filter((r: any) =>
             id.map((i) => i.toHexString()).includes(r._id.toHexString())
           )
         } else {
-          const instance = collectionResults.find(
-            (r: any) => r._id.toHexString() === id.toHexString()
-          )
-
-          objectToPopulate[field] = instance || id
+          objectToPopulate[field] = resultsIndex[id.toHexString()] || id
         }
       }
     }

@@ -1,4 +1,4 @@
-import { DefinitionType } from './schema'
+import { Definition, DefinitionType } from './schema'
 
 interface Cursor<T = any> {
   exec(): Promise<T>
@@ -12,6 +12,37 @@ interface Cursor<T = any> {
 }
 
 type Data = Record<string, any>
+
+interface RenameField {
+  type: 'rename-field'
+  from: string
+  to: string
+}
+
+interface RemoveField {
+  type: 'remove-field'
+  field: string
+}
+
+interface AddField {
+  type: 'add-field'
+  name: string
+  definition: Definition
+}
+
+interface RenameCollection {
+  type: 'rename-collection'
+  from: string
+  to: string
+}
+
+// When adding support for RDBMS, we need to add `CreateCollection`, `DropCollection`, etc.
+type MigrationStep = RenameField | RemoveField | AddField | RenameCollection
+
+interface Migration {
+  version: number
+  steps: MigrationStep[]
+}
 
 interface Database {
   /**
@@ -31,6 +62,7 @@ interface Database {
     data: Record<string, any>
   ): Cursor<T | T[]>
   remove(collection: string, id: string | string[]): Promise<void>
+  migrate(migration: Migration): Promise<void>
 }
 
 export type { Cursor, Database }

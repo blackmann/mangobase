@@ -238,7 +238,6 @@ async function upsertHooks(app: App) {
       ([hookId]) => hookId === RequirePassword.id
     )
   ) {
-    // [ ] Reconcile hooks editor to show this hook
     usersHooks.before.create.push([RequirePassword.id])
     dirty = true
   }

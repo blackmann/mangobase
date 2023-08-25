@@ -495,7 +495,7 @@ class Schema {
                 index += 1
               } catch (err) {
                 if (err instanceof ValidationError) {
-                  err.field = fieldPath + `.${index}.` + err.field
+                  err.field = `${fieldPath}.${index}.${err.field}`
                   throw err
                 }
 
@@ -636,10 +636,39 @@ function getDate(value: any) {
   return date
 }
 
+/**
+ * Returns all field paths where the collection with `name` is used
+ * @param name the collection name
+ * @returns An array of paths to the field. Eg, [['city', 'town']] => 'city.town'
+ */
+function findRelations(schema: SchemaDefinitions, name: string) {
+  function find(s = schema, path: string[] = []) {
+    const res: string[][] = []
+    for (const [field, definition] of Object.entries(s)) {
+      if (['object', 'array'].includes(definition.type) && definition.schema) {
+        const nested = find(definition.schema, path)
+        res.push(...nested)
+      }
+
+      if (definition.type !== 'id') {
+        continue
+      }
+
+      if (definition.relation === name) {
+        res.push([...path, field])
+      }
+    }
+
+    return res
+  }
+
+  return find()
+}
+
 // TODO: Implement a schema validator, one that validates the schema itself
 
 export default Schema
 
-export { ValidationError }
+export { ValidationError, findRelations }
 
 export type { SchemaDefinitions, Definition, DefinitionType }

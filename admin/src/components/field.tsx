@@ -4,6 +4,7 @@ import Asterix from '../icons/Asterix'
 import Numbers from '../icons/Number'
 import Text from '../icons/Text'
 import clsx from 'clsx'
+import collections from '../data/collections'
 import styles from './field.module.css'
 
 interface Props {
@@ -16,7 +17,7 @@ const fieldTypes = [
   { title: 'string', value: 'string' },
   { title: 'number', value: 'number' },
   { title: 'boolean', value: 'boolean' },
-  { title: 'object id', value: 'id' },
+  { title: 'relation', value: 'id' },
   { title: 'date', value: 'date' },
   { title: 'array', value: 'array' },
   { title: 'object', value: 'object' },
@@ -86,9 +87,24 @@ interface FieldExtraProps extends Props {
   type: string
 }
 
-function FieldExtra({ type }: FieldExtraProps) {
+function FieldExtra({ type, register }: FieldExtraProps) {
   switch (type) {
-    // [ ] Relation select menu
+    case 'id':
+      return (
+        <label>
+          Relation
+          <select
+            className="ms-2"
+            {...register('relation', { required: true })}
+          >
+            {collections.value.map((collection) => (
+              <option key={collection.name} value={collection.name}>
+                {collection.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )
     // [ ] Object schema menu
     default: {
       return null

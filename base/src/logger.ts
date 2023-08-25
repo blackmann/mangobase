@@ -28,7 +28,6 @@ const logStart: HookFn = async (ctx) => {
 
 const logEnd: HookFn = async (ctx, _, app) => {
   const service = app.service(getPath()) as CollectionService
-  // [ ] Pass log values
   await service.collection.create({
     category: ctx.method,
     data: (ctx.statusCode || 200) > 399 ? ctx.result : undefined,

@@ -134,8 +134,6 @@ class Pipeline {
     ctx: Context,
     clean?: (ctx: Context) => Promise<Context>
   ): Promise<Context> {
-    // TODO: put into logs
-
     const error =
       err instanceof ServiceError ? err : Pipeline.translateError(err)
 
@@ -262,7 +260,7 @@ const collectionsService: Service & { schema: Schema } = {
 
         await app.installCollection(collection)
         if (existing.name !== collection.name) {
-          await app.manifest.removeCollection(existing.name)
+          await app.manifest.renameCollection(existing.name, collection.name)
           app.leave(existing.name)
         }
 
