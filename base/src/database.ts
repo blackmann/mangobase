@@ -15,7 +15,7 @@ type Data = Record<string, any>
 
 interface Index {
   fields: string[]
-  option: {
+  options: {
     unique?: boolean
   }
 }

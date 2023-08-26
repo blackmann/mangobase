@@ -288,7 +288,7 @@ class MongoDB implements Database {
       const name = await this.db.createIndex(
         collection,
         index.fields,
-        index.option
+        index.options
       )
       indexNames.add(name)
     }

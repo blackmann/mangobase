@@ -18,7 +18,7 @@ interface JWTStructure {
   user: string
 }
 
-const schema: SchemaDefinitions = {
+const authCredentialsSchema: SchemaDefinitions = {
   password: { required: true, type: 'string' },
   user: { relation: 'users', required: true, type: 'id' },
 }
@@ -117,7 +117,12 @@ const CreatePasswordAuthCredential: Hook = {
 async function baseAuthentication(app: App) {
   const name = 'auth-credentials'
   if (!(await app.manifest.collection(name))) {
-    await app.manifest.collection(name, { name, schema })
+    // [ ] Ensure this index
+    await app.manifest.collection(name, {
+      indexes: [{ fields: ['user'], options: { unique: true } }],
+      name,
+      schema: authCredentialsSchema,
+    })
   }
 
   app.hooksRegistry.register(

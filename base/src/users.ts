@@ -19,9 +19,15 @@ async function users(app: App) {
   if (!(await app.manifest.collection('users'))) {
     await app.manifest.collection('users', {
       exposed: true,
+      indexes: [
+        { fields: ['username'], options: { unique: true } },
+        { fields: ['email'], options: { unique: true } },
+      ],
       name: 'users',
       schema: usersSchema,
     })
+
+    // [ ] Ensure indices
   }
 
   app.use('users', new CollectionService(app, 'users'))
