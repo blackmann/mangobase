@@ -278,6 +278,11 @@ class MongoDB implements Database {
   }
 
   async syncIndex(collection: string, indexes: Index[]): Promise<void> {
+    const exists = await this.db.listCollections({ name: collection }).toArray()
+    if (!exists.length) {
+      await this.db.createCollection(collection)
+    }
+
     const existingIndexes: IndexDescription[] = await this.db
       .collection(collection)
       .listIndexes()
@@ -294,7 +299,7 @@ class MongoDB implements Database {
     }
 
     for (const index of existingIndexes) {
-      if (!indexNames.has(index.name!)) {
+      if (index.name !== '_id_' && !indexNames.has(index.name!)) {
         await this.db.collection(collection).dropIndex(index.name!)
       }
     }

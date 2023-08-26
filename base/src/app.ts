@@ -205,8 +205,10 @@ const collectionsService: Service & { schema: Schema } = {
           )
         }
 
-        const data = this.schema.validate(ctx.data, true)
-        Schema.validateSchema(data.schema)
+        const validData = this.schema.validate(ctx.data, true)
+        Schema.validateSchema(validData.schema)
+
+        const { migrationSteps, ...data } = validData
 
         const collection = await app.manifest.collection(data.name, data)
         await app.database.syncIndex(collection.name, collection.indexes)
@@ -245,12 +247,12 @@ const collectionsService: Service & { schema: Schema } = {
           throw new NotFound()
         }
 
-        const { migrations, ...data } = ctx.data
-        const patch = await this.schema.validate(data, false, true)
-        if (patch.schema) {
-          Schema.validateSchema(patch.schema)
+        const validData = await this.schema.validate(ctx.data, false, true)
+        if (validData.schema) {
+          Schema.validateSchema(validData.schema)
         }
 
+        const { migrationSteps, ...patch } = validData
         const collectionConfig = {
           ...existing,
           ...patch,
@@ -289,6 +291,35 @@ const collectionsService: Service & { schema: Schema } = {
 
   schema: new Schema({
     exposed: { defaultValue: true, type: 'boolean' },
+    indexes: {
+      defaultValue: [],
+      schema: {
+        item: {
+          schema: {
+            fields: { schema: { item: { type: 'string' } }, type: 'array' },
+            options: {
+              schema: { unique: { type: 'boolean' } },
+              type: 'object',
+            },
+          },
+          type: 'object',
+        },
+      },
+      type: 'array',
+    },
+    // [ ]
+    migrationSteps: {
+      defaultValue: [],
+      schema: {
+        item: {
+          schema: {
+            // [ ] Provide schema definitions
+          },
+          type: 'object',
+        },
+      },
+      type: 'array',
+    },
     name: { required: true, type: 'string' },
     schema: { required: true, type: 'any' },
     template: { defaultValue: false, type: 'boolean' },

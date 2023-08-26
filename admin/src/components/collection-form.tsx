@@ -4,6 +4,7 @@ import {
   useFieldArray,
   useForm,
 } from 'react-hook-form'
+import Collection from '../client/collection'
 import Field from './field'
 import { FieldType } from '../lib/field-types'
 import { Link } from 'react-router-dom'
@@ -12,16 +13,9 @@ import app from '../mangobase-app'
 import { loadCollections } from '../data/collections'
 import styles from './collection-form.module.css'
 
-interface ExistingCollection {
-  exposed: boolean
-  name: string
-  schema: Record<string, any>
-  template: boolean
-}
-
 interface Props {
-  onHide?: VoidFunction
-  collection?: ExistingCollection
+  onHide?: (collection?: Collection) => void
+  collection?: Collection
 }
 
 interface FieldProps {
@@ -65,15 +59,13 @@ function CollectionForm({ collection, onHide }: Props) {
       template: options.includes('is-template'),
     }
 
-    if (collection) {
-      await app.editCollection(collection.name, data)
-    } else {
-      await app.addCollection(data)
-    }
+    const newCollection = collection
+      ? await app.editCollection(collection.name, data)
+      : await app.addCollection(data)
 
     await loadCollections()
 
-    handleOnHide()
+    handleOnHide(newCollection)
   }
 
   const getFieldName = React.useCallback(() => {
@@ -95,10 +87,10 @@ function CollectionForm({ collection, onHide }: Props) {
     append({ name: getFieldName(), type: 'string' })
   }, [append, getFieldName])
 
-  function handleOnHide() {
+  function handleOnHide(collection?: Collection) {
     reset()
     remove()
-    onHide?.()
+    onHide?.(collection)
   }
 
   React.useEffect(() => {
@@ -201,7 +193,7 @@ function CollectionForm({ collection, onHide }: Props) {
 
         <div>
           <button className="primary">{submitLabel}</button>
-          <button onClick={handleOnHide} type="reset">
+          <button onClick={() => handleOnHide()} type="reset">
             Cancel
           </button>
         </div>

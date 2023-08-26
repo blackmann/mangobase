@@ -1,12 +1,15 @@
-type DefinitionType =
-  | 'any'
-  | 'array'
-  | 'boolean'
-  | 'date'
-  | 'id'
-  | 'number'
-  | 'object'
-  | 'string'
+const types = [
+  'any',
+  'array',
+  'boolean',
+  'date',
+  'id',
+  'number',
+  'object',
+  'string',
+] as const
+
+type DefinitionType = `${(typeof types)[number]}`
 
 interface Definition {
   /** `id` values are always of the primitive type `string`.
@@ -67,11 +70,17 @@ interface Data {
   value: any
 }
 
+type ValidationFunction = (
+  data: Data,
+  definition: Definition,
+  useDefault: boolean
+) => any
+
 class Schema {
   schema: SchemaDefinitions
   parser: (value: any, type: DefinitionType) => any
 
-  private validationMap = {
+  private validationMap: Record<DefinitionType, ValidationFunction> = {
     any: this.validateAny,
     array: this.validateArray,
     boolean: this.validateBoolean,
@@ -445,18 +454,7 @@ class Schema {
     )) {
       const fieldPath = parentField ? `${parentField}.${name}` : name
       const type = definition?.type
-      if (
-        ![
-          'any',
-          'array',
-          'boolean',
-          'date',
-          'id',
-          'number',
-          'object',
-          'string',
-        ].includes(type)
-      ) {
+      if (!types.includes(type)) {
         throw new ValidationError(fieldPath, '`type` is invalid or undefined')
       }
 
