@@ -48,6 +48,11 @@ class App {
     return new Collection(this, data)
   }
 
+  async editCollection(name: string, collection: any) {
+    const { data } = await this.req.patch(`collections/${name}`, collection)
+    return new Collection(this, data)
+  }
+
   async hookRegistry() {
     const { data } = await this.req.get('_dev/hooks-registry')
     return data

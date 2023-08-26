@@ -209,6 +209,7 @@ const collectionsService: Service & { schema: Schema } = {
         Schema.validateSchema(data.schema)
 
         const collection = await app.manifest.collection(data.name, data)
+        await app.database.syncIndex(collection.name, collection.indexes)
 
         app.use(collection.name, new CollectionService(app, collection.name))
 
@@ -244,7 +245,8 @@ const collectionsService: Service & { schema: Schema } = {
           throw new NotFound()
         }
 
-        const patch = await this.schema.validate(ctx.data, false, true)
+        const { migrations, ...data } = ctx.data
+        const patch = await this.schema.validate(data, false, true)
         if (patch.schema) {
           Schema.validateSchema(patch.schema)
         }
@@ -253,16 +255,24 @@ const collectionsService: Service & { schema: Schema } = {
           ...existing,
           ...patch,
         }
+
+        if (existing.name !== collectionConfig.name) {
+          await app.manifest.renameCollection(
+            existing.name,
+            collectionConfig.name
+          )
+          app.leave(existing.name)
+        }
+
         const collection = await app.manifest.collection(
           collectionConfig.name,
           collectionConfig
         )
 
+        // await app.database.migrate(collection.name, migrations)
+        await app.database.syncIndex(collection.name, collection.indexes)
+
         await app.installCollection(collection)
-        if (existing.name !== collection.name) {
-          await app.manifest.renameCollection(existing.name, collection.name)
-          app.leave(existing.name)
-        }
 
         ctx.result = collection
 
@@ -570,7 +580,7 @@ class App {
     return await plugin(this)
   }
 
-  async admin(path: string, queryParams?: string) {
+  async admin(path: string) {
     await this.init()
 
     const trimmedPath = path.replace(/^\//, '')

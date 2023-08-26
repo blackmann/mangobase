@@ -21,7 +21,10 @@ interface Definition {
 
   required?: boolean
 
-  /** `unique` constraints do not apply to type of `any` */
+  /** `unique` constraints do not apply to type of `any`. Currenlty, the schema
+   * does not enforce uniqueness; it's not its responsibility. Maybe this field
+   * is redundant and will be removed in future.
+   */
   unique?: boolean
 
   /** The collection ID of the relation. This only applies when type is `id`. */

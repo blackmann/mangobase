@@ -150,7 +150,7 @@ class Manifest {
   async renameCollection(from: string, to: string) {
     if (this.collectionsIndex[to]) {
       throw new Error(
-        `A collection with name \`${to}\` already exists. Cannot rename \`${from} to \`${to}\``
+        `A collection with name \`${to}\` already exists. Cannot rename \`${from}\` to \`${to}\``
       )
     }
 
@@ -162,6 +162,8 @@ class Manifest {
 
     this.editorsIndex[to] = this.editorsIndex[from]
     delete this.editorsIndex[from]
+
+    await this.save()
   }
 
   async save(env?: string) {

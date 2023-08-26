@@ -5,6 +5,7 @@ import {
   useForm,
 } from 'react-hook-form'
 import Field from './field'
+import { FieldType } from '../lib/field-types'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import app from '../mangobase-app'
@@ -23,24 +24,53 @@ interface Props {
   collection?: ExistingCollection
 }
 
+interface FieldProps {
+  existing?: boolean
+  name: string
+  required: boolean
+  type: FieldType
+  unique?: boolean
+}
+
 function CollectionForm({ collection, onHide }: Props) {
   const { control, handleSubmit, register, reset, setValue, watch } = useForm()
   const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
 
   function handleRemove(index: number) {
+    const field = fields[index] as unknown as FieldProps
+    if (field.existing) {
+      setValue(`fields.${index}.removed`, true)
+      return
+    }
+
     remove(index)
   }
 
   async function save(form: FieldValues) {
     const { name, options, fields } = form
+
+    const migrationSteps = []
+
+    if (collection) {
+      if (name !== collection.name) {
+        migrationSteps.push({ to: name, type: 'rename-collection' })
+      }
+    }
+
     const data = {
       exposed: options.includes('expose'),
+      migrationSteps,
       name,
       schema: schemaFromForm(fields),
       template: options.includes('is-template'),
     }
 
-    await app.addCollection(data)
+    if (collection) {
+      await app.editCollection(collection.name, data)
+    } else {
+      await app.addCollection(data)
+    }
+
     await loadCollections()
 
     handleOnHide()
@@ -79,6 +109,7 @@ function CollectionForm({ collection, onHide }: Props) {
 
     for (const [field, options] of Object.entries(collection.schema)) {
       append({
+        existing: true,
         name: field,
         required: options.required,
         type: options.type,
@@ -177,11 +208,6 @@ function CollectionForm({ collection, onHide }: Props) {
       </footer>
     </form>
   )
-}
-
-interface FieldProps {
-  name: string
-  type: string
 }
 
 function schemaFromForm(fields: FieldProps[]) {

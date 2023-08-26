@@ -1,6 +1,7 @@
 import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
-// import Chip from './chip'
+import fieldTypes, { FieldType } from '../lib/field-types'
 import Asterix from '../icons/Asterix'
+import Chip from './chip'
 import Numbers from '../icons/Number'
 import Text from '../icons/Text'
 import clsx from 'clsx'
@@ -8,29 +9,20 @@ import collections from '../data/collections'
 import styles from './field.module.css'
 
 interface Props {
+  onRestore?: VoidFunction
   onRemove?: VoidFunction
   watch: (name: string) => any
   register: (name: string, o?: RegisterOptions) => UseFormRegisterReturn
 }
 
-const fieldTypes = [
-  { title: 'string', value: 'string' },
-  { title: 'number', value: 'number' },
-  { title: 'boolean', value: 'boolean' },
-  { title: 'relation', value: 'id' },
-  { title: 'date', value: 'date' },
-  { title: 'array', value: 'array' },
-  { title: 'object', value: 'object' },
-  { title: 'any', value: 'any' },
-] as const
-
-function Field({ onRemove, watch, register }: Props) {
+function Field({ onRemove, onRestore, watch, register }: Props) {
   const type = watch('type')
+  const existing = watch('existing')
+  const removed = watch('removed')
 
   return (
     <div className={clsx(styles.field)}>
       <div className="text-secondary me-2">
-        {/** - [ ] Put leading icon representing type here */}
         <FieldIcon type={type} />
       </div>
       <div className="flex-1">
@@ -39,13 +31,17 @@ function Field({ onRemove, watch, register }: Props) {
             <label className="flex-1 me-2">
               <input
                 className="d-block w-100"
+                disabled={removed}
                 type="text"
                 placeholder="Field name"
                 {...register('name', { required: true })}
               />
             </label>
             <label>
-              <select {...register('type', { required: true })}>
+              <select
+                disabled={existing}
+                {...register('type', { required: true })}
+              >
                 {fieldTypes.map((field) => (
                   <option key={field.value} value={field.value}>
                     {field.title}
@@ -58,36 +54,46 @@ function Field({ onRemove, watch, register }: Props) {
         <div className="mt-1 d-flex justify-content-between">
           <div>
             <label className="me-3">
-              <input type="checkbox" {...register('required')} />
+              <input
+                disabled={removed}
+                type="checkbox"
+                {...register('required')}
+              />
               Required
             </label>
 
             {type !== 'boolean' && (
               <label>
-                <input type="checkbox" {...register('unique')} />
+                <input
+                  disabled={removed}
+                  type="checkbox"
+                  {...register('unique')}
+                />
                 Unique
               </label>
             )}
           </div>
 
           <div>
-            {/* <Chip className="me-1 accent">Removed</Chip> */}
-            <button onClick={onRemove}>Remove</button>
+            {removed && <Chip className="me-1 accent">Removed</Chip>}
+            <button onClick={removed ? onRestore : onRemove} type="button">
+              {removed ? 'Restore' : 'Remove'}
+            </button>
           </div>
         </div>
 
-        <FieldExtra type={type} {...{ register, watch }} />
+        <FieldExtra disabled={removed} type={type} {...{ register, watch }} />
       </div>
     </div>
   )
 }
 
 interface FieldExtraProps extends Props {
-  // get type
-  type: string
+  disabled: boolean
+  type: FieldType
 }
 
-function FieldExtra({ type, register }: FieldExtraProps) {
+function FieldExtra({ disabled, type, register }: FieldExtraProps) {
   switch (type) {
     case 'id':
       return (
@@ -95,6 +101,7 @@ function FieldExtra({ type, register }: FieldExtraProps) {
           Relation
           <select
             className="ms-2"
+            disabled={disabled}
             {...register('relation', { required: true })}
           >
             {collections.value.map((collection) => (

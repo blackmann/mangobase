@@ -29,7 +29,7 @@ function expressServer(mangobaseApp: App) {
   app.get(['/_', '/_/*'], (req, res) => {
     const [path, queryParams] = req.url.replace(/^\/_/, '').split('?')
 
-    mangobaseApp.admin(path || 'index.html', queryParams).then((file) => {
+    mangobaseApp.admin(path || 'index.html').then((file) => {
       res.sendFile(file)
     })
   })
