@@ -1,8 +1,9 @@
+import { SchemaDefinitions, findRelations } from './schema'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { HookConfig } from './hook'
 import { Index } from './database'
 import Method from './method'
-import { SchemaDefinitions } from './schema'
+import setWithPath from './lib/set-with-path'
 
 const COLLECTIONS_FILE = 'collections.json'
 const HOOKS_FILE = 'hooks.json'
@@ -162,6 +163,14 @@ class Manifest {
 
     this.editorsIndex[to] = this.editorsIndex[from]
     delete this.editorsIndex[from]
+
+    for (const name in this.collectionsIndex) {
+      const schema = this.collectionsIndex[name].schema
+      const usages = findRelations(schema, from)
+      for (const usage of usages) {
+        setWithPath(schema, [...usage, 'relation'], to)
+      }
+    }
 
     await this.save()
   }
