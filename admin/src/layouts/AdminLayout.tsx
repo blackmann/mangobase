@@ -8,7 +8,6 @@ import Options from '../icons/Options'
 import React from 'preact/compat'
 import app from '../mangobase-app'
 import clsx from 'clsx'
-import styles from './AdminLayout.module.css'
 
 const navLinks = [
   {
@@ -48,15 +47,15 @@ function AdminLayout() {
   const { user } = auth
 
   return (
-    <div className="d-flex">
-      <nav class={styles.nav}>
-        <ul>
+    <div className="flex">
+      <nav className="h-screen flex flex-col justify-between">
+        <ul className="list-none m-2 p-0">
           {navLinks.map((link) => (
             <li key={link.href}>
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
-                  clsx('text-secondary', styles.navLink, {
-                    [styles.active]: isActive,
+                  clsx('text-gray-400 p-2 flex', {
+                    'text-gray-700 dark:!text-gray-200': isActive,
                   })
                 }
                 to={link.href}
@@ -68,7 +67,7 @@ function AdminLayout() {
           ))}
         </ul>
 
-        <ul>
+        <ul className="list-none m-2 p-0">
           <li style={{ textAlign: 'center' }}>
             <NavLink to="/settings/profile">
               <Avatar
@@ -82,7 +81,7 @@ function AdminLayout() {
         </ul>
       </nav>
 
-      <main class="flex-fill">
+      <main class="flex-1">
         <Outlet />
       </main>
     </div>

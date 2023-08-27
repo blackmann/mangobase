@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import collections, { loadCollections } from '../../data/collections'
 import CollectionForm from '../../components/collection-form'
+import Input from '../../components/input'
 import Plus from '../../icons/Plus'
 import React from 'preact/compat'
 import clsx from 'clsx'
-import styles from './index.module.css'
 
 function CollectionsPage() {
   const formDialog = React.useRef<HTMLDialogElement>(null)
@@ -25,59 +25,55 @@ function CollectionsPage() {
   }, [])
 
   return (
-    <div className="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 mt-1">
-          <header className="d-flex justify-content-between align-items-center">
-            <div className="medium">Collections</div>
+    <div class="grid grid-cols-12 gap-4 me-4">
+      <nav class="col-span-2 xl:col-span-1 mt-1">
+        <header className="flex justify-between align-items-center mb-2">
+          <div className="font-medium">Collections</div>
+          <button className="text-gray-400" onClick={() => showFormDialog()}>
+            <Plus />
+          </button>
+        </header>
 
-            <div>
-              <button
-                className="plain-button text-secondary"
-                onClick={() => showFormDialog()}
+        <Input
+          className="w-full mb-2"
+          type="search"
+          name="search"
+          id="search"
+          required
+          placeholder="Find collection"
+        />
+
+        <dialog ref={formDialog} className="dialog">
+          <h2 className="mt-0">Add new collection</h2>
+          {showingForm && (
+            <CollectionForm key="new" onHide={() => hideFormDialog()} />
+          )}
+        </dialog>
+
+        <ol className="list-none p-0">
+          {collections.value.map((collection) => (
+            <li key={collection.name}>
+              <NavLink
+                className={({ isActive }: { isActive: boolean }) =>
+                  clsx(
+                    'text-gray-500 dark:text-gray-400 d-flex no-underline px-0 hover:underline',
+                    {
+                      'text-gray-800 dark:text-gray-200 !underline': isActive,
+                    }
+                  )
+                }
+                to={collection.name}
               >
-                <Plus />
-              </button>
-            </div>
-          </header>
+                {collection.exposed ? '/' : '-'}
+                {collection.name}
+              </NavLink>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-          <input
-            className="w-100"
-            type="search"
-            name="search"
-            id="search"
-            placeholder="Find collection"
-          />
-
-          <dialog ref={formDialog} className="dialog">
-            <h2 className="mt-0">Add new collection</h2>
-            {showingForm && (
-              <CollectionForm key="new" onHide={() => hideFormDialog()} />
-            )}
-          </dialog>
-
-          <ol className={styles.collections}>
-            {collections.value.map((collection) => (
-              <li key={collection.name}>
-                <NavLink
-                  className={({ isActive }: { isActive: boolean }) =>
-                    clsx('text-secondary d-flex', styles.collectionLink, {
-                      [styles.active]: isActive,
-                    })
-                  }
-                  to={collection.name}
-                >
-                  {collection.exposed ? '/' : '-'}
-                  {collection.name}
-                </NavLink>
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <div className="col-md-10">
-          <Outlet />
-        </div>
+      <div className="col-span-10">
+        <Outlet />
       </div>
     </div>
   )

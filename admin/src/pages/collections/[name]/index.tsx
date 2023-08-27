@@ -7,9 +7,9 @@ import {
 import CleanDate from '../../../components/date'
 import type Collection from '../../../client/collection'
 import IdTag from '../../../components/id-tag'
+import Input from '../../../components/input'
 import React from 'preact/compat'
 import clsx from 'clsx'
-import styles from './index.module.css'
 
 type RouteData = { collection: Collection }
 
@@ -36,14 +36,16 @@ function CollectionDetail() {
   ]
 
   return (
-    <div className={clsx('container-fluid', styles.main)}>
+    <div className="h-full flex flex-col">
       <header className="mt-1">
-        <h1 className="mb-0 mt-0">{collection.name}</h1>
-        <div className={clsx(styles.tabs, 'mt-2')}>
+        <h1 className="m-0 text-3xl bold">{collection.name}</h1>
+        <div className="mt-2">
           {links.map((link) => (
             <NavLink
               className={({ isActive }: { isActive: boolean }) =>
-                clsx('text-secondary', { [styles.active]: isActive })
+                clsx('text-gray-500 dark:text-gray-400 me-2 hover:underline', {
+                  'text-gray-800 dark:text-gray-200 underline': isActive,
+                })
               }
               end
               key={link.href}
@@ -55,7 +57,7 @@ function CollectionDetail() {
         </div>
       </header>
 
-      <div className={clsx('mt-3', styles.content)}>
+      <div className="mt-3 flex-1">
         <Outlet />
       </div>
     </div>
@@ -79,14 +81,14 @@ function CollectionRecords() {
 
   return (
     <>
-      <input
-        className="w-100 d-block mt-2"
+      <Input
+        className="w-full block mt-2"
         type="text"
         name="search"
         id="search"
         placeholder="Filter record. See docs for examples."
       />
-      <table cellSpacing={0} className="w-100 mt-3">
+      <table cellSpacing={0} className="w-full mt-3">
         <thead>
           <tr>
             <th>
@@ -103,7 +105,10 @@ function CollectionRecords() {
 
         <tbody>
           {pages[pages.length - 1]?.data.map((row: any) => (
-            <tr className={styles.row} key={row._id}>
+            <tr
+              className="transition-background hover:bg-gray-200 dark:hover:bg-gray-700"
+              key={row._id}
+            >
               <td style={{ width: '2rem' }}>
                 <input type="checkbox" name="select" className="ms-1" />
               </td>
