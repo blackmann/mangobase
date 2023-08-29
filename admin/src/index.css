@@ -2,10 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @font-face {
 	font-family: "Zed Mono";
 	src: url("/zed-mono/zed-mono-regular.woff2");
+}
+
+@font-face {
+	font-family: "Zed Mono";
+	src: url("/zed-mono/zed-mono-medium.woff2");
+  font-weight: 500;
 }
 
 @font-face {
@@ -14,13 +19,15 @@
 	font-weight: 700;
 }
 
-
 @font-face {
 	font-family: "Zed Mono";
 	src: url("/zed-mono/zed-mono-italic.woff2");
 	font-style: italic;
 }
 
+.material-symbols-rounded {
+  font-display: block;
+}
 
 :root {
   color-scheme: light dark;
@@ -30,67 +37,11 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   font-weight: 500;
-}
-
-* { box-sizing: border-box; }
-
-body { margin: 0; }
-
-:root {
   accent-color: #0E9544;
-  --primary-color: #3575DB;
-  --accent-color: #0E9544;
-  --secondary-color: #838995;
-  --reset-color: #222;
-  --primary-100: #d7e3f8;
-  --primary-200: #aec8f1;
-  --primary-300: #86ace9;
-  --primary-400: #5d91e2;
-  --primary-500: #2a5eaf;
-  --primary-600: #204683;
-  --primary-700: #152f58;
-  --primary-800: #0b172c;
-  --accent-100: #cfeada;
-  --accent-200: #9fd5b4;
-  --accent-300: #6ebf8f;
-  --accent-400: #3eaa69;
-  --accent-500: #0b7736;
-  --accent-600: #085929;
-  --accent-700: #063c1b;
-  --accent-800: #031e0e;
-  --secondary-100: #e6e7ea;
-  --secondary-200: #cdd0d5;
-  --secondary-300: #b5b8bf;
-  --secondary-400: #9ca1aa;
-  --secondary-500: #696e77;
-  --secondary-600: #4f5259;
-  --secondary-700: #34373c;
-  --secondary-800: #1a1b1e;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --reset-color: #F5F4F4;
-  }
-}
 
-.text-secondary {
-  color: var(--secondary-color) !important;
-}
-
-.text-primary {
-  color: var(--primary-color) !important;
-}
-
-.text-accent {
-  color: var(--accent-color) !important;
-}
-
-.text-reset {
-  color: var(--reset-color) !important;
-}
-
-:root {
+body {
   font-family: "Zed Mono", sans-serif;
   font-size: 14px;
 }

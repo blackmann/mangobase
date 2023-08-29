@@ -1,18 +1,22 @@
 import { Handle, Position } from 'reactflow'
 import type { HandleComponentProps } from '@reactflow/core/dist/esm/components/Handle'
 import clsx from 'clsx'
-import styles from './flow-handle.module.css'
 
 function FlowHandle({ className, ...props }: HandleComponentProps) {
   return (
     <Handle
       {...props}
       className={clsx(
-        styles.handle,
-        { [styles.out]: props.position === Position.Right },
+        '!border-none !transform-none !relative !top-0 !h-[1.1rem] !w-[1.1rem]',
+        {
+          '!left-[-0.55rem]': props.position !== Position.Right,
+          '!right-[-0.55rem]': props.position === Position.Right,
+        },
         className
       )}
-    />
+    >
+      <div className="w-full h-full bg-slate-400 dark:bg-neutral-400 rounded-full" />
+    </Handle>
   )
 }
 

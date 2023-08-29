@@ -1,9 +1,7 @@
 import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
 import fieldTypes, { FieldType } from '../lib/field-types'
-import Asterix from '../icons/Asterix'
 import Chip from './chip'
-import Numbers from '../icons/Number'
-import Text from '../icons/Text'
+import Input from './input'
 import collections from '../data/collections'
 
 interface Props {
@@ -20,14 +18,14 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
 
   return (
     <div className="flex py-4">
-      <div className="text-secondary me-2">
+      <div className="text-slate-400 dark:text-neutral-500 me-2">
         <FieldIcon type={type} />
       </div>
       <div className="flex-1">
         <div>
-          <div className="d-flex">
+          <div className="flex">
             <label className="flex-1 me-2">
-              <input
+              <Input
                 className="d-block w-100"
                 disabled={removed}
                 type="text"
@@ -120,13 +118,13 @@ function FieldExtra({ disabled, type, register }: FieldExtraProps) {
 function FieldIcon({ type }: { type: string }) {
   switch (type) {
     case 'number':
-      return <Numbers />
+      return <span className="material-symbols-rounded">123</span>
 
     case 'string':
-      return <Text />
+      return <span className="material-symbols-rounded">title</span>
 
     default:
-      return <Asterix />
+      return <span className="material-symbols-rounded">emergency</span>
   }
 }
 

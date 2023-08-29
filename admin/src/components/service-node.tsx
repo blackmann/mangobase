@@ -2,7 +2,6 @@ import { Connection, Position } from 'reactflow'
 import FlowHandle from './flow-handle'
 import InOut from '../icons/InOut'
 import { METHODS } from '../client/collection'
-import styles from './service-node.module.css'
 
 function ServiceNode() {
   function checkSourceConnection(connection: Connection) {
@@ -14,21 +13,21 @@ function ServiceNode() {
   }
 
   return (
-    <div className={styles.serviceNode}>
-      <header className={styles.header}>
-        <div className="me-1 text-secondary">
+    <div className="bg-slate-50 dark:bg-neutral-700 rounded-md w-[16rem] border border-slate-200 dark:border-neutral-600 overflow-hidden">
+      <header className="flex p-2 border-b border-b-slate-200 dark:border-b-neutral-600">
+        <div className="me-1 text-slate-500 dark:text-neutral-400">
           <InOut />
         </div>
 
         <div>
-          <div className="bold">Service node</div>
-          <div className="text-secondary">Methods</div>
+          <div className="font-bold">Service node</div>
+          <div className="text-slate-500 dark:text-neutral-400">Methods</div>
         </div>
       </header>
 
-      <ul className={styles.methods}>
+      <ul className="list-none">
         {METHODS.map((method) => (
-          <li key={method}>
+          <li className="flex items-center py-2" key={method}>
             <FlowHandle
               id={`before-${method}`}
               position={Position.Left}
@@ -36,7 +35,7 @@ function ServiceNode() {
               isValidConnection={checkSourceConnection}
             />
 
-            <div className={styles.methodLabel}>{method}</div>
+            <div className="flex-1 ms-6">{method}</div>
 
             <FlowHandle
               id={`after-${method}`}

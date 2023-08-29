@@ -47,7 +47,7 @@ function CollectionsPage() {
           ref={formDialog}
           className="rounded-md p-3 border border-slate-300 dark:border-neutral-700 bg-slate-100 dark:bg-neutral-800"
         >
-          <h2 className="text-2xl font-bold">Add new collection</h2>
+          <h2 className="text-2xl font-bold mb-4">New collection</h2>
           {showingForm && (
             <CollectionForm key="new" onHide={() => hideFormDialog()} />
           )}

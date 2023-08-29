@@ -4,6 +4,8 @@ import {
   useFieldArray,
   useForm,
 } from 'react-hook-form'
+import Button from './button'
+import Chip from './chip'
 import Collection from '../client/collection'
 import Field from './field'
 import { FieldType } from '../lib/field-types'
@@ -170,7 +172,7 @@ function CollectionForm({ collection, onHide }: Props) {
         </div>
       </div>
 
-      <fieldset className="mt-3">
+      <fieldset className="mt-8">
         <legend>Fields</legend>
 
         {fields.map((field, i) => (
@@ -184,22 +186,24 @@ function CollectionForm({ collection, onHide }: Props) {
           />
         ))}
 
-        <button className="mt-3" onClick={addNewField} type="button">
+        <Button className="mt-3" onClick={addNewField} type="button">
           Add new field
-        </button>
+        </Button>
       </fieldset>
 
       <footer>
-        <p>
-          <code>created_at</code> and <code>updated_at</code> fields are
-          automatically set
+        <p className="my-8">
+          <Chip className="py-0">created_at</Chip> and{' '}
+          <Chip className="py-0">updated_at</Chip> fields are automatically set
         </p>
 
         <div>
-          <button className="primary">{submitLabel}</button>
-          <button onClick={() => handleOnHide()} type="reset">
+          <Button className="me-2" variant="primary">
+            {submitLabel}
+          </Button>
+          <Button onClick={() => handleOnHide()} type="reset">
             Cancel
-          </button>
+          </Button>
         </div>
       </footer>
     </form>

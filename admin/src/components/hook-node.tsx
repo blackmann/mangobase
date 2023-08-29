@@ -2,7 +2,6 @@ import FlowHandle from './flow-handle'
 import LineStart from '../icons/LineStart'
 import { Position } from 'reactflow'
 import hooksRegistry from '../data/hooks-registry'
-import styles from './hook-node.module.css'
 
 interface Props {
   data: { id: string }
@@ -17,21 +16,23 @@ function HookNode({ data, id: nodeId }: Props) {
   }
 
   return (
-    <div className={styles.hookNode}>
-      <div className={styles.head}>
+    <div className="bg-slate-50 dark:bg-neutral-700 w-[20rem] overflow-hidden rounded-md border border-slate-200 dark:border-neutral-600 ">
+      <div className="flex items-center py-2">
         <FlowHandle
           id={`in-${nodeId}`}
           position={Position.Left}
           type="target"
         />
 
-        <header>
-          <div className="me-2 text-secondary">
+        <header className="flex-1 flex">
+          <div className="me-2 text-slate-500 dark:text-neutral-400">
             <LineStart />
           </div>
           <div>
-            <div className={styles.hookTitle}>{hookInfo.name}</div>
-            <p className="text-secondary m-0">{hookInfo.description}</p>
+            <div>{hookInfo.name}</div>
+            <p className="text-slate-500 dark:text-neutral-400">
+              {hookInfo.description}
+            </p>
           </div>
         </header>
 

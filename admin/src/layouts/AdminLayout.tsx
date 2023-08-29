@@ -1,10 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import AVATAR_COLORS from '../lib/avatar-colors'
 import Avatar from 'boring-avatars'
-import Box from '../icons/Box'
-import Debug from '../icons/Debug'
-import Doc from '../icons/Doc'
-import Options from '../icons/Options'
 import React from 'preact/compat'
 import app from '../mangobase-app'
 import clsx from 'clsx'
@@ -12,22 +8,22 @@ import clsx from 'clsx'
 const navLinks = [
   {
     href: '/collections',
-    icon: <Box />,
+    icon: <span className="material-symbols-rounded">toolbar</span>,
     title: 'Collections',
   },
   {
     href: '/logs',
-    icon: <Debug />,
+    icon: <span className="material-symbols-rounded">bug_report</span>,
     title: 'Logs',
   },
   {
     href: '/settings',
-    icon: <Options />,
+    icon: <span className="material-symbols-rounded">page_info</span>,
     title: 'Settings',
   },
   {
     href: '/docs',
-    icon: <Doc />,
+    icon: <span className="material-symbols-rounded">article</span>,
     title: 'Docs',
   },
 ]
