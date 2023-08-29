@@ -4,9 +4,7 @@ import Asterix from '../icons/Asterix'
 import Chip from './chip'
 import Numbers from '../icons/Number'
 import Text from '../icons/Text'
-import clsx from 'clsx'
 import collections from '../data/collections'
-import styles from './field.module.css'
 
 interface Props {
   onRestore?: VoidFunction
@@ -21,7 +19,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
   const removed = watch('removed')
 
   return (
-    <div className={clsx(styles.field)}>
+    <div className="flex py-4">
       <div className="text-secondary me-2">
         <FieldIcon type={type} />
       </div>

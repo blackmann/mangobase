@@ -25,8 +25,8 @@ function CollectionsPage() {
   }, [])
 
   return (
-    <div class="grid grid-cols-12 gap-4 me-4">
-      <nav class="col-span-2 xl:col-span-1 mt-1">
+    <div class="grid grid-cols-12 xl:grid-cols-10 gap-4 me-4">
+      <nav class="col-span-2 xl:col-span-2 2xl:col-span-1 mt-1">
         <header className="flex justify-between align-items-center mb-2">
           <div className="font-medium">Collections</div>
           <button className="text-gray-400" onClick={() => showFormDialog()}>
@@ -43,8 +43,11 @@ function CollectionsPage() {
           placeholder="Find collection"
         />
 
-        <dialog ref={formDialog} className="dialog">
-          <h2 className="mt-0">Add new collection</h2>
+        <dialog
+          ref={formDialog}
+          className="rounded-md p-3 border border-slate-300 dark:border-neutral-700 bg-slate-100 dark:bg-neutral-800"
+        >
+          <h2 className="text-2xl font-bold">Add new collection</h2>
           {showingForm && (
             <CollectionForm key="new" onHide={() => hideFormDialog()} />
           )}
@@ -58,7 +61,7 @@ function CollectionsPage() {
                   clsx(
                     'text-gray-500 dark:text-gray-400 d-flex no-underline px-0 hover:underline',
                     {
-                      'text-gray-800 dark:text-gray-200 !underline': isActive,
+                      'text-gray-800 dark:!text-gray-200 !underline': isActive,
                     }
                   )
                 }
@@ -72,7 +75,7 @@ function CollectionsPage() {
         </ol>
       </nav>
 
-      <div className="col-span-10">
+      <div className="col-span-10 xl:col-span-8 2xl:col-span-9">
         <Outlet />
       </div>
     </div>

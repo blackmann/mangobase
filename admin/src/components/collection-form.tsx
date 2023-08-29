@@ -7,11 +7,11 @@ import {
 import Collection from '../client/collection'
 import Field from './field'
 import { FieldType } from '../lib/field-types'
+import Input from './input'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import app from '../mangobase-app'
 import { loadCollections } from '../data/collections'
-import styles from './collection-form.module.css'
 
 interface Props {
   onHide?: (collection?: Collection) => void
@@ -121,18 +121,22 @@ function CollectionForm({ collection, onHide }: Props) {
   const submitLabel = collection ? 'Update' : 'Create'
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(save)}>
+    <form className="w-[500px]" onSubmit={handleSubmit(save)}>
       <label>
         <div>Name</div>
-        <input
-          className="d-block w-100"
+        <Input
+          className="block w-full"
           type="text"
           {...register('name', { required: true })}
         />
       </label>
 
-      <div className="row mt-3">
-        <div className="col-md-6">
+      <div className="text-slate-500 dark:text-neutral-400">
+        This becomes the table/collection name and endpoint
+      </div>
+
+      <div className="mt-3 grid grid-cols-12">
+        <div className="col-span-6">
           <label>
             <input
               checked={true}
@@ -143,13 +147,13 @@ function CollectionForm({ collection, onHide }: Props) {
             Expose
           </label>
 
-          <p className="text-secondary mt-0 ms-4">
+          <p className="text-slate-500 dark:text-neutral-400 ms-4">
             Check this if this collection should have a public endpoint. See{' '}
             <Link to="/docs">docs</Link>
           </p>
         </div>
 
-        <div className="col-md-6">
+        <div className="col-span-6">
           <label>
             <input
               type="checkbox"
@@ -159,7 +163,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Use as template
           </label>
 
-          <p className="text-secondary mt-0 ms-4">
+          <p className="text-slate-500 dark:text-neutral-400 mt-0 ms-4">
             Allow this collection to be used to validate fields of other
             collections
           </p>

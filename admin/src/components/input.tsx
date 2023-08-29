@@ -7,7 +7,7 @@ function Input({ className, ...props }: Props) {
   return (
     <input
       className={clsx(
-        'border dark:border-gray-500 rounded-lg py-1 px-2 outline-none',
+        'border border-slate-300 dark:border-neutral-600 rounded-lg py-1 px-2 outline-none bg-slate-200 dark:bg-neutral-800',
         className
       )}
       {...props}

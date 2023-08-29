@@ -73,18 +73,6 @@ th:hover {
   flex: 1;
 }
 
-.dialog {
-  border-radius: 0.5rem;
-  border: 1px solid var(--secondary-200);
-  background-color: var(--background-color);
-}
-
-@media (prefers-color-scheme: dark) {
-  .dialog {
-    border-color: var(--secondary-700);
-  }
-}
-
 fieldset {
   border: 0;
   padding: 0;

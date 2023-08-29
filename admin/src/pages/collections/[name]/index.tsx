@@ -36,7 +36,7 @@ function CollectionDetail() {
   ]
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-screen flex flex-col">
       <header className="mt-1">
         <h1 className="m-0 text-3xl bold">{collection.name}</h1>
         <div className="mt-2">
@@ -44,7 +44,7 @@ function CollectionDetail() {
             <NavLink
               className={({ isActive }: { isActive: boolean }) =>
                 clsx('text-gray-500 dark:text-gray-400 me-2 hover:underline', {
-                  'text-gray-800 dark:text-gray-200 underline': isActive,
+                  'text-gray-800 dark:!text-gray-200 underline': isActive,
                 })
               }
               end
@@ -106,7 +106,7 @@ function CollectionRecords() {
         <tbody>
           {pages[pages.length - 1]?.data.map((row: any) => (
             <tr
-              className="transition-background hover:bg-gray-200 dark:hover:bg-gray-700"
+              className="transition-background hover:bg-slate-200 dark:hover:bg-neutral-700"
               key={row._id}
             >
               <td style={{ width: '2rem' }}>

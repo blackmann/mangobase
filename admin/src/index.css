@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@font-face {
+	font-family: "Zed Mono";
+	src: url("/zed-mono/zed-mono-regular.woff2");
+}
+
+@font-face {
+	font-family: "Zed Mono";
+	src: url("/zed-mono/zed-mono-bold.woff2");
+	font-weight: 700;
+}
+
+
+@font-face {
+	font-family: "Zed Mono";
+	src: url("/zed-mono/zed-mono-italic.woff2");
+	font-style: italic;
+}
+
+
 :root {
   color-scheme: light dark;
   font-synthesis: none;
@@ -71,15 +91,6 @@ body { margin: 0; }
 }
 
 :root {
-  color: #222;
-  font-family: Iosevka, sans-serif;
+  font-family: "Zed Mono", sans-serif;
   font-size: 14px;
-  background-color: #f6f8fa;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    background-color: #212121;
-    color: #F5F4F4;
-  }
 }

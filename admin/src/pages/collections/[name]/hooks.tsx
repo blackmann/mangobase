@@ -26,7 +26,6 @@ import React from 'preact/compat'
 import { SERVICE_NODE_TYPE } from '../../../components/service-node'
 import nodeTypes from '../../../lib/node-types'
 import randomStr from '../../../lib/random-str'
-import styles from './hooks.module.css'
 import { useRouteLoaderData } from 'react-router-dom'
 
 const initialNodes = [
@@ -385,7 +384,7 @@ function CollectionHooks() {
   const hooksChanged = !compareHooks(currentHooks, existingHooks)
 
   return (
-    <div className={styles.flowWrapper}>
+    <div className="h-full w-full">
       <ReactFlow
         nodeTypes={nodeTypes}
         nodes={nodes}
