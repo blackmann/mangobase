@@ -2,7 +2,6 @@ import { NavLink, Outlet } from 'react-router-dom'
 import collections, { loadCollections } from '../../data/collections'
 import CollectionForm from '../../components/collection-form'
 import Input from '../../components/input'
-import Plus from '../../icons/Plus'
 import React from 'preact/compat'
 import clsx from 'clsx'
 
@@ -26,11 +25,14 @@ function CollectionsPage() {
 
   return (
     <div class="grid grid-cols-12 xl:grid-cols-10 gap-4 me-4">
-      <nav class="col-span-2 xl:col-span-2 2xl:col-span-1 mt-1">
+      <nav class="col-span-2 xl:col-span-2 2xl:col-span-1 mt-4">
         <header className="flex justify-between align-items-center mb-2">
           <div className="font-medium">Collections</div>
-          <button className="text-gray-400" onClick={() => showFormDialog()}>
-            <Plus />
+          <button
+            className="text-slate-400 dark:text-neutral-300"
+            onClick={() => showFormDialog()}
+          >
+            <span className="material-symbols-rounded">add</span>
           </button>
         </header>
 
@@ -59,9 +61,10 @@ function CollectionsPage() {
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
                   clsx(
-                    'text-gray-500 dark:text-gray-400 d-flex no-underline px-0 hover:underline',
+                    'text-slate-500 dark:text-neutral-400 d-flex no-underline px-0 hover:underline',
                     {
-                      'text-gray-800 dark:!text-gray-200 !underline': isActive,
+                      'text-slate-800 dark:!text-neutral-200 !underline':
+                        isActive,
                     }
                   )
                 }

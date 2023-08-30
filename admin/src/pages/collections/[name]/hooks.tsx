@@ -19,6 +19,7 @@ import {
   updateEdge,
 } from 'reactflow'
 import { Hook, HooksConfig, METHODS } from '../../../client/collection'
+import Button from '../../../components/button'
 import { CollectionRouteData } from '../../../routes'
 import { HOOK_NODE_TYPE } from '../../../components/hook-node'
 import HooksSearch from '../../../components/hooks-search'
@@ -263,7 +264,7 @@ function CollectionHooks() {
                       id: randomStr(),
                       position: {
                         x: 70 - 350 * hookNodeIndex,
-                        y: 100 + methodIndex * 50,
+                        y: 100 + methodIndex * 100,
                       },
                       type: HOOK_NODE_TYPE,
                     }
@@ -304,7 +305,7 @@ function CollectionHooks() {
                       id: randomStr(),
                       position: {
                         x: 800 + 350 * hookNodeIndex,
-                        y: 100 + methodIndex * 50,
+                        y: 100 + methodIndex * 100,
                       },
                       type: HOOK_NODE_TYPE,
                     }
@@ -405,15 +406,15 @@ function CollectionHooks() {
 
         <Panel position="top-right">
           <div className="text-end">
-            <button
-              className="primary"
+            <Button
+              variant="primary"
               disabled={!hooksChanged}
               onClick={saveHooks}
             >
               Save & activate hooks
-            </button>
+            </Button>
             {hooksChanged && (
-              <p className="m-0 text-secondary">
+              <p className="m-0 text-slate-500 dark:text-neutral-400">
                 Changes detected in the hooks
               </p>
             )}

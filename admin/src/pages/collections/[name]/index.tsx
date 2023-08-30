@@ -37,15 +37,18 @@ function CollectionDetail() {
 
   return (
     <div className="h-screen flex flex-col">
-      <header className="mt-1">
-        <h1 className="m-0 text-3xl bold">{collection.name}</h1>
+      <header className="mt-2">
+        <h1 className="m-0 text-2xl font-bold">{collection.name}</h1>
         <div className="mt-2">
           {links.map((link) => (
             <NavLink
               className={({ isActive }: { isActive: boolean }) =>
-                clsx('text-gray-500 dark:text-gray-400 me-2 hover:underline', {
-                  'text-gray-800 dark:!text-gray-200 underline': isActive,
-                })
+                clsx(
+                  'text-slate-500 dark:text-neutral-400 me-2 hover:underline',
+                  {
+                    'text-slate-800 dark:!text-neutral-200 underline': isActive,
+                  }
+                )
               }
               end
               key={link.href}

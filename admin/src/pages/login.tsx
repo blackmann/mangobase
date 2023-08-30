@@ -1,10 +1,11 @@
 import { FieldValues, useForm } from 'react-hook-form'
 import AVATAR_COLORS from '../lib/avatar-colors'
 import Avatar from 'boring-avatars'
+import Button from '../components/button'
+import Input from '../components/input'
 import React from 'preact/compat'
 import RequestStatus from '../lib/request-status'
 import app from '../mangobase-app'
-import styles from './login.module.css'
 import { useNavigate } from 'react-router-dom'
 
 function Login() {
@@ -50,47 +51,52 @@ function Login() {
   }, [])
 
   return (
-    <div className="container py-5">
-      <div className={styles.content}>
-        <form className={styles.form} onSubmit={handleSubmit(login)}>
-          <div className="d-flex flex-column align-items-center">
+    <div className="container py-5 mx-auto">
+      <div className="flex flex-col items-center mt-[10%]">
+        <form
+          className="w-[16rem] max-w-[24rem]"
+          onSubmit={handleSubmit(login)}
+        >
+          <div className="flex flex-col items-center">
             <Avatar
               variant="beam"
               colors={AVATAR_COLORS}
               name={username || ''}
             />
-            <fieldset className="mt-3 w-100 d-flex flex-column align-items-center">
+            <fieldset className="mt-3 w-full flex flex-col items-center">
               {isNew && (
                 <>
-                  <p className=" text-center text-secondary">
+                  <p className="text-center text-secondary">
                     New environment. Be the first dev.
                   </p>
-                  <input
+                  <Input
                     type="email"
                     placeholder="email"
-                    className="d-block w-100 mb-2"
+                    className="block w-full mb-2"
                     {...register('email', { required: true })}
                   />
                 </>
               )}
 
-              <input
+              <Input
                 type="text"
                 placeholder="username"
-                className="d-block w-100 mb-2"
+                className="block w-full mb-2"
                 {...register('username', { required: true })}
               />
 
-              <input
+              <Input
                 type="password"
                 placeholder="password"
-                className="d-block w-100 mb-2"
+                className="block w-full mb-2"
                 {...register('password', { required: true })}
               />
 
-              <button className="primary" disabled={status === 'in-progress'}>
-                {status === 'in-progress' ? 'Please wait…' : 'Continue'}
-              </button>
+              <div>
+                <Button variant="primary" disabled={status === 'in-progress'}>
+                  {status === 'in-progress' ? 'Please wait…' : 'Continue'}
+                </Button>
+              </div>
             </fieldset>
           </div>
         </form>

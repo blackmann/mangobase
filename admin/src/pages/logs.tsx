@@ -1,9 +1,8 @@
 import { cleanDate, cleanTime } from '../lib/clean-date'
 import logs, { loadLogs } from '../data/logs'
 import Chip from '../components/chip'
+import Input from '../components/input'
 import React from 'preact/compat'
-import clsx from 'clsx'
-import styles from './logs.module.css'
 
 function Logs() {
   React.useEffect(() => {
@@ -11,21 +10,19 @@ function Logs() {
   }, [])
 
   return (
-    <div className={clsx('container-fluid', styles.page)}>
-      <h1 className="mt-2">Logs</h1>
-      <div>
-        <input
-          className="d-block w-100"
-          type="search"
-          name="filter"
-          id="filter"
-          placeholder="Filter logs"
-        />
-      </div>
+    <div className="flex flex-col h-screen">
+      <h1 className="mt-4 text-2xl">Logs</h1>
+      <Input
+        className="block w-full mt-4"
+        type="search"
+        name="filter"
+        id="filter"
+        placeholder="Filter logs"
+      />
 
-      <div className={clsx('flex-fill', styles.data)}>
-        <table className="w-100">
-          <thead>
+      <div className="flex-1 h-0 overflow-y-auto">
+        <table className="w-full">
+          <thead className="sticky top-0 bg-slate-100 dark:bg-neutral-800">
             <tr>
               <th>Category</th>
               <th>Label</th>
@@ -38,7 +35,10 @@ function Logs() {
 
           <tbody>
             {logs.value.map((log) => (
-              <tr key={log._id}>
+              <tr
+                className="hover:bg-slate-200 dark:hover:bg-neutral-700 transition-background duration-150"
+                key={log._id}
+              >
                 <td>
                   <Chip>{log.category}</Chip>
                 </td>

@@ -15,7 +15,7 @@ function FlowHandle({ className, ...props }: HandleComponentProps) {
         className
       )}
     >
-      <div className="w-full h-full bg-slate-400 dark:bg-neutral-400 rounded-full" />
+      <div className="w-full h-full bg-slate-400 dark:bg-neutral-400 rounded-full pointer-events-none" />
     </Handle>
   )
 }
