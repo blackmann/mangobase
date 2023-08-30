@@ -51,7 +51,7 @@ function AdminLayout() {
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
                   clsx('text-slate-400 dark:text-neutral-500 p-2 flex', {
-                    'text-slate-700 dark:text-neutral-300 ': isActive,
+                    'text-slate-700 dark:!text-neutral-300 ': isActive,
                   })
                 }
                 to={link.href}

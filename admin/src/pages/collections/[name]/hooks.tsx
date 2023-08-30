@@ -3,6 +3,7 @@ import 'reactflow/dist/style.css'
 import {
   Background,
   Connection,
+  Controls,
   Edge,
   EdgeChange,
   Node,
@@ -400,6 +401,7 @@ function CollectionHooks() {
         onInit={(instance: ReactFlowInstance) => setFlow(instance)}
       >
         <Background />
+        <Controls />
         <Panel position="top-left">
           <HooksSearch onSelect={addHook} />
         </Panel>

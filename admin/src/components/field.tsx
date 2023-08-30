@@ -1,7 +1,9 @@
 import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
 import fieldTypes, { FieldType } from '../lib/field-types'
+import Button from './button'
 import Chip from './chip'
 import Input from './input'
+import Select from './select'
 import collections from '../data/collections'
 
 interface Props {
@@ -23,10 +25,10 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
       </div>
       <div className="flex-1">
         <div>
-          <div className="flex">
-            <label className="flex-1 me-2">
+          <div className="flex gap-2">
+            <label className="flex-1">
               <Input
-                className="d-block w-100"
+                className="block w-full"
                 disabled={removed}
                 type="text"
                 placeholder="Field name"
@@ -34,7 +36,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
               />
             </label>
             <label>
-              <select
+              <Select
                 disabled={existing}
                 {...register('type', { required: true })}
               >
@@ -43,8 +45,17 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
                     {field.title}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
+
+            <Button
+              className="material-symbols-rounded !bg-slate-200 dark:!bg-neutral-600 text-gray-500 dark:!text-neutral-300"
+              onClick={removed ? onRestore : onRemove}
+              title={removed ? 'Restore' : 'Remove'}
+              type="button"
+            >
+              {removed ? 'undo' : 'close'}
+            </Button>
           </div>
         </div>
         <div className="mt-1 d-flex justify-content-between">
@@ -54,6 +65,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
                 disabled={removed}
                 type="checkbox"
                 {...register('required')}
+                className="me-1"
               />
               Required
             </label>
@@ -64,17 +76,19 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
                   disabled={removed}
                   type="checkbox"
                   {...register('unique')}
+                  className="me-1"
                 />
                 Unique
               </label>
             )}
           </div>
 
-          <div>
-            {removed && <Chip className="me-1 accent">Removed</Chip>}
-            <button onClick={removed ? onRestore : onRemove} type="button">
-              {removed ? 'Restore' : 'Remove'}
-            </button>
+          <div className="mt-3">
+            {removed && (
+              <Chip className="!bg-yellow-500 !text-white  !rounded-lg !py-0">
+                Removed
+              </Chip>
+            )}
           </div>
         </div>
 
@@ -95,7 +109,7 @@ function FieldExtra({ disabled, type, register }: FieldExtraProps) {
       return (
         <label>
           Relation
-          <select
+          <Select
             className="ms-2"
             disabled={disabled}
             {...register('relation', { required: true })}
@@ -105,7 +119,7 @@ function FieldExtra({ disabled, type, register }: FieldExtraProps) {
                 {collection.name}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       )
     // [ ] Object schema menu
@@ -122,6 +136,15 @@ function FieldIcon({ type }: { type: string }) {
 
     case 'string':
       return <span className="material-symbols-rounded">title</span>
+
+    case 'object':
+      return <span className="material-symbols-rounded">data_object</span>
+
+    case 'array':
+      return <span className="material-symbols-rounded">data_array</span>
+
+    case 'date':
+      return <span className="material-symbols-rounded">calendar_today</span>
 
     default:
       return <span className="material-symbols-rounded">emergency</span>

@@ -145,13 +145,16 @@ function CollectionForm({ collection, onHide }: Props) {
               type="checkbox"
               value="expose"
               {...register('options')}
+              className="me-2"
             />
             Expose
           </label>
 
-          <p className="text-slate-500 dark:text-neutral-400 ms-4">
+          <p className="text-slate-500 dark:text-neutral-400 ms-5">
             Check this if this collection should have a public endpoint. See{' '}
-            <Link to="/docs">docs</Link>
+            <Link to="/docs" className="underline">
+              docs
+            </Link>
           </p>
         </div>
 
@@ -161,11 +164,12 @@ function CollectionForm({ collection, onHide }: Props) {
               type="checkbox"
               value="is-template"
               {...register('options')}
+              className="me-2"
             />
             Use as template
           </label>
 
-          <p className="text-slate-500 dark:text-neutral-400 mt-0 ms-4">
+          <p className="text-slate-500 dark:text-neutral-400 mt-0 ms-5">
             Allow this collection to be used to validate fields of other
             collections
           </p>

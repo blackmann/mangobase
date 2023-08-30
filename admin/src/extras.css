@@ -34,7 +34,3 @@ fieldset {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
-select {
-  background-color: var(--background-color) !important;
-}

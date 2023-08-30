@@ -1,7 +1,7 @@
-import clsx from 'clsx'
 import hooksRegistry, { loadHooksRegistry } from '../data/hooks-registry'
 import Input from './input'
 import React from 'preact/compat'
+import clsx from 'clsx'
 
 interface Props {
   onSelect?: (hookId: string) => void
@@ -48,14 +48,10 @@ function HooksSearch({ onSelect }: Props) {
       {showResults && (
         <div className="bg-slate-100 dark:bg-neutral-800 border border-slate-300 dark:border-neutral-600 rounded-md mt-2 max-h-[30rem] overflow-y-auto">
           <ul className="list-none p-0 m-0">
-            {results.map((hook, i) => (
+            {results.map((hook) => (
               <li
                 className={clsx(
-                  'p-2 cursor-pointer transition-background duration-150 hover:bg-slate-200 dark:hover:bg-neutral-700',
-                  {
-                    'border-t border-t-slate-300 dark:border-t-neutral-600':
-                      i > 0,
-                  }
+                  'resultsItem p-2 cursor-pointer transition-background duration-150 hover:bg-slate-200 dark:hover:bg-neutral-700 border-t-slate-300 dark:border-t-neutral-600 border-t first:border-t-0'
                 )}
                 key={hook.id}
                 onMouseDown={() => selectHook(hook.id)}
