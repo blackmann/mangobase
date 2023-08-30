@@ -39,7 +39,10 @@ class Unauthorized extends ServiceError {
   statusCode = 401
 }
 
+class AppError extends Error {}
+
 export {
+  AppError,
   BadRequest,
   Conflict,
   InternalServerError,

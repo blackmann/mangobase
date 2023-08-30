@@ -1,13 +1,16 @@
+import { Index, Migration } from './database'
 import { SchemaDefinitions, findRelations } from './schema'
-import { mkdir, readFile, writeFile } from 'fs/promises'
+import { AppError } from './errors'
 import { HookConfig } from './hook'
-import { Index } from './database'
 import Method from './method'
+import fs from 'fs/promises'
 import setWithPath from './lib/set-with-path'
 
 const COLLECTIONS_FILE = 'collections.json'
 const HOOKS_FILE = 'hooks.json'
 const EDITORS_FILE = 'editors.json'
+
+const MIGRATION_FILENAME_REG = /migration\.\d{4}\.json/
 
 interface CollectionConfig {
   name: string
@@ -72,15 +75,18 @@ class Manifest {
 
   private async loadCollections() {
     const dir = Manifest.getDirectory()
-    const collectionsJSON = await readFile([dir, COLLECTIONS_FILE].join('/'), {
-      encoding: 'utf-8',
-    })
+    const collectionsJSON = await fs.readFile(
+      [dir, COLLECTIONS_FILE].join('/'),
+      {
+        encoding: 'utf-8',
+      }
+    )
     this.collectionsIndex = JSON.parse(collectionsJSON)
   }
 
   private async loadHooks() {
     const dir = Manifest.getDirectory()
-    const hooksJSON = await readFile([dir, HOOKS_FILE].join('/'), {
+    const hooksJSON = await fs.readFile([dir, HOOKS_FILE].join('/'), {
       encoding: 'utf-8',
     })
     this.hooksIndex = JSON.parse(hooksJSON)
@@ -88,7 +94,7 @@ class Manifest {
 
   private async loadEditors() {
     const dir = Manifest.getDirectory()
-    const editorsJSON = await readFile([dir, EDITORS_FILE].join('/'), {
+    const editorsJSON = await fs.readFile([dir, EDITORS_FILE].join('/'), {
       encoding: 'utf-8',
     })
 
@@ -175,12 +181,64 @@ class Manifest {
     await this.save()
   }
 
+  async getLastMigration(): Promise<Migration> {
+    const migrationsPath = [Manifest.getDirectory(), 'migrations'].join('/')
+
+    const ents = await fs.readdir(migrationsPath, {
+      withFileTypes: true,
+    })
+
+    let latestMigration: Migration = { id: '', steps: [], version: 0 }
+
+    for (const ent of ents) {
+      if (!ent.isFile) {
+        continue
+      }
+
+      if (MIGRATION_FILENAME_REG.test(ent.name)) {
+        const [, versionString] = ent.name.split('.')
+        const version = parseInt(versionString, 10)
+        if (version > latestMigration.version) {
+          const migration = await fs.readFile(
+            [migrationsPath, ent.name].join('/'),
+            { encoding: 'utf-8' }
+          )
+
+          latestMigration = { version, ...JSON.parse(migration) }
+        }
+      }
+    }
+
+    if (latestMigration.version === 0) {
+      throw new AppError('No migrations found')
+    }
+
+    return latestMigration
+  }
+
+  async commitMigration(migration: Migration) {
+    const dir = [Manifest.getDirectory(), 'migrations'].join('/')
+    const fn = `migration.${migration.version.toString().padStart(4, '0')}.json`
+
+    try {
+      await fs.mkdir(dir)
+    } catch (err) {}
+
+    await fs.writeFile(
+      [dir, fn].join('/'),
+      JSON.stringify(migration, null, 2),
+      {
+        encoding: 'utf-8',
+      }
+    )
+  }
+
   async save(env?: string) {
     await this.init()
     const dir = Manifest.getDirectory(env)
 
     try {
-      await mkdir(dir)
+      await fs.mkdir(dir)
     } catch (err) {
       //
     }
@@ -193,7 +251,7 @@ class Manifest {
 
     for (const [index, file] of dataOuts) {
       const data = JSON.stringify(index, undefined, 2)
-      await writeFile([dir, file].join('/'), data, {
+      await fs.writeFile([dir, file].join('/'), data, {
         encoding: 'utf-8',
       })
     }

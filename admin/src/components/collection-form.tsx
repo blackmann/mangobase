@@ -13,6 +13,7 @@ import Input from './input'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import app from '../mangobase-app'
+import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
 
 interface Props {
@@ -24,6 +25,7 @@ interface FieldProps {
   existing?: boolean
   name: string
   required: boolean
+  removed?: boolean
   type: FieldType
   unique?: boolean
 }
@@ -42,6 +44,10 @@ function CollectionForm({ collection, onHide }: Props) {
     remove(index)
   }
 
+  function handleRestore(index: number) {
+    setValue(`fields.${index}.removed`, false)
+  }
+
   async function save(form: FieldValues) {
     const { name, options, fields } = form
 
@@ -49,12 +55,43 @@ function CollectionForm({ collection, onHide }: Props) {
 
     if (collection) {
       if (name !== collection.name) {
-        migrationSteps.push({ to: name, type: 'rename-collection' })
+        migrationSteps.push({
+          collection: collection.name,
+          to: name,
+          type: 'rename-collection',
+        })
+      }
+
+      const oldFields = Object.entries(collection.schema)
+      for (const [field, i] of indexed(fields as FieldProps[])) {
+        if (i >= oldFields.length) {
+          break
+        }
+
+        const [oldName] = oldFields[i]
+        if (field.removed) {
+          migrationSteps.push({
+            collection: collection.name,
+            name: oldName,
+            type: 'remove-field',
+          })
+          continue
+        }
+
+        if (oldName !== field.name) {
+          migrationSteps.push({
+            collection: collection.name,
+            from: oldName,
+            to: field.name,
+            type: 'rename-field',
+          })
+        }
       }
     }
 
     const data = {
       exposed: options.includes('expose'),
+      indexes: indexesFromForm(fields),
       migrationSteps,
       name,
       schema: schemaFromForm(fields),
@@ -123,7 +160,7 @@ function CollectionForm({ collection, onHide }: Props) {
   const submitLabel = collection ? 'Update' : 'Create'
 
   return (
-    <form className="w-[500px]" onSubmit={handleSubmit(save)}>
+    <form className="w-[500px] pb-4" onSubmit={handleSubmit(save)}>
       <label>
         <div>Name</div>
         <Input
@@ -183,6 +220,7 @@ function CollectionForm({ collection, onHide }: Props) {
           <Field
             key={field.id}
             onRemove={() => handleRemove(i)}
+            onRestore={() => handleRestore(i)}
             register={(f: string, o?: RegisterOptions) =>
               register(`fields.${i}.${f}`, o)
             }
@@ -216,11 +254,29 @@ function CollectionForm({ collection, onHide }: Props) {
 
 function schemaFromForm(fields: FieldProps[]) {
   const schema: Record<string, any> = {}
-  for (const { name, ...options } of fields) {
+  // `existing` doesn't go to backend
+  for (const { name, removed, existing, ...options } of fields) {
+    if (removed) {
+      continue
+    }
+
     schema[name] = options
   }
 
   return schema
+}
+
+function indexesFromForm(fields: FieldProps[]) {
+  const indexes = []
+  for (const { name, removed, unique } of fields) {
+    if (removed || !unique) {
+      continue
+    }
+
+    indexes.push({ fields: [name], options: { unique: true } })
+  }
+
+  return indexes
 }
 
 export default CollectionForm

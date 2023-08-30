@@ -242,20 +242,20 @@ class MongoDB implements Database {
     await this.db.collection(collection).deleteMany(query)
   }
 
-  async migrate(collection: string, migration: Migration): Promise<void> {
+  async migrate(migration: Migration): Promise<void> {
     //
 
     for (const step of migration.steps) {
       switch (step.type) {
         case 'rename-collection': {
-          await this.db.collection(collection).rename(step.to)
+          await this.db.collection(step.collection).rename(step.to)
 
           break
         }
 
         case 'rename-field': {
           await this.db
-            .collection(collection)
+            .collection(step.collection)
             .updateMany({}, { $rename: { [step.from]: step.to } })
 
           // [ ] Update index to match; maybe it should be called from app-level?
@@ -264,7 +264,7 @@ class MongoDB implements Database {
 
         case 'remove-field': {
           await this.db
-            .collection(collection)
+            .collection(step.collection)
             .updateMany({}, { $unset: { [step.field]: '' } })
 
           break

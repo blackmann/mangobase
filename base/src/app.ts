@@ -1,4 +1,5 @@
 import {
+  AppError,
   BadRequest,
   Conflict,
   InternalServerError,
@@ -12,12 +13,13 @@ import Schema, { ValidationError } from './schema'
 import logger, { logEnd, logStart } from './logger'
 import CollectionService from './collection-service'
 import type { Context } from './context'
-import { Database } from './database'
+import { Database, Migration } from './database'
 import HooksRegistry from './hooks-registry'
 import Method from './method'
 import { baseAuthentication } from './authentication'
 import { createRouter } from 'radix3'
 import users from './users'
+import randomStr from './lib/random-str'
 
 const INTERNAL_PATHS = [
   'collections',
@@ -271,7 +273,26 @@ const collectionsService: Service & { schema: Schema } = {
           collectionConfig
         )
 
-        // await app.database.migrate(collection.name, migrations)
+        if (migrationSteps.length) {
+          let lastVersion = 0
+          try {
+            const migration = await app.manifest.getLastMigration()
+            lastVersion = migration.version
+          } catch (err) {
+            console.log('error getting last migration', err)
+          }
+
+          const version = ++lastVersion
+          const migration: Migration = {
+            id: `${version.toString().padStart(4, '0')}_${randomStr(8)}`,
+            steps: migrationSteps,
+            version,
+          }
+
+          await app.database.migrate(migration)
+          await app.manifest.commitMigration(migration)
+        }
+
         await app.database.syncIndex(collection.name, collection.indexes)
 
         await app.installCollection(collection)

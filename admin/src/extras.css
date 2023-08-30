@@ -1,3 +1,4 @@
+
 th {
   text-align: start;
   color: var(--secondary-color);
@@ -21,13 +22,13 @@ fieldset {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary-300);
+  background: #bfc3c6;
   border-radius: 0.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-thumb {
-    background-color: var(--secondary-600);
+    background-color: #5e6062;
   }
 }
 

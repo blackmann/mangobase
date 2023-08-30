@@ -60,7 +60,7 @@ function CollectionDetail() {
         </div>
       </header>
 
-      <div className="mt-3 flex-1">
+      <div className="mt-3 flex-1 h-0 overflow-y-auto">
         <Outlet />
       </div>
     </div>
