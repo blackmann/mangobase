@@ -132,8 +132,6 @@ async function baseAuthentication(app: App) {
     AssignAuthUser
   )
 
-  app.use('auth-credentials', new CollectionService(app, name))
-
   await upsertHooks(app)
 
   app.use('login', async (ctx, app) => {

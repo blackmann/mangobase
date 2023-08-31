@@ -1,5 +1,4 @@
 import App from './app'
-import CollectionService from './collection-service'
 import { SchemaDefinitions } from './schema'
 
 const usersSchema: SchemaDefinitions = {
@@ -17,20 +16,20 @@ const usersSchema: SchemaDefinitions = {
 // [ ] Run migration on changes
 async function users(app: App) {
   if (!(await app.manifest.collection('users'))) {
+    const indexes = [
+      { fields: ['username'], options: { unique: true } },
+      { fields: ['email'], options: { unique: true } },
+    ]
+
     await app.manifest.collection('users', {
       exposed: true,
-      indexes: [
-        { fields: ['username'], options: { unique: true } },
-        { fields: ['email'], options: { unique: true } },
-      ],
+      indexes,
       name: 'users',
       schema: usersSchema,
     })
 
-    // [ ] Ensure indices
+    await app.database.syncIndex('users', indexes)
   }
-
-  app.use('users', new CollectionService(app, 'users'))
 }
 
 export default users

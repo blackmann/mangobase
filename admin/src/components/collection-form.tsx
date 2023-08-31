@@ -171,7 +171,7 @@ function CollectionForm({ collection, onHide }: Props) {
       </label>
 
       <div className="text-slate-500 dark:text-neutral-400">
-        This becomes the table/collection name and endpoint
+        This becomes endpoint name
       </div>
 
       <div className="mt-3 grid grid-cols-12">

@@ -9,7 +9,7 @@ describe('Manifest', () => {
   afterAll(async () => {
     try {
       // this is a safeguard so that files are not mistakenly removed
-      assert(Manifest.getDirectory().startsWith('.mb_'))
+      assert(Manifest.getDirectory() === '.mangobase')
       await rm(Manifest.getDirectory(), { recursive: true })
     } catch (err) {
       console.log(err)
@@ -19,6 +19,7 @@ describe('Manifest', () => {
   describe('collections', () => {
     it('adds and saves collection config', async () => {
       await manifest.collection('mock', {
+        indexes: [],
         name: 'mock',
         schema: { name: { type: 'string' } },
       })

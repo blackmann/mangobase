@@ -1,6 +1,5 @@
 import { Index, Migration } from './database'
 import { SchemaDefinitions, findRelations } from './schema'
-import { AppError } from './errors'
 import { HookConfig } from './hook'
 import Method from './method'
 import fs from 'fs/promises'
@@ -181,7 +180,8 @@ class Manifest {
     await this.save()
   }
 
-  async getLastMigration(): Promise<Migration> {
+  async getLastMigrationCommit(): Promise<Migration | null> {
+    await this.init()
     const migrationsPath = [Manifest.getDirectory(), 'migrations'].join('/')
 
     const ents = await fs.readdir(migrationsPath, {
@@ -210,15 +210,27 @@ class Manifest {
     }
 
     if (latestMigration.version === 0) {
-      throw new AppError('No migrations found')
+      return null
     }
 
     return latestMigration
   }
 
+  async getMigration(version: number): Promise<Migration> {
+    const fn = this.getMigrationFileName(version)
+    const json = await fs.readFile(
+      [Manifest.getDirectory(), 'migrations', fn].join('/'),
+      { encoding: 'utf-8' }
+    )
+
+    return JSON.parse(json)
+  }
+
   async commitMigration(migration: Migration) {
+    await this.init()
+
     const dir = [Manifest.getDirectory(), 'migrations'].join('/')
-    const fn = `migration.${migration.version.toString().padStart(4, '0')}.json`
+    const fn = this.getMigrationFileName(migration.version)
 
     try {
       await fs.mkdir(dir)
@@ -233,9 +245,13 @@ class Manifest {
     )
   }
 
-  async save(env?: string) {
+  private getMigrationFileName(version: number) {
+    return `migration.${version.toString().padStart(4, '0')}.json`
+  }
+
+  async save() {
     await this.init()
-    const dir = Manifest.getDirectory(env)
+    const dir = Manifest.getDirectory()
 
     try {
       await fs.mkdir(dir)
@@ -257,8 +273,8 @@ class Manifest {
     }
   }
 
-  static getDirectory(env?: string) {
-    return `.mb_${env || process.env.NODE_ENV || 'development'}`
+  static getDirectory() {
+    return '.mangobase'
   }
 }
 

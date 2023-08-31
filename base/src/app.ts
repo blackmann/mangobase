@@ -1,5 +1,4 @@
 import {
-  AppError,
   BadRequest,
   Conflict,
   InternalServerError,
@@ -7,19 +6,20 @@ import {
   NotFound,
   ServiceError,
 } from './errors'
+import { Database, Migration } from './database'
 import type { HookConfig, HookFn, Hooks } from './hook'
 import Manifest, { CollectionConfig } from './manifest'
 import Schema, { ValidationError } from './schema'
+import dbMigrations, { saveMigration } from './db-migrations'
 import logger, { logEnd, logStart } from './logger'
 import CollectionService from './collection-service'
 import type { Context } from './context'
-import { Database, Migration } from './database'
 import HooksRegistry from './hooks-registry'
 import Method from './method'
 import { baseAuthentication } from './authentication'
 import { createRouter } from 'radix3'
-import users from './users'
 import randomStr from './lib/random-str'
+import users from './users'
 
 const INTERNAL_PATHS = [
   'collections',
@@ -274,13 +274,8 @@ const collectionsService: Service & { schema: Schema } = {
         )
 
         if (migrationSteps.length) {
-          let lastVersion = 0
-          try {
-            const migration = await app.manifest.getLastMigration()
-            lastVersion = migration.version
-          } catch (err) {
-            console.log('error getting last migration', err)
-          }
+          let lastVersion =
+            (await app.manifest.getLastMigrationCommit())?.version || 0
 
           const version = ++lastVersion
           const migration: Migration = {
@@ -291,6 +286,8 @@ const collectionsService: Service & { schema: Schema } = {
 
           await app.database.migrate(migration)
           await app.manifest.commitMigration(migration)
+
+          await saveMigration(app, migration)
         }
 
         await app.database.syncIndex(collection.name, collection.indexes)
@@ -454,6 +451,8 @@ class App {
     this.hooksRegistry = new HooksRegistry()
 
     this.initialize = (async () => {
+      await this.internalPlug(dbMigrations)
+
       this.addService('collections', collectionsService)
       this.addService(App.onDev('hooks-registry'), hooksRegistry)
       this.addService(App.onDev('hooks'), hooksService)
