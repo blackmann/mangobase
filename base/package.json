@@ -1,6 +1,6 @@
 {
   "name": "mangobase",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
   "files": [
