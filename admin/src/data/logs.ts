@@ -26,7 +26,7 @@ async function loadLogs() {
   logs.value = data.data
 }
 
-function fillMissingDates(logs: LogStat[]) {
+function fillMissingHours(logs: LogStat[]) {
   const maxDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000 // 48 hours ago
 
   const now = Date.now()
@@ -54,7 +54,7 @@ function fillMissingDates(logs: LogStat[]) {
 
 async function loadLogStats() {
   const { data } = await app.req.get('_dev/log-stats')
-  logStats.value = fillMissingDates(data)
+  logStats.value = fillMissingHours(data)
 }
 
 export default logs

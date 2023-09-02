@@ -184,6 +184,8 @@ class Manifest {
     await this.init()
     const migrationsPath = [Manifest.getDirectory(), 'migrations'].join('/')
 
+    await this.ensureDirectory(migrationsPath)
+
     const ents = await fs.readdir(migrationsPath, {
       withFileTypes: true,
     })
@@ -216,6 +218,14 @@ class Manifest {
     return latestMigration
   }
 
+  private async ensureDirectory(migrationsPath: string) {
+    try {
+      await fs.mkdir(migrationsPath)
+    } catch (err) {
+      //
+    }
+  }
+
   async getMigration(version: number): Promise<Migration> {
     const fn = this.getMigrationFileName(version)
     const json = await fs.readFile(
@@ -232,9 +242,7 @@ class Manifest {
     const dir = [Manifest.getDirectory(), 'migrations'].join('/')
     const fn = this.getMigrationFileName(migration.version)
 
-    try {
-      await fs.mkdir(dir)
-    } catch (err) {}
+    await this.ensureDirectory(dir)
 
     await fs.writeFile(
       [dir, fn].join('/'),
@@ -253,11 +261,7 @@ class Manifest {
     await this.init()
     const dir = Manifest.getDirectory()
 
-    try {
-      await fs.mkdir(dir)
-    } catch (err) {
-      //
-    }
+    await this.ensureDirectory(dir)
 
     const dataOuts = [
       [this.collectionsIndex, COLLECTIONS_FILE],

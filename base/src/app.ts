@@ -449,6 +449,7 @@ class App {
     this.database = options.db
     this.manifest = new Manifest()
     this.hooksRegistry = new HooksRegistry()
+    this.hooksRegistry.installCommon()
 
     this.initialize = (async () => {
       await this.internalPlug(dbMigrations)
@@ -634,10 +635,15 @@ class App {
   async admin(path: string) {
     await this.init()
 
-    const trimmedPath = path.replace(/^\//, '')
-    const fileDir = `${__dirname}/admin/${trimmedPath}`
+    const basePath = `${__dirname}/admin/`
 
-    return fileDir
+    const STATIC_PATHS = ['/assets/', '/zed-mono/']
+    if (STATIC_PATHS.some((staticPath) => path.startsWith(staticPath))) {
+      const trimmedPath = path.replace(/^\//, '')
+      return `${basePath}${trimmedPath}`
+    }
+
+    return basePath
   }
 
   serve<T>(server: (app: App) => T): T {

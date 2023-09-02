@@ -1,8 +1,11 @@
-import { Handle, Position } from 'reactflow'
-import type { HandleComponentProps } from '@reactflow/core/dist/esm/components/Handle'
+import { Handle, HandleProps, Position } from 'reactflow'
 import clsx from 'clsx'
 
-function FlowHandle({ className, ...props }: HandleComponentProps) {
+interface Props extends HandleProps {
+  className?: string
+}
+
+function FlowHandle({ className, ...props }: Props) {
   return (
     <Handle
       {...props}
