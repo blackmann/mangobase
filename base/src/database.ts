@@ -11,6 +11,14 @@ interface Cursor<T = any> {
   sort(config: Record<string, -1 | 1>): Cursor<T>
 }
 
+interface Filter {
+  limit?: number
+  populate?: string[]
+  select?: string[]
+  skip?: number
+  sort?: Record<string, -1 | 1>
+}
+
 type Data = Record<string, any>
 
 interface Index {
@@ -82,6 +90,21 @@ interface Database {
    * This method removes and adds the indexes as necessary
    */
   syncIndex(collection: string, indexes: Index[]): Promise<void>
+
+  // [ ] Properly standardize this API
+  aggregate(
+    collection: string,
+    query: Record<string, any>,
+    filter: Filter,
+    operations: Record<string, any>[]
+  ): Promise<any>
 }
 
-export type { Cursor, Database, Index, Migration, MigrationStep }
+export type {
+  Cursor,
+  Database,
+  Filter as DatabaseFilter,
+  Index,
+  Migration,
+  MigrationStep,
+}

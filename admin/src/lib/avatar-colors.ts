@@ -1,10 +1,12 @@
 const AVATAR_COLORS = [
-  '#E02130',
-  '#FAB243',
-  '#429867',
-  '#2B5166',
-  '#3C82BF',
-  '#482344',
+  '#facc15',
+  '#4ade80',
+  '#fbbf24',
+  '#2dd4bf',
+  '#38bdf8',
+  '#3b82f6',
+  '#f87171',
+  '#f43f5e',
 ]
 
 export default AVATAR_COLORS

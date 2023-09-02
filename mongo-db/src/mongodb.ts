@@ -1,6 +1,7 @@
 import type {
   Cursor,
   Database,
+  DatabaseFilter,
   DefinitionType,
   Index,
   Migration,
@@ -82,8 +83,9 @@ class MongoCursor implements Cursor {
 
     const results = await cursor.toArray()
 
-    // handle population
-    // TODO: take care nested select fields
+    // [ ] take care of nested select fields
+    // [ ] Seems we can use .aggregate with $lookup
+    // https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/#mongodb-pipeline-pipe.-lookup
     for (const field of this.filters.populate || []) {
       const [collection, fieldToPopulate] =
         typeof field === 'string'
@@ -303,6 +305,41 @@ class MongoDB implements Database {
         await this.db.collection(collection).dropIndex(index.name!)
       }
     }
+  }
+
+  // [ ] Properly type these args/design this API
+  async aggregate(
+    collection: string,
+    query: Record<string, any>,
+    filter: DatabaseFilter,
+    operations: Record<string, any>[]
+  ) {
+    const pipeline: Record<string, any> = [
+      {
+        $match: query,
+      },
+    ]
+
+    if (filter.sort) {
+      pipeline.push({ $sort: filter.sort })
+    }
+
+    if (filter.skip) {
+      pipeline.push({ $skip: filter.skip })
+    }
+
+    if (filter.limit) {
+      pipeline.push({ $limit: filter.limit })
+    }
+
+    pipeline.push(...operations)
+
+    const res = await this.db
+      .collection(collection)
+      .aggregate(pipeline as Document[])
+      .toArray()
+
+    return res
   }
 }
 

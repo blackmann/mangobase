@@ -14,7 +14,7 @@ interface Options {
 
 type FilterOperators = '$limit' | '$populate' | '$select' | '$skip' | '$sort'
 
-type Filter = {
+interface Filter {
   $limit?: number
   $populate?: string[]
   $select?: string[]

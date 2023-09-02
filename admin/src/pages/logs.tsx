@@ -1,16 +1,18 @@
-import { cleanDate, cleanTime } from '../lib/clean-date'
-import logs, { loadLogs } from '../data/logs'
+import logs, { loadLogStats, loadLogs, logStats } from '../data/logs'
+import BarChart from '../components/chart'
 import Chip from '../components/chip'
+import CleanDate from '../components/date'
 import Input from '../components/input'
 import React from 'preact/compat'
 
 function Logs() {
   React.useEffect(() => {
     loadLogs()
+    loadLogStats()
   }, [])
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen me-2">
       <h1 className="mt-4 text-2xl">Logs</h1>
       <Input
         className="block w-full mt-4"
@@ -19,6 +21,15 @@ function Logs() {
         id="filter"
         placeholder="Filter logs"
       />
+
+      <div className="relative h-[150px] w-[94vw] mt-3">
+        <BarChart
+          data={logStats.value.map((value) => ({
+            x: new Date(value._id).getHours().toString(),
+            y: value.requests,
+          }))}
+        />
+      </div>
 
       <div className="flex-1 h-0 overflow-y-auto">
         <table className="w-full">
@@ -44,13 +55,12 @@ function Logs() {
                 </td>
                 <td>{log.label}</td>
                 <td>{log.status}</td>
-                <td>{log.data && JSON.stringify(log.data)}</td>
+                <td className="max-w-[14rem] text-slate-500 dark:text-neutral-400">
+                  {log.data && JSON.stringify(log.data)}
+                </td>
                 <td>{typeof log.time === 'number' ? `${log.time}ms` : ''}</td>
                 <td>
-                  <div>{cleanDate(log.created_at)}</div>
-                  <div className="text-secondary">
-                    {cleanTime(log.created_at)}
-                  </div>
+                  <CleanDate date={new Date(log.created_at)} />
                 </td>
               </tr>
             ))}

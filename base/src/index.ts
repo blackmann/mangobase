@@ -14,6 +14,7 @@ export type { Context } from './context'
 export type {
   Cursor,
   Database,
+  DatabaseFilter,
   Index,
   Migration,
   MigrationStep,
