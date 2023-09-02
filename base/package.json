@@ -1,16 +1,16 @@
 {
   "name": "mangobase",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "node ./build.mjs && tsc -p tsconfig.build.json",
+    "build": "yarn clean && node ./build.mjs && tsc -p tsconfig.build.json && yarn copy-admin",
     "clean": "rm -rf dist",
     "copy-admin": "cp -R ../admin/dist dist/admin",
-    "prepare": "yarn build && yarn copy-admin",
+    "prepare": "yarn build",
     "test": "vitest"
   },
   "author": "",
