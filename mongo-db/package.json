@@ -1,6 +1,6 @@
 {
   "name": "@mangobase/mongodb",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "dist/index.js",
   "files": [
@@ -15,19 +15,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "mangobase": "*"
-  },
   "devDependencies": {
     "@vitest/coverage-c8": "^0.31.0",
     "@vitest/ui": "^0.31.0",
     "eslint-config-base": "*",
+    "mangobase": "*",
     "mongodb": "^5.5.0",
     "mongodb-memory-server-core": "^8.12.2",
     "typescript": "^5.0.4",
     "vitest": "^0.31.1"
   },
   "peerDependencies": {
+    "mangobase": "*",
     "mongodb": "^5.5.0"
   }
 }
