@@ -1,0 +1,26 @@
+{
+  "name": "@mangobase/bun",
+  "module": "src/index.ts",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "bun ./build.js && tsc -p tsconfig.build.json",
+    "clean": "rm -rf ./dist",
+    "prepare": "bun run clean && bun run build"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "mangobase": "*"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0",
+    "mangobase": "*"
+  },
+  "dependencies": {
+    "qs": "^6.11.2"
+  }
+}

@@ -13,6 +13,7 @@
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
     "publish:base": "yarn workspace mangobase publish",
+    "publish:bun": "yarn workspace @mangobase/bun publish --access public",
     "publish:express": "yarn workspace @mangobase/express publish --access public",
     "publish:mongodb": "yarn workspace @mangobase/mongodb publish --access public",
     "tb": "yarn turbo build --filter=!@mangobase/admin",
@@ -26,6 +27,7 @@
   "workspaces": [
     "admin",
     "base",
+    "bun-server",
     "eslint-config-base",
     "express-server",
     "mongo-db",

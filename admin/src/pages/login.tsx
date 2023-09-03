@@ -66,8 +66,10 @@ function Login() {
             <fieldset className="mt-3 w-full flex flex-col items-center">
               {isNew && (
                 <>
-                  <p className="text-center text-secondary">
-                    New environment. Be the first dev.
+                  <p className=" text-center text-slate-500 dark:text-neutral-400 mb-4">
+                    Sweet Mango 🥭
+                    <br />
+                    Be the first dev.
                   </p>
                   <Input
                     type="email"

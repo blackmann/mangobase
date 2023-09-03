@@ -28,6 +28,8 @@ const INTERNAL_PATHS = [
   '_dev/editors',
 ]
 
+const STATIC_PATHS = ['/assets/', '/zed-mono/']
+
 const DEV = process.env.NODE_ENV !== 'production'
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
@@ -637,13 +639,12 @@ class App {
 
     const basePath = `${__dirname}/admin/`
 
-    const STATIC_PATHS = ['/assets/', '/zed-mono/']
     if (STATIC_PATHS.some((staticPath) => path.startsWith(staticPath))) {
       const trimmedPath = path.replace(/^\//, '')
-      return `${basePath}${trimmedPath}`
+      return [basePath, trimmedPath].join('')
     }
 
-    return basePath
+    return [basePath, 'index.html'].join('')
   }
 
   serve<T>(server: (app: App) => T): T {

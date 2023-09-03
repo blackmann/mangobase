@@ -11,7 +11,7 @@ function expressServer(mangobaseApp: App): express.Express {
   app.use(express.urlencoded({ extended: true }))
 
   app.all(['/api', '/api/*'], (req, res) => {
-    // todo: handle options
+    // [ ]: handle OPTIONS
     const ctx = context({
       data: req.body,
       headers: req.headers as Record<string, string | string[]>,

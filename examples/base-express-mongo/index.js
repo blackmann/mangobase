@@ -6,8 +6,6 @@ const app = new App({
   db: new MongoDB('mongodb://127.0.0.1:27017/mangobase-demo'),
 })
 
-app.hooksRegistry.installCommon()
-
 process.env.SECRET_KEY = 'test-key'
 const PORT = process.env.PORT || 3000
 
