@@ -1,7 +1,9 @@
+import type { Definition } from 'mangobase'
 import app from '../mangobase-app'
 import { signal } from '@preact/signals'
 
 interface Hook {
+  configSchema: Record<string, Definition>
   description: string
   id: string
   name: string
@@ -17,3 +19,4 @@ async function loadHooksRegistry() {
 
 export default hooksRegistry
 export { loadHooksRegistry }
+export type { Hook }

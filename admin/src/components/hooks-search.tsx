@@ -51,7 +51,7 @@ function HooksSearch({ onSelect }: Props) {
             {results.map((hook) => (
               <li
                 className={clsx(
-                  'resultsItem p-2 cursor-pointer transition-background duration-150 hover:bg-slate-200 dark:hover:bg-neutral-700 border-t-slate-300 dark:border-t-neutral-600 border-t first:border-t-0'
+                  'resultsItem p-2 cursor-pointer transition-background duration-150 hover:bg-slate-200 dark:hover:bg-neutral-700 [&+&]:border-t [&+&]:border-t-slate-300'
                 )}
                 key={hook.id}
                 onMouseDown={() => selectHook(hook.id)}

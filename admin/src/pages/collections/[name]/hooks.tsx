@@ -440,7 +440,7 @@ function resolveHooks(edges: Edge[], nodes: Node[]) {
     const beforeHooks: Hook[] = []
 
     for (const [node] of tree.ancestry(targetHandle)) {
-      beforeHooks.push([node?.data.id])
+      beforeHooks.push([node?.data.id, node?.data.config])
     }
 
     serviceHooks['before'][method] = beforeHooks.reverse()
@@ -449,7 +449,7 @@ function resolveHooks(edges: Edge[], nodes: Node[]) {
     const afterHooks: Hook[] = []
 
     for (const [node] of tree.descent(sourceHandle)) {
-      afterHooks.push([node?.data.id])
+      afterHooks.push([node?.data.id, node?.data.config])
     }
 
     serviceHooks['after'][method] = afterHooks

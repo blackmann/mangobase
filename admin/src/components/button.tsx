@@ -11,7 +11,7 @@ const styles: Record<Variant, string> = {
   muted: 'bg-slate-300 dark:bg-neutral-500 dark:text-neutral-100',
   primary:
     'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-75 disabled:hover:bg-blue-600',
-  secondary: 'bg-green-500 text-white',
+  secondary: 'bg-green-600 text-white hover:bg-green-700',
 }
 
 function Button({ className, variant = 'muted', ...props }: Props) {
@@ -19,7 +19,7 @@ function Button({ className, variant = 'muted', ...props }: Props) {
   return (
     <button
       className={clsx(
-        'py-1 px-2 rounded-md font-medium cursor-pointer disabled:cursor-not-allowed',
+        'py-1 px-2 rounded-md font-medium cursor-pointer disabled:cursor-not-allowed transition-background duration-200',
         style,
         className
       )}
