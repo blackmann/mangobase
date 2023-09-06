@@ -85,7 +85,7 @@ interface ConfigFormProps {
 }
 
 const ConfigForm = memo(({ config, hookInfo, onSave }: ConfigFormProps) => {
-  const { handleSubmit, register, setValue, watch } = useForm()
+  const { control, handleSubmit, register, setValue, watch } = useForm()
 
   const showSave =
     config !== null && JSON.stringify(watch()) !== JSON.stringify(config)
@@ -105,8 +105,12 @@ const ConfigForm = memo(({ config, hookInfo, onSave }: ConfigFormProps) => {
   }, [config, hookInfo, setValue])
 
   return (
-    <form className="ms-12 mb-2 me-3" onSubmit={handleSubmit(saveConfig)}>
-      <SchemaFields register={register} schema={hookInfo.configSchema} />
+    <form className="ms-6 mb-2 me-6" onSubmit={handleSubmit(saveConfig)}>
+      <SchemaFields
+        control={control}
+        register={register}
+        schema={hookInfo.configSchema}
+      />
 
       {showSave && (
         <div className="mt-2">

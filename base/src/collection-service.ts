@@ -1,7 +1,7 @@
 import App, { Service } from './app'
 import { BadRequest, MethodNotAllowed } from './errors'
 import Collection, { Filter } from './collection'
-import Schema, { ValidationError } from './schema'
+import Schema, { Definition, ValidationError } from './schema'
 import type { Context } from './context'
 
 const ALLOWED_FILTERS = [
@@ -177,7 +177,10 @@ class CollectionService implements Service {
                 return field
               }
 
-              const relation = schema.schema[field].relation
+              const relation = (
+                schema.schema[field] as Extract<Definition, { type: 'id' }>
+              ).relation
+
               if (!relation) {
                 return field
               }
