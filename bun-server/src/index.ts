@@ -13,7 +13,8 @@ function bunServer(port = 5000) {
 
         if (API_PATH_REGEX.test(url.pathname)) {
           const ctx = context({
-            data: req.body,
+            // [ ] Handle bad json parse
+            data: req.body ? await req.json() : null,
             headers: req.headers.toJSON(),
             method: methodFromHttp(req.method),
             path: url.pathname.replace(/^\/api\/?/, ''),

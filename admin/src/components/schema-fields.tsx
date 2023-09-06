@@ -4,7 +4,7 @@ import {
   FieldValues,
   UseFormRegister,
 } from 'react-hook-form'
-import { Editor } from '@monaco-editor/react'
+import CodeEditor from './code-editor'
 import Input from './input'
 import type { SchemaDefinitions } from 'mangobase'
 import clsx from 'clsx'
@@ -20,8 +20,9 @@ const EDITOR_OPTIONS = {
   codeLens: false,
   contextmenu: false,
   foldingHighlight: false,
+  fontFamily: 'Zed Mono',
   fontLigatures: true,
-  fontSize: 13,
+  fontSize: 14,
   hover: {
     enabled: false,
   },
@@ -46,7 +47,7 @@ const EDITOR_OPTIONS = {
   suggestOnTriggerCharacters: false,
   tabCompletion: 'off',
   wordBasedSuggestions: false,
-}
+} as const
 
 function SchemaFields({ control, register, schema }: Props) {
   return (
@@ -76,8 +77,8 @@ function SchemaFields({ control, register, schema }: Props) {
                           control={control}
                           name={name}
                           render={({ field: { onChange, value } }) => (
-                            <Editor
-                              className="rounded-md bg-slate-100 border border-slate-300 overflow-hidden"
+                            <CodeEditor
+                              className="rounded-md bg-slate-100 border border-slate-300 dark:border-neutral-600 overflow-hidden"
                               language="javascript"
                               defaultValue={value || definition.defaultValue}
                               height="14rem"

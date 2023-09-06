@@ -7,6 +7,7 @@
   "scripts": {
     "build:admin": "yarn workspace @mangobase/admin run build",
     "build:base": "yarn workspace mangobase run build",
+    "build:bun": "yarn workspace @mangobase/bun run build",
     "build:express-server": "yarn workspace @mangobase/express run build",
     "build:mongodb": "yarn workspace @mangobase/mongodb run build",
     "build": "yarn build:base && yarn build:express-server && yarn build:mongodb",
