@@ -11,38 +11,77 @@ const types = [
 
 type DefinitionType = `${(typeof types)[number]}`
 
-interface Definition {
-  /** `id` values are always of the primitive type `string`.
-   * Database adapters may need to convert to appropriate types.
-   * When type is `id`, `relation` is required
-   * */
-  type: DefinitionType
+interface StringDefinition {
+  type: 'string'
+  treatAs?: 'email' | 'url' | 'code'
+  defaultValue?: string
+}
 
-  description?: string
+interface NumberDefinition {
+  type: 'number'
+  defaultValue?: number
+}
 
+/** `id` values are always of the primitive type `string`.
+ * Database adapters may need to convert to appropriate types.
+ * When type is `id`, `relation` is required
+ * */
+interface IdDefinition {
+  type: 'id'
+  /** The collection ID of the relation. This only applies when type is `id`. */
+  relation: string
+  defaultValue?: string
+}
+
+interface BooleanDefinition {
+  type: 'boolean'
+  unique?: false
+  defaultValue?: boolean
+}
+
+interface ObjectDefinition {
+  type: 'object'
+  defaultValue?: object
+  schema: SchemaDefinitions
+}
+
+interface ArrayDefinition {
+  type: 'array'
+  // Nested into `item` because we can expect primitives (non-objects)
+  schema: { item: Definition }
+  defaultValue?: Array<any>
+}
+
+interface DateDefinition {
+  type: 'date'
+  defaultValue?: string
+}
+
+interface AnyDefinition {
+  type: 'any'
   defaultValue?: any
+}
+
+type Definition = {
+  description?: string
 
   required?: boolean
 
-  /** `unique` constraints do not apply to type of `any`. Currenlty, the schema
+  /** `unique` constraints do not apply to type of `any`. Currently, the schema
    * does not enforce uniqueness; it's not its responsibility. Maybe this field
    * is redundant and will be removed in future.
    */
   unique?: boolean
-
-  /** The collection ID of the relation. This only applies when type is `id`. */
-  relation?: string
-
-  /** `schema` only applies when type is `object` or `array`.
-   * When type is `array` the definition is nested in an `item` field.
-   * @example
-   * const definition = {
-   *   type: 'array',
-   *   schema: { item: { type: 'string' } }
-   * }
-   * */
-  schema?: SchemaDefinitions
-}
+} & (
+  | AnyDefinition
+  | ArrayDefinition
+  | BooleanDefinition
+  | DateDefinition
+  | IdDefinition
+  | NumberDefinition
+  | ObjectDefinition
+  | StringDefinition
+)
 
 type SchemaDefinitions = Record<string, Definition>
 interface Options {
@@ -82,12 +121,12 @@ class Schema {
 
   private validationMap: Record<DefinitionType, ValidationFunction> = {
     any: this.validateAny,
-    array: this.validateArray,
+    array: this.validateArray as ValidationFunction,
     boolean: this.validateBoolean,
     date: this.validateDate,
     id: this.validateId,
     number: this.validateNumber,
-    object: this.validateObject,
+    object: this.validateObject as ValidationFunction,
     string: this.validateString,
   }
 
@@ -356,7 +395,7 @@ class Schema {
 
   private validateObject(
     data: Data,
-    definition: Definition,
+    definition: Extract<Definition, { type: 'object' }>,
     useDefault = false
   ) {
     if (data.value === undefined) {
@@ -388,7 +427,7 @@ class Schema {
 
   private validateArray(
     data: Data,
-    definition: Definition,
+    definition: Extract<Definition, { type: 'array' }>,
     useDefault = false
   ) {
     if (data.value === undefined) {
@@ -407,7 +446,7 @@ class Schema {
       throw new ValidationError(data.name, 'value is not of type `array`')
     }
 
-    const schema = new Schema(definition.schema!, { parser: this.parser })
+    const schema = new Schema(definition.schema, { parser: this.parser })
     return data.value.map((item) => {
       return schema.validate({ item }).item
     })
@@ -646,7 +685,10 @@ function findRelations(schema: SchemaDefinitions, name: string) {
   function find(s = schema, path: string[] = []) {
     const res: string[][] = []
     for (const [field, definition] of Object.entries(s)) {
-      if (['object', 'array'].includes(definition.type) && definition.schema) {
+      if (
+        (definition.type === 'object' || definition.type === 'array') &&
+        definition.schema
+      ) {
         const nested = find(definition.schema, path)
         res.push(...nested)
       }

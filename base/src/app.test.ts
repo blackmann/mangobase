@@ -19,6 +19,7 @@ const db = {
   count: vi.fn(),
   create: vi.fn(() => ({ exec: vi.fn() })),
   find: vi.fn(),
+  syncIndex: vi.fn(),
 } as unknown as MockedObject<Database>
 
 let previousSecret: string | undefined

@@ -86,7 +86,7 @@ describe('schema', () => {
 
   describe('id type', () => {
     const schema = new Schema({
-      id: { type: 'id' },
+      id: { relation: 'mock', type: 'id' },
     })
 
     it('returns correctly with passed value', () => {
@@ -101,7 +101,7 @@ describe('schema', () => {
 
     describe('when required', () => {
       const schema = new Schema({
-        id: { required: true, type: 'id' },
+        id: { relation: 'mock', required: true, type: 'id' },
       })
 
       it('returns correctly', () => {
@@ -117,7 +117,7 @@ describe('schema', () => {
 
     describe('with default value', () => {
       const schema = new Schema({
-        id: { defaultValue: '123', type: 'id' },
+        id: { defaultValue: '123', relation: 'mock', type: 'id' },
       })
 
       it('does not set default value when a value is passed', () => {
@@ -134,7 +134,12 @@ describe('schema', () => {
 
       describe('when field is required', () => {
         const schema = new Schema({
-          id: { defaultValue: '123', required: true, type: 'id' },
+          id: {
+            defaultValue: '123',
+            relation: 'mock',
+            required: true,
+            type: 'id',
+          },
         })
 
         it('sets default value when no value is passed', () => {
@@ -147,7 +152,12 @@ describe('schema', () => {
 
     describe('when value is not of type string', () => {
       const schema = new Schema({
-        id: { defaultValue: '123', required: true, type: 'id' },
+        id: {
+          defaultValue: '123',
+          relation: 'mock',
+          required: true,
+          type: 'id',
+        },
       })
 
       it('throws', () => {
@@ -369,6 +379,7 @@ describe('schema', () => {
           profile: {
             defaultValue: { name: 'Mock' },
             required: true,
+            schema: {},
             type: 'object',
           },
         })
@@ -401,6 +412,7 @@ describe('schema', () => {
         profile: {
           defaultValue: { name: 'Mock' },
           required: true,
+          schema: {},
           type: 'object',
         },
       })
@@ -542,6 +554,7 @@ describe('schema', () => {
           tags: {
             defaultValue: ['Mock'],
             required: true,
+            schema: { item: { type: 'string' } },
             type: 'array',
           },
         })
@@ -559,6 +572,7 @@ describe('schema', () => {
         tags: {
           defaultValue: ['Mock'],
           required: true,
+          schema: { item: { type: 'string' } },
           type: 'array',
         },
       })
@@ -671,7 +685,7 @@ describe('schema', () => {
     const schema = new Schema(
       {
         fullname: { required: true, type: 'string' },
-        id: { type: 'id' },
+        id: { relation: 'mock', type: 'id' },
       },
       {
         parser: (value, type) => {
@@ -709,7 +723,7 @@ describe('schema', () => {
         createdAt: { type: 'date' },
         fullname: { required: true, type: 'string' },
         happy: { type: 'boolean' },
-        id: { type: 'id' },
+        id: { relation: 'mock', type: 'id' },
       },
       {
         parser: (value, type) => {

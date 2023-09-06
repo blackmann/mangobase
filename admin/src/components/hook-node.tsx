@@ -1,11 +1,11 @@
 import { FieldValues, useForm } from 'react-hook-form'
 import { NodeProps, Position, useReactFlow } from 'reactflow'
+import React, { memo } from 'preact/compat'
 import hooksRegistry, { Hook } from '../data/hooks-registry'
 import Button from './button'
 import FlowHandle from './flow-handle'
 import SchemaFields from './schema-fields'
 import clsx from 'clsx'
-import React, { memo } from 'preact/compat'
 
 interface Data {
   id: string
