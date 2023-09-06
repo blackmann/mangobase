@@ -1,7 +1,7 @@
 {
   "name": "@mangobase/bun",
   "module": "src/index.ts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "dist/index.js",
   "files": [
@@ -17,8 +17,8 @@
     "mangobase": "*"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0",
-    "mangobase": "*"
+    "mangobase": "*",
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "qs": "^6.11.2"
