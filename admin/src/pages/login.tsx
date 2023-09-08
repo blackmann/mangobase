@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 function Login() {
   const { handleSubmit, register, watch } = useForm()
   const [username, setUsername] = React.useState('')
-  const [isNew, setNew] = React.useState(false)
+  const [isNewEnv, setIsNewEnv] = React.useState(false)
   const [status, setStatus] = React.useState<RequestStatus>('idle')
 
   const navigate = useNavigate()
@@ -21,7 +21,7 @@ function Login() {
   async function login(form: FieldValues) {
     setStatus('in-progress')
     try {
-      if (isNew) {
+      if (isNewEnv) {
         await app.req.post('users', {
           ...form,
           fullname: form.username,
@@ -47,7 +47,7 @@ function Login() {
   }, [$username])
 
   React.useEffect(() => {
-    app.req.get('_dev/dev-setup').then((res) => setNew(!res.data))
+    app.req.get('_dev/dev-setup').then((res) => setIsNewEnv(!res.data))
   }, [])
 
   return (
@@ -64,7 +64,7 @@ function Login() {
               name={username || ''}
             />
             <fieldset className="mt-3 w-full flex flex-col items-center">
-              {isNew && (
+              {isNewEnv && (
                 <>
                   <p className=" text-center text-slate-500 dark:text-neutral-400 mb-4">
                     Sweet Mango 🥭

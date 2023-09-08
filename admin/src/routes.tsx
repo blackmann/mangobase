@@ -1,4 +1,5 @@
 import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
+import { Navigate, createBrowserRouter } from 'react-router-dom'
 import AdminLayout from './layouts/AdminLayout'
 import Collection from './client/collection'
 import CollectionHooks from './pages/collections/[name]/hooks'
@@ -11,7 +12,6 @@ import Profile from './pages/settings/profile'
 import Settings from './pages/settings'
 import Wip from './pages/wip'
 import app from './mangobase-app'
-import { createBrowserRouter } from 'react-router-dom'
 
 interface CollectionRouteData {
   collection: Collection
@@ -71,6 +71,10 @@ const routes = createBrowserRouter(
         {
           element: <Wip />,
           path: '*',
+        },
+        {
+          element: <Navigate replace to="/collections" />,
+          path: '',
         },
       ],
       element: <AdminLayout />,

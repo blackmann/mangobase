@@ -655,6 +655,10 @@ class App {
     return `_dev/${path}`
   }
 
+  static isDevPath(path: string) {
+    return path.startsWith('_dev/')
+  }
+
   static unexposed(path: string) {
     return `_x/${path}`
   }

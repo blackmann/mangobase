@@ -109,26 +109,9 @@ interface Data {
   value: any
 }
 
-type ValidationFunction = (
-  data: Data,
-  definition: Definition,
-  useDefault: boolean
-) => any
-
 class Schema {
   schema: SchemaDefinitions
   parser: (value: any, type: DefinitionType) => any
-
-  private validationMap: Record<DefinitionType, ValidationFunction> = {
-    any: this.validateAny,
-    array: this.validateArray as ValidationFunction,
-    boolean: this.validateBoolean,
-    date: this.validateDate,
-    id: this.validateId,
-    number: this.validateNumber,
-    object: this.validateObject as ValidationFunction,
-    string: this.validateString,
-  }
 
   constructor(schema: SchemaDefinitions, options: Options = {}) {
     this.schema = schema
@@ -268,12 +251,80 @@ class Schema {
         continue
       }
 
-      const validatedValue = this.validationMap[definition.type].call(
-        this,
-        { name: key, value },
-        definition,
-        useDefault
-      )
+      let validatedValue
+      switch (definition.type) {
+        case 'any': {
+          validatedValue = this.validateAny(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'array': {
+          validatedValue = this.validateArray(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'boolean': {
+          validatedValue = this.validateBoolean(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'date': {
+          validatedValue = this.validateDate(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'id': {
+          validatedValue = this.validateId(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'number': {
+          validatedValue = this.validateNumber(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'object': {
+          validatedValue = this.validateObject(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+
+        case 'string': {
+          validatedValue = this.validateString(
+            { name: key, value },
+            definition,
+            useDefault
+          )
+          break
+        }
+      }
 
       if (validatedValue !== undefined) {
         res[key] = this.cast(validatedValue, definition.type)
@@ -302,7 +353,7 @@ class Schema {
 
   private validateString(
     data: Data,
-    definition: Definition,
+    definition: Extract<Definition, { type: 'string' }>,
     useDefault = false
   ) {
     if (data.value === undefined || data.value === '') {
@@ -329,7 +380,7 @@ class Schema {
 
   private validateNumber(
     data: Data,
-    definition: Definition,
+    definition: Extract<Definition, { type: 'number' }>,
     useDefault = false
   ) {
     if (data.value === undefined) {
@@ -353,7 +404,7 @@ class Schema {
 
   private validateBoolean(
     data: Data,
-    definition: Definition,
+    definition: Extract<Definition, { type: 'boolean' }>,
     useDefault = false
   ) {
     if (data.value === undefined) {
@@ -375,11 +426,23 @@ class Schema {
     return data.value
   }
 
-  private validateId(data: Data, definition: Definition, useDefault = false) {
-    return this.validateString(data, definition, useDefault)
+  private validateId(
+    data: Data,
+    definition: Extract<Definition, { type: 'id' }>,
+    useDefault = false
+  ) {
+    return this.validateString(
+      data,
+      definition as unknown as Extract<Definition, { type: 'string' }>,
+      useDefault
+    )
   }
 
-  private validateAny(data: Data, definition: Definition, useDefault = false) {
+  private validateAny(
+    data: Data,
+    definition: Extract<Definition, { type: 'any' }>,
+    useDefault = false
+  ) {
     if (data.value === undefined) {
       if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue

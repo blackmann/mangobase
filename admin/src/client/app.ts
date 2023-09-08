@@ -59,11 +59,12 @@ class App {
   }
 
   set(key: string, value: any) {
+    localStorage.setItem(key, JSON.stringify(value))
+
     if (key === 'auth') {
+      this.auth = value
       this.req = this.getRequests()
     }
-
-    localStorage.setItem(key, JSON.stringify(value))
   }
 
   get(key: string) {

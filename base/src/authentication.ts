@@ -5,9 +5,9 @@ import {
   Unauthorized,
 } from './errors'
 import { CollectionHooks, HOOKS_STUB } from './manifest'
+import { Hook, HookFn } from './hook'
 import App from './app'
 import CollectionService from './collection-service'
-import { Hook } from './hook'
 import { SchemaDefinitions } from './schema'
 import bcrypt from 'bcryptjs'
 import { context } from './context'
@@ -187,31 +187,8 @@ async function baseAuthentication(app: App) {
     return ctx
   })
 
-  app.before(async (ctx) => {
-    checkSecretKeyEnv()
-
-    const authHeader = ctx.headers['authorization']
-    if (authHeader) {
-      const [, token] = (authHeader as string).split(' ')
-      try {
-        const { user: userId } = jsonwebtoken.verify(
-          token,
-          process.env.SECRET_KEY!
-        ) as JWTStructure
-
-        const usersCollection = (app.service('users') as CollectionService)
-          .collection
-        const user = await usersCollection.get(userId)
-
-        ctx.user = user
-      } catch (err) {
-        console.log(err)
-        //
-      }
-    }
-
-    return ctx
-  })
+  app.before(checkAuth)
+  app.before(protectDevEndpoints)
 
   // [ ] Watch out for trailing slash? Should we standardize and remove/add trailing slashes?
   app.after(async (ctx) => {
@@ -271,6 +248,47 @@ async function upsertHooks(app: App) {
 
 async function anonymousAuthentication(app: App) {
   // just a stub
+}
+
+const checkAuth: HookFn = async (ctx, _, app) => {
+  checkSecretKeyEnv()
+
+  const authHeader = ctx.headers['authorization']
+  if (authHeader) {
+    const [, token] = (authHeader as string).split(' ')
+    try {
+      const { user: userId } = jsonwebtoken.verify(
+        token,
+        process.env.SECRET_KEY!
+      ) as JWTStructure
+
+      const usersCollection = (app.service('users') as CollectionService)
+        .collection
+      const user = await usersCollection.get(userId)
+
+      ctx.user = user
+    } catch (err) {
+      console.log(err)
+      //
+    }
+  }
+
+  return ctx
+}
+
+const protectedPathsRegexs = [/^collections(?:\/.*)?$/]
+
+const protectDevEndpoints: HookFn = async (ctx) => {
+  const userIsDev = ctx.user?.role === 'dev'
+  if (App.isDevPath(ctx.path) && ctx.path !== '/_dev/dev-setup' && !userIsDev) {
+    throw new Unauthorized('Invalid auth')
+  }
+
+  if (protectedPathsRegexs.some((reg) => reg.test(ctx.path)) && !userIsDev) {
+    throw new Unauthorized('Invalid auth')
+  }
+
+  return ctx
 }
 
 function checkSecretKeyEnv() {
