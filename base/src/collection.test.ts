@@ -18,6 +18,9 @@ function getCursor() {
   return mockCursor
 }
 type Data = Record<string, any>
+
+// eslint-disable-next-line
+// @ts-ignore
 const mockDb: MockedObject<Database> = {
   cast: vi.fn((value, type) => {
     if (type === 'id') return Number(value)
@@ -30,10 +33,13 @@ const mockDb: MockedObject<Database> = {
   remove: vi.fn(),
 }
 
+// eslint-disable-next-line
+// @ts-ignore
 const mockManifest: MockedObject<Manifest> = {
   collection: vi.fn(
     async (n: string) =>
       <CollectionConfig>{
+        indexes: [],
         name: n,
         schema: {
           age: { type: 'number' },

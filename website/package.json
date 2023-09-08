@@ -4,9 +4,11 @@
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",
-    "preview": "vitepress preview"
+    "preview": "vitepress preview",
+    "docs": "typedoc"
   },
   "devDependencies": {
+    "typedoc": "^0.25.1",
     "vitepress": "^1.0.0-rc.10"
   }
 }

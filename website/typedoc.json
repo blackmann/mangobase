@@ -1,0 +1,9 @@
+{
+  "entryPoints": ["../base/src/index.ts"],
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeExternals": true,
+  "exclude": ["**.test.ts"],
+  "out": "./api",
+  "tsconfig": "../base/tsconfig.json"
+}
