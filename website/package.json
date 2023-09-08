@@ -1,0 +1,12 @@
+{
+  "name": "website",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.10"
+  }
+}

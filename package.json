@@ -13,6 +13,7 @@
     "build": "yarn build:base && yarn build:express-server && yarn build:mongodb",
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
+    "dev:website": "yarn workspace website run dev",
     "publish:base": "yarn workspace mangobase publish",
     "publish:bun": "yarn workspace @mangobase/bun publish --access public",
     "publish:express": "yarn workspace @mangobase/express publish --access public",
@@ -32,7 +33,8 @@
     "eslint-config-base",
     "express-server",
     "mongo-db",
-    "examples/*"
+    "examples/*",
+    "website"
   ],
   "devDependencies": {
     "prettier": "^2.8.8",
