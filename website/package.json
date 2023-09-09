@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "vitepress dev",
-    "build": "vitepress build",
+    "build": "yarn docs && vitepress build",
     "preview": "vitepress preview",
-    "docs": "typedoc"
+    "docs": "node generate-api.mjs"
   },
   "devDependencies": {
     "typedoc": "^0.25.1",

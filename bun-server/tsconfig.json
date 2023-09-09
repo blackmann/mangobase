@@ -21,7 +21,5 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "./dist",
-    "rootDir": "src"
-  },
-  "include": ["src"]
+  }
 }

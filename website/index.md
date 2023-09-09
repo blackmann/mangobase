@@ -17,12 +17,16 @@ hero:
       link: /api/
 
 features:
+  - title: Amazing UI
+    icon: ❇️
+    details: You get a free dashboard to create your schema, view your data and configure parts of your project.
   - title: Few concepts
+    icon: ✍🏽
     details: You have to know very few concepts to get started with Mangobase. Context, hook and queries.
   - title: Add to existing projects
+    icon: 🚡
     details: You can add Mangobase to existing projects
-  - title: Free dashboard
-    details: You get a free dashboard to view your data and interact with them.
   - title: Works with version control
+    icon: 🏂
     details: Changes to your project can be tracked with version control. This allows for transparent collaboration with teams.
 ---

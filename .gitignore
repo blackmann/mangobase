@@ -4,3 +4,6 @@ node_modules/
 coverage/
 .turbo
 .mangobase
+
+api/
+!api/index.md

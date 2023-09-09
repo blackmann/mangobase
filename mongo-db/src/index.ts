@@ -1,3 +1,2 @@
-import MongoDB from './mongodb'
+export { default as MongoDb } from './mongodb'
 export { MongoCursor } from './mongodb'
-export default MongoDB

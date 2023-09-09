@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import apiPaths from './api-paths.json'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -43,17 +44,7 @@ export default defineConfig({
           ]
         }
       ],
-      '/api/': [
-        {
-          text: 'Modules',
-          items: [
-            { text: 'Introduction', link: '/guide/' },
-            { text: 'Getting started', link: '/guide/getting-started' },
-            { text: 'Dashboard', link: '/guide/dashboard' },
-            { text: 'Development and Production', link: '/guide/dev-prod'}
-          ],
-        },
-      ]
+      '/api/': apiPaths
     },
 
     socialLinks: [
