@@ -7,10 +7,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn clean && node ./build.mjs && tsc -p tsconfig.build.json && yarn copy-admin",
+    "build": "yarn clean && node ./build.mjs && tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "copy-admin": "cp -R ../admin/dist dist/admin",
-    "prepare": "yarn build",
+    "prepare": "yarn build && yarn copy-admin",
     "test": "vitest"
   },
   "author": "",
