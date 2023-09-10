@@ -5,7 +5,7 @@ import apiPaths from './api-paths.json'
 export default defineConfig({
   title: 'Mango 🥭',
   description: 'Mangobase: Low-code Javscript backend framework',
-  base: 'https://degreat.co.uk/mangobase/',
+  base: '/mangobase/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
