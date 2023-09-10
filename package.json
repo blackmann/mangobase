@@ -12,6 +12,7 @@
     "build:mongodb": "yarn workspace @mangobase/mongodb run build",
     "build:website": "yarn workspace website run build",
     "build": "yarn turbo build --filter=!@mangobase/bun",
+    "clean": "yarn turbo clean",
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
     "dev:website": "yarn workspace website run dev",

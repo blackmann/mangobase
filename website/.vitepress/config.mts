@@ -19,8 +19,8 @@ export default defineConfig({
           text: 'Start here',
           items: [
             { text: 'Introduction', link: '/guide/' },
-            { text: 'Recap on REST', link: '/guide/recap-rest'},
             { text: 'Getting started', link: '/guide/getting-started' },
+            { text: 'Recap on REST', link: '/guide/rest'},
             { text: 'Dashboard', link: '/guide/dashboard' },
             { text: 'Development and Production', link: '/guide/dev-prod'}
           ],
@@ -38,7 +38,7 @@ export default defineConfig({
           text: 'Extras',
           items: [
             { text: 'Server adapters', link: '/guide/server-adapters'},
-            { text: 'Database adapters', link: '/guide/server-adapters'},
+            { text: 'Database adapters', link: '/guide/database-adapters'},
             { text: 'Plugins', link: '/guide/plugins'},
             { text: 'FAQs', link: '/guide/faqs'},
           ]

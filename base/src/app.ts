@@ -435,6 +435,13 @@ interface Options {
   db: Database
 }
 
+/**
+ * An app is responsible for handling the API calls and also serving the admin pages.
+ * App is designed to be server agnostic and only depends on {@link Context.query | contexts} for processing.
+ * Contexts are processed with services but orchestrated with {@link Pipeline | pipelines}.
+ * In summary, pipelines make sure {@link HookFn | hooks} are called properly and exceptions/
+ * errors are propagated properly.
+ */
 class App {
   private routes = createRouter()
   database: Database
@@ -470,7 +477,7 @@ class App {
     })()
   }
 
-  init() {
+  private init() {
     return this.initialize
   }
 

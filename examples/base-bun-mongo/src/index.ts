@@ -1,5 +1,5 @@
 import { App } from 'mangobase'
-import MongoDb from '@mangobase/mongodb'
+import { MongoDb } from '@mangobase/mongodb'
 import bunServer from '@mangobase/bun'
 
 process.env.SECRET_KEY = 'mango-bun'

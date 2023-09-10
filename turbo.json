@@ -5,7 +5,7 @@
       "cache": false
     },
     "build": {
-      "outputs": ["dist/**"],
+      "outputs": ["dist/**", "api/**"],
       "dependsOn": ["^build"]
     },
     "express-server#build": {

@@ -37,4 +37,6 @@ function expressServer(mangobaseApp: App): express.Express {
   return app
 }
 
+// [ ] Implement `withExpress` which takes a custom express instance
+
 export default expressServer

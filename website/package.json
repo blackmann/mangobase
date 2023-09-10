@@ -5,7 +5,8 @@
     "dev": "vitepress dev",
     "build": "yarn docs && vitepress build",
     "preview": "vitepress preview",
-    "docs": "node generate-api.mjs"
+    "docs": "node generate-api.mjs",
+    "clean": "find api/ -mindepth 1 -not -name 'index.md' -exec rm -rf {} +"
   },
   "devDependencies": {
     "typedoc": "^0.25.1",

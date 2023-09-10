@@ -1,17 +1,19 @@
 import fs from 'fs/promises'
 import fsSync from 'fs'
-import typedoc from 'typedoc'
+import typedoc, { Comment } from 'typedoc'
 
 const projects = ['base', 'express-server', 'mongo-db']
 
 const apiDocPaths = []
+
+const SKIP_KINDS = [typedoc.ReflectionKind.TypeAlias]
 
 async function generateApis() {
   for (const projectDir of projects) {
     const app = await typedoc.Application.bootstrap({
       entryPoints: [`../${projectDir}/src/index.ts`],
       tsconfig: `../${projectDir}/tsconfig.json`,
-      entryPointStrategy: 'expand',
+      excludePrivate: true,
     })
 
     console.log('[-] Parsing ' + projectDir + '...')
@@ -25,6 +27,12 @@ async function generateApis() {
       items: [],
     }
 
+    const utilsGroup = {
+      collapsed: true,
+      text: 'utils',
+      items: [],
+    }
+
     try {
       await fs.mkdir(`./api/${projectDir}/`)
     } catch (err) {
@@ -34,20 +42,46 @@ async function generateApis() {
     const project = await app.convert()
     if (project) {
       project.traverse((node) => {
-        const path = `/api/${projectDir}/${node.name}`
+        if (SKIP_KINDS.includes(node.kind)) {
+          return
+        }
 
-        group.items.push({
-          text: node.name,
-          link: path,
-        })
-
-        fsSync.writeFileSync(`.${path}.md`, `# ${node.name}`, {encoding: 'utf-8'})
         console.log('  * ', `${node.name}.md`)
+        let path = `/api/${projectDir}/${node.name}`
+
+        if (node.name[0] === node.name[0].toLocaleLowerCase()) {
+          path = `/api/${projectDir}/utils/${node.name}`
+
+          try {
+            fsSync.mkdirSync(`./api/${projectDir}/utils`)
+          } catch (err) {
+            //
+          }
+
+          utilsGroup.items.push({
+            text: node.name,
+            link: path,
+          })
+        } else {
+          group.items.push({
+            text: node.name,
+            link: path,
+          })
+        }
+
+        fsSync.writeFileSync(`.${path}.md`, composeDoc(node, projectDir), {
+          encoding: 'utf-8',
+        })
       })
     }
 
+    group.items.sort((a, b) => (a.text > b.text ? 1 : -1))
+    utilsGroup.items.sort((a, b) => (a.text > b.text ? 1 : -1))
 
-    group.items.sort((a, b) => a.text > b.text ? 1 : -1)
+    if (utilsGroup.items.length) {
+      group.items.push(utilsGroup)
+    }
+
     apiDocPaths.push(group)
   }
 }
@@ -59,3 +93,63 @@ generateApis().then(() => {
     JSON.stringify(apiDocPaths, null, 2)
   )
 })
+
+function composeDoc(node, packagePath) {
+  const content = [
+    `# ${node.name} <Badge>${typedoc.ReflectionKind.singularString(
+      node.kind
+    )}</Badge>`,
+  ]
+
+  // [ ] Show signature if any
+  // [ ] Show item type (string, number, etc.)
+
+  if (node.comment) {
+    content.push(
+      Comment.displayPartsToMarkdown(node.comment.summary, (ref) =>
+        urlTo(ref, packagePath)
+      )
+    )
+  }
+
+  node.traverse((innerNode) => {
+    if (SKIP_KINDS.includes(innerNode.kind)) {
+      return
+    }
+    const innerContent = []
+
+    const badge = []
+    if (innerNode.flags.isStatic) {
+      badge.push('Static')
+    }
+
+    badge.push(typedoc.ReflectionKind.singularString(innerNode.kind))
+
+    innerContent.push(`## ${innerNode.name} <Badge>${badge.join(' ')}</Badge>`)
+    if (innerNode.comment) {
+      innerContent.push(
+        Comment.displayPartsToMarkdown(innerNode.comment.summary)
+      )
+    }
+
+    content.push(innerContent.join('\n'))
+  })
+
+  return content.join('\n\n')
+}
+
+function urlTo(ref, base) {
+  const parts = []
+  parts.push(ref.name)
+
+  let parent = ref.parent
+  while (parent) {
+    parts.push(parent.name)
+    parent = parent.parent
+  }
+
+  parts.reverse()
+  parts.shift()
+
+  return `/api/${base}/` + parts.join('#')
+}

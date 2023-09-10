@@ -5,5 +5,3 @@ coverage/
 .turbo
 .mangobase
 
-api/
-!api/index.md
