@@ -68,6 +68,6 @@ app.serve(bunServer(4000))
 
 ## Other servers
 
-If you're using other frameworks other than `express` or `Bun`, you can still use Mango but you'll have to implement an adapter to create and handle contexts for Mangobase [`App`](/api/base/app).
+If you're using other frameworks other than `express` or `Bun`, you can still use Mango but you'll have to implement an adapter to create and handle contexts for Mangobase [`App`](/api/base/App).
 
 This involves only a few lines of code. You can reference the implementation for express here: https://github.com/blackmann/mangobase/blob/master/express-server/src/index.ts
