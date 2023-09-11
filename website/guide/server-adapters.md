@@ -1,6 +1,6 @@
 # Server adapters
 
-You can use Mango with any server of choice. This is possible because the core tries to be agnostic of transport mechanisms or server implementations and uses [`contexts`](/guide/contexts) instead.
+You can use Mango with any server of choice. This is possible because the core tries to be agnostic of transport mechanisms or server implementations and uses [`contexts`](/guide/context) instead.
 
 This way, servers can form a context, pass it to [`app.api()`](/api/base/App#api) and then get a context back. With this result, the server can use it to form a response per its design.
 

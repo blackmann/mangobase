@@ -16,6 +16,7 @@
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
     "dev:website": "yarn workspace website run dev",
+    "docs:generate": "yarn workspace website run docs",
     "publish:base": "yarn workspace mangobase publish",
     "publish:bun": "yarn workspace @mangobase/bun publish --access public",
     "publish:express": "yarn workspace @mangobase/express publish --access public",

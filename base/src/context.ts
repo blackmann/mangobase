@@ -10,7 +10,13 @@ interface Context {
   params?: Record<string, any>
   /** Query are request query parameters */
   query: Record<string, any>
+  /**
+   * Set this with the result of processing a context. When set, subsequent `before` hooks are not called.
+   */
   result?: any
+  /**
+   * The status code the server adapter sets on the response.
+   */
   statusCode?: number
   url: string
   user?: any

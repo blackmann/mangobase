@@ -17,6 +17,7 @@ async function generateApis() {
     })
 
     console.log('[-] Parsing ' + projectDir + '...')
+
     const pkg = JSON.parse(
       await fs.readFile(`../${projectDir}/package.json`, { encoding: 'utf-8' })
     )
@@ -96,13 +97,9 @@ generateApis().then(() => {
 
 function composeDoc(node, packagePath) {
   const content = [
-    `# ${node.name} <Badge>${typedoc.ReflectionKind.singularString(
-      node.kind
-    )}</Badge>`,
+    `# ${node.name}`,
+    `<Badge>${typedoc.ReflectionKind.singularString(node.kind)}</Badge>`,
   ]
-
-  // [ ] Show signature if any
-  // [ ] Show item type (string, number, etc.)
 
   if (node.comment) {
     content.push(
@@ -113,23 +110,46 @@ function composeDoc(node, packagePath) {
   }
 
   node.traverse((innerNode) => {
+    // [ ] Show signature if any
+    // [ ] Show item type (string, number, etc.)
     if (SKIP_KINDS.includes(innerNode.kind)) {
       return
     }
+
     const innerContent = []
 
-    const badge = []
-    if (innerNode.flags.isStatic) {
-      badge.push('Static')
-    }
-
-    badge.push(typedoc.ReflectionKind.singularString(innerNode.kind))
-
-    innerContent.push(`## ${innerNode.name} <Badge>${badge.join(' ')}</Badge>`)
+    innerContent.push(`## ${innerNode.name}`)
     if (innerNode.comment) {
       innerContent.push(
         Comment.displayPartsToMarkdown(innerNode.comment.summary)
       )
+    }
+
+    switch (innerNode.kind) {
+      case typedoc.ReflectionKind.Method: {
+        innerNode.signatures.forEach((signature) => {
+          const parameters = []
+
+          for (const p of signature.parameters) {
+            parameters.push(`${p.name}: ${typedoc.ReflectionKind.singularString(p.kind)}`)
+          }
+
+          const signatureCode = `
+\`\`\`typescript
+public ${signature.name}(${parameters.join(', ')}): Promise<any>
+\`\`\`
+`
+          innerContent.push(signatureCode)
+
+          if (signature.hasComment()) {
+            innerContent.push(
+              Comment.displayPartsToMarkdown(signature.comment.summary, (ref) =>
+                urlTo(ref, packagePath)
+              )
+            )
+          }
+        })
+      }
     }
 
     content.push(innerContent.join('\n'))

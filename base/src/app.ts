@@ -523,6 +523,11 @@ class App {
     return this.pipeline(path)?.service
   }
 
+  /**
+   * Passes the context through its pipeline and returns a context with the result. This method
+   * is not intended to throw an exception. Exceptions are caught and transformed into readable
+   * responses with related status code.
+   */
   async api(ctx: Context): Promise<Context> {
     await this.init()
 
@@ -547,7 +552,7 @@ class App {
     return ctx
   }
 
-  async installCollectionsServices() {
+  private async installCollectionsServices() {
     const collections = await this.manifest.collections()
     for (const collection of collections) {
       await this.installCollection(collection)
