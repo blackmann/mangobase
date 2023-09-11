@@ -24,14 +24,14 @@ interface Filters {
 }
 
 class MongoCursor implements Cursor {
-  db: MongoDB
+  db: MongoDb
   private singleResult = false
   private filters: Filters = {}
 
   private onExec: ({ projection }: FindOptions) => Promise<FindCursor>
 
   constructor(
-    db: MongoDB,
+    db: MongoDb,
     onExec: (options: FindOptions) => Promise<FindCursor>
   ) {
     this.db = db
@@ -170,7 +170,7 @@ class MongoCursor implements Cursor {
   }
 }
 
-class MongoDB implements Database {
+class MongoDb implements Database {
   db: Db
 
   constructor(uri: string, databaseName?: string) {
@@ -343,5 +343,5 @@ class MongoDB implements Database {
   }
 }
 
-export default MongoDB
+export default MongoDb
 export { MongoCursor }

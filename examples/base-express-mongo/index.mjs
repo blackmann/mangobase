@@ -1,9 +1,9 @@
-const { App } = require('mangobase')
-const MongoDB = require('@mangobase/mongodb').default
-const expressServer = require('@mangobase/express').default
+import { App } from 'mangobase'
+import { MongoDb } from '@mangobase/mongodb'
+import { expressServer } from '@mangobase/express'
 
 const app = new App({
-  db: new MongoDB('mongodb://127.0.0.1:27017/mangobase-demo'),
+  db: new MongoDb('mongodb://127.0.0.1:27017/mangobase-demo'),
 })
 
 app.hooksRegistry.register({

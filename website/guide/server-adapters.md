@@ -38,7 +38,7 @@ let expressApp = express()
 
 // do stuff with `expressApp` as usual, like add middleware, etc.
 
-expressApp = app.serve(withExpress(expressApp))
+expressApp = app.serve(withExpress(expressApp, app))
 
 // do more stuff with `expressApp` ...
 

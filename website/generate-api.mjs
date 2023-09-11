@@ -28,12 +28,6 @@ async function generateApis() {
       items: [],
     }
 
-    const utilsGroup = {
-      collapsed: true,
-      text: 'utils',
-      items: [],
-    }
-
     try {
       await fs.mkdir(`./api/${projectDir}/`)
     } catch (err) {
@@ -51,24 +45,15 @@ async function generateApis() {
         let path = `/api/${projectDir}/${node.name}`
 
         if (node.name[0] === node.name[0].toLocaleLowerCase()) {
-          path = `/api/${projectDir}/utils/${node.name}`
-
-          try {
-            fsSync.mkdirSync(`./api/${projectDir}/utils`)
-          } catch (err) {
-            //
-          }
-
-          utilsGroup.items.push({
-            text: node.name,
-            link: path,
-          })
-        } else {
-          group.items.push({
-            text: node.name,
-            link: path,
-          })
+          // doing this because some function names clashed with interface/class
+          // names, causing an override of content.
+          path = `/api/${projectDir}/${node.name}_function`
         }
+
+        group.items.push({
+          text: node.name,
+          link: path,
+        })
 
         fsSync.writeFileSync(`.${path}.md`, composeDoc(node, projectDir), {
           encoding: 'utf-8',
@@ -77,11 +62,6 @@ async function generateApis() {
     }
 
     group.items.sort((a, b) => (a.text > b.text ? 1 : -1))
-    utilsGroup.items.sort((a, b) => (a.text > b.text ? 1 : -1))
-
-    if (utilsGroup.items.length) {
-      group.items.push(utilsGroup)
-    }
 
     apiDocPaths.push(group)
   }
@@ -96,17 +76,15 @@ generateApis().then(() => {
 })
 
 function composeDoc(node, packagePath) {
+  const urlGenerator = (ref) => urlTo(ref, packagePath)
+
   const content = [
     `# ${node.name}`,
     `<Badge>${typedoc.ReflectionKind.singularString(node.kind)}</Badge>`,
   ]
 
   if (node.comment) {
-    content.push(
-      Comment.displayPartsToMarkdown(node.comment.summary, (ref) =>
-        urlTo(ref, packagePath)
-      )
-    )
+    content.push(Comment.displayPartsToMarkdown(node.comment.summary, urlGenerator))
   }
 
   node.traverse((innerNode) => {
@@ -121,7 +99,7 @@ function composeDoc(node, packagePath) {
     innerContent.push(`## ${innerNode.name}`)
     if (innerNode.comment) {
       innerContent.push(
-        Comment.displayPartsToMarkdown(innerNode.comment.summary)
+        Comment.displayPartsToMarkdown(innerNode.comment.summary, urlGenerator)
       )
     }
 
@@ -131,7 +109,9 @@ function composeDoc(node, packagePath) {
           const parameters = []
 
           for (const p of signature.parameters) {
-            parameters.push(`${p.name}: ${typedoc.ReflectionKind.singularString(p.kind)}`)
+            parameters.push(
+              `${p.name}: ${typedoc.ReflectionKind.singularString(p.kind)}`
+            )
           }
 
           const signatureCode = `

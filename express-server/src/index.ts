@@ -3,6 +3,9 @@ import type { App } from 'mangobase'
 import { context, methodFromHttp } from 'mangobase'
 import cors from 'cors'
 
+/**
+ * No-op server adapter for express
+ */
 function expressServer(mangobaseApp: App): express.Express {
   const app = express()
 
@@ -10,6 +13,24 @@ function expressServer(mangobaseApp: App): express.Express {
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
+  return withExpress(app, mangobaseApp)
+}
+
+/**
+ * Use this function if you have a custom express instance. Remember to set `cors`, `json` and `urlencoded`.
+ * These are critical to how to how mangobase works.
+ *
+ * @example
+ * ```
+ * import cors from 'cors'
+ *
+ * const app = express()
+ * app.use(cors())
+ * app.use(express.json())
+ * app.use(express.urlencoded({ extended: true }))
+ * ```
+ */
+function withExpress(app: express.Express, mangobaseApp: App): express.Express {
   app.all(['/api', '/api/*'], (req, res) => {
     // [ ]: handle OPTIONS
     const ctx = context({
@@ -37,6 +58,4 @@ function expressServer(mangobaseApp: App): express.Express {
   return app
 }
 
-// [ ] Implement `withExpress` which takes a custom express instance
-
-export default expressServer
+export { expressServer, withExpress }
