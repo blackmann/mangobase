@@ -7,7 +7,8 @@ Mangobase is fundamentally designed to be easy to use while providing a cohesion
 You can use the command below to bootstrap a project
 
 ```
-npx create mango
+npm create mango
+yarn create mango
 ```
 
 ## Adding to an existing project
