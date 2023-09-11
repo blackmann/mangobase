@@ -46,7 +46,7 @@ function Wizard() {
 	if (stage === LANGUAGE_SELECT) {
 		return (
 			<>
-				<Text>🈷️ What language do you prefer?</Text>
+				<Text>[🈷️] What language do you prefer?</Text>
 				<SelectInput items={languageOptions} onSelect={handleLanguageSelect} />
 			</>
 		)
@@ -55,7 +55,7 @@ function Wizard() {
 	if (stage === DESTINATION_SELECT) {
 		return (
 			<>
-				<Text>🗂️ Enter name of this project</Text>
+				<Text>[💽] Enter name of this project</Text>
 				<Text color={'gray'}>
 					App will be created in a folder with this name in this directory.
 				</Text>
@@ -71,9 +71,16 @@ function Wizard() {
 
 	return (
 		<>
-			<Text>🪛 Creating project with the following options</Text>
-			<Text> Language: <Text color={'gray'}>{languageSelection.current}</Text></Text>
-			<Text> Destination: <Text color={'gray'}>{destination}</Text></Text>
+			<Text>[🚪] Creating project with the following options</Text>
+			<Text>
+				{' '}
+				Language: <Text color={'gray'}>{languageSelection.current}</Text>
+			</Text>
+			<Text>
+				{' '}
+				Destination: <Text color={'gray'}>{destination}</Text>
+			</Text>
+			<Text color={'gray'}>Press enter to confirm</Text>
 		</>
 	)
 }
