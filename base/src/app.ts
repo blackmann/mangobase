@@ -1,3 +1,4 @@
+import * as errors from './errors'
 import {
   BadRequest,
   Conflict,
@@ -38,6 +39,13 @@ interface Service {
   handle: Handle
 }
 
+/**
+ * A pipeline represents the call stack for a service. With a pipeline, we can register
+ * a series of hooks for a service. The pipeline is responsible for running hooks in the
+ * correct order and handling/propagating errors correctly.
+ *
+ * Use the {@link Pipeline.before | `before`} and {@link Pipeline.after | `after`} methods to register hooks.
+ */
 class Pipeline {
   private app: App
   private _service: Service
@@ -52,11 +60,25 @@ class Pipeline {
     return this._service
   }
 
+  /**
+   * Passes the context through the before hooks registered on the app, followed by hooks
+   * registered on the service. After all before-hooks are called, the context is passed to the service.
+   * The result from the service is then passed through all after hooks.
+   *
+   * If a before-hook happens to set the result of the context to a non-null result, the pipeline
+   * does not call the subsequent before-hooks and also skips the service but runs all after-hooks with
+   * the current context.
+   *
+   * When there's an error/exception, the pipeline tries to handle it cleanly
+   * and return a context with the respective status code and result. In this case, the after
+   * hooks are not called; rather the error hooks registered on the app are called.
+   *
+   */
   async run(ctx: Context): Promise<Context> {
     try {
       ctx = await this.app.runBefore(ctx)
     } catch (err) {
-      return Pipeline.handleError(err, ctx)
+      return this.handlePipelineError(err, ctx)
     }
 
     for (const [hook, config] of this.hooks.before[ctx.method]) {
@@ -70,7 +92,7 @@ class Pipeline {
           break
         }
       } catch (err) {
-        return Pipeline.handleError(err, ctx)
+        return this.handlePipelineError(err, ctx)
       }
     }
 
@@ -81,7 +103,7 @@ class Pipeline {
           throw new NotFound()
         }
       } catch (err) {
-        return Pipeline.handleError(err, ctx)
+        return this.handlePipelineError(err, ctx)
       }
     }
 
@@ -89,7 +111,7 @@ class Pipeline {
       try {
         ctx = await hook(ctx, config, this.app)
       } catch (err) {
-        return Pipeline.handleError(err, ctx)
+        return this.handlePipelineError(err, ctx)
       }
     }
 
@@ -100,13 +122,17 @@ class Pipeline {
     try {
       ctx = await this.app.runAfter(ctx)
     } catch (err) {
-      return Pipeline.handleError(err, ctx)
+      return this.handlePipelineError(err, ctx)
     }
 
     return ctx
   }
 
-  async runErrorHooks(ctx: Context): Promise<Context> {
+  private async handlePipelineError(
+    err: unknown,
+    ctx: Context
+  ): Promise<Context> {
+    ctx = await Pipeline.handleError(err, ctx)
     return this.app.runError(ctx)
   }
 
@@ -447,6 +473,8 @@ class App {
   database: Database
   manifest: Manifest
   hooksRegistry: HooksRegistry
+
+  readonly errors = errors
 
   private beforeHooks: HookFn[] = []
   private afterHooks: HookFn[] = []

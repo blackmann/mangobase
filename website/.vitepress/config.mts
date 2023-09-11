@@ -21,31 +21,32 @@ export default defineConfig({
           items: [
             { text: 'Introduction', link: '/guide/' },
             { text: 'Getting started', link: '/guide/getting-started' },
-            { text: 'Recap on REST', link: '/guide/rest'},
+            { text: 'Recap on REST', link: '/guide/rest' },
             { text: 'Dashboard', link: '/guide/dashboard' },
-            { text: 'Development and Production', link: '/guide/dev-prod'}
+            { text: 'Development and Production', link: '/guide/dev-prod' },
           ],
         },
         {
           text: 'Concepts',
           items: [
-            { text: 'Context', link: '/guide/context'},
-            { text: 'Hooks', link: '/guide/hooks'},
-            { text: 'Query', link: '/guide/query'},
-            { text: 'Migrations', link: '/guide/migrations'},
-          ]
+            { text: 'Context', link: '/guide/context' },
+            { text: 'Hooks', link: '/guide/hooks' },
+            { text: 'Query', link: '/guide/query' },
+            { text: 'Migrations', link: '/guide/migrations' },
+          ],
         },
         {
           text: 'Extras',
           items: [
-            { text: 'Server adapters', link: '/guide/server-adapters'},
-            { text: 'Database adapters', link: '/guide/database-adapters'},
-            { text: 'Plugins', link: '/guide/plugins'},
-            { text: 'FAQs', link: '/guide/faqs'},
-          ]
-        }
+            { text: 'Authentication', link: '/guide/authentication' },
+            { text: 'Server adapters', link: '/guide/server-adapters' },
+            { text: 'Database adapters', link: '/guide/database-adapters' },
+            { text: 'Plugins', link: '/guide/plugins' },
+            { text: 'FAQs', link: '/guide/faqs' },
+          ],
+        },
       ],
-      '/api/': apiPaths
+      '/api/': apiPaths,
     },
 
     socialLinks: [
