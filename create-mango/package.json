@@ -1,6 +1,6 @@
 {
 	"name": "create-mango",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"license": "MIT",
 	"bin": "dist/cli.js",
 	"type": "module",
@@ -8,11 +8,11 @@
 		"node": ">=16"
 	},
 	"scripts": {
-		"build": "tsc && yarn copy-files",
+		"build": "tsc",
 		"copy-files": "cp -R templates ./dist/templates",
 		"dev": "tsc --watch",
 		"test": "prettier --check . && xo && ava",
-		"prepare": "yarn build"
+		"prepare": "yarn build && yarn copy-files"
 	},
 	"files": [
 		"dist"
