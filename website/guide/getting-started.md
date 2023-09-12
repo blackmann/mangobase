@@ -6,10 +6,17 @@ Mangobase is fundamentally designed to be easy to use while providing a cohesion
 
 You can use the command below to bootstrap a project
 
+::: code-group
+
+```sh [npm]
+$ npm create mango@latest
 ```
-npm create mango
-yarn create mango
+
+```sh [yarn]
+$ yarn create mango@latest
 ```
+
+:::
 
 ## Adding to an existing project
 
