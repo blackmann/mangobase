@@ -57,4 +57,13 @@ export default defineConfig({
       provider: 'local',
     },
   },
+  head: [
+    [
+      'script',
+      {
+        async: '',
+        src: 'https://analytics.umami.is/script.js" data-website-id="6cc8bf19-147d-45a2-b7c9-75b7c1b607bf',
+      },
+    ],
+  ],
 })
