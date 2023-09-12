@@ -1,7 +1,12 @@
 import React from 'react'
-import { Text } from 'ink'
+import { Text, useApp, useInput } from 'ink'
 import SelectInput from 'ink-select-input'
 import TextInput from 'ink-text-input'
+import {
+	CreateProjectOptions,
+	Language,
+	createProject,
+} from './create-project.js'
 
 type Props = {
 	flags: {
@@ -13,6 +18,7 @@ type Props = {
 const LANGUAGE_SELECT = 1
 const DESTINATION_SELECT = 2
 const CONFIRM_OPTIONS = 3
+const CREATE_PROJECT = 4
 
 const languageOptions = [
 	{
@@ -28,7 +34,17 @@ const languageOptions = [
 function Wizard() {
 	const [stage, setStage] = React.useState(LANGUAGE_SELECT)
 	const languageSelection = React.useRef<string>()
-	const [destination, setDestination] = React.useState('')
+	const [projectName, setProjectName] = React.useState('')
+
+	useInput((_, key) => {
+		if (stage !== CONFIRM_OPTIONS) {
+			return
+		}
+
+		if (key.return) {
+			setStage(CREATE_PROJECT)
+		}
+	})
 
 	function handleLanguageSelect({ value }: { value: string }) {
 		languageSelection.current = value
@@ -36,7 +52,7 @@ function Wizard() {
 	}
 
 	function handleDestinationSelect() {
-		if (!destination.trim().length) {
+		if (!projectName.trim().length) {
 			return
 		}
 
@@ -60,8 +76,8 @@ function Wizard() {
 					App will be created in a folder with this name in this directory.
 				</Text>
 				<TextInput
-					onChange={(value) => setDestination(value)}
-					value={destination}
+					onChange={(value) => setProjectName(value)}
+					value={projectName}
 					onSubmit={handleDestinationSelect}
 					showCursor
 				/>
@@ -69,20 +85,39 @@ function Wizard() {
 		)
 	}
 
+	if (stage === CONFIRM_OPTIONS) {
+		return (
+			<>
+				<Text>[🚪] Creating project with the following options</Text>
+				<Text>
+					{' '}
+					Language: <Text color={'gray'}>{languageSelection.current}</Text>
+				</Text>
+				<Text>
+					{' '}
+					Project name: <Text color={'gray'}>{projectName}</Text>
+				</Text>
+				<Text color={'gray'}>Press enter to confirm</Text>
+			</>
+		)
+	}
+
 	return (
-		<>
-			<Text>[🚪] Creating project with the following options</Text>
-			<Text>
-				{' '}
-				Language: <Text color={'gray'}>{languageSelection.current}</Text>
-			</Text>
-			<Text>
-				{' '}
-				Destination: <Text color={'gray'}>{destination}</Text>
-			</Text>
-			<Text color={'gray'}>Press enter to confirm</Text>
-		</>
+		<CreateProject
+			projectName={projectName}
+			language={languageSelection.current as Language}
+		/>
 	)
+}
+
+function CreateProject(options: CreateProjectOptions) {
+	const { exit } = useApp()
+
+	React.useEffect(() => {
+		createProject(options).then(() => exit())
+	}, [options])
+
+	return null
 }
 
 export default function App({ destination, flags }: Props) {

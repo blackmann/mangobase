@@ -1,0 +1,12 @@
+{
+	"name": "%NAME%",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.mjs",
+	"scripts": {
+		"dev": "node src/index.mjs"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}
