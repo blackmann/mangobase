@@ -95,14 +95,9 @@ async function createProject(options: Options) {
 							)
 
 							await copyWithTemplate(
-								fromPath('../_common/.env.development'),
-								toPath(projectDirectoryPath, '.env.development'),
-								variables
-							)
-
-							await fs.copyFile(
 								fromPath('../_common/.env'),
-								toPath(projectDirectoryPath, '.env')
+								toPath(projectDirectoryPath, '.env'),
+								variables
 							)
 
 							await fs.copyFile(
