@@ -35,6 +35,38 @@ Here's a video on how to use the UI/Dashboard to compose hooks.
 
 -[X] Create video [YT]
 
+The hooks demonstrated in the video are known as `plugin` hooks. They are installed on [`app.hooksRegistry`](/api/base/App#hooksregistry) and become available for use in the hooks editor of each collection.
+
+### Registering a plugin
+
+To register a plugin so that it becomes available in the hooks editor, you can follow this example:
+
+```typescript
+// First define the hook
+const AllowAdminsOnly: Hook {
+  id: 'allow-admins',
+  name: 'Allow Admins',
+  run: async (ctx, config, app) {
+    if (!ctx.user) {
+      throw new app.errors.BadRequest('user is required')
+    }
+
+    if (ctx.user.role !== 'admin') {
+      throw new app.errors.Unauthorized()
+    }
+
+    return ctx
+  }
+}
+
+// the register it on the hook
+app.hooksRegistry.register(AllowAdminsOnly)
+```
+
+:::info
+You can see more varied examples from here: https://github.com/blackmann/mangobase/blob/master/base/src/hooks.ts
+:::
+
 ### App level hooks
 
 Here's an implementation for `authenticateUser` as an example. This hook will be registered on the app. This means, the hook will called for every request (regardless of the service).
