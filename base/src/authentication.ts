@@ -279,8 +279,12 @@ const checkAuth: HookFn = async (ctx, _, app) => {
 const protectedPathsRegexs = [/^collections(?:\/.*)?$/]
 
 const protectDevEndpoints: HookFn = async (ctx) => {
+  if (ctx.path === '_dev/dev-setup') {
+    return ctx
+  }
+
   const userIsDev = ctx.user?.role === 'dev'
-  if (App.isDevPath(ctx.path) && ctx.path !== '/_dev/dev-setup' && !userIsDev) {
+  if (App.isDevPath(ctx.path) && !userIsDev) {
     throw new Unauthorized('Invalid auth')
   }
 

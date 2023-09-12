@@ -1,17 +1,20 @@
 import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 import AdminLayout from './layouts/AdminLayout'
+import AppError from './lib/app-error'
 import Collection from './client/collection'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import CollectionsPage from './pages/collections'
 import Devs from './pages/settings/devs'
 import Edit from './pages/collections/[name]/edit'
+import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import Logs from './pages/logs'
 import Profile from './pages/settings/profile'
 import Settings from './pages/settings'
 import Wip from './pages/wip'
 import app from './mangobase-app'
+import { loadCollections } from './data/collections'
 
 interface CollectionRouteData {
   collection: Collection
@@ -41,13 +44,25 @@ const routes = createBrowserRouter(
               element: <CollectionDetail />,
               id: 'collection',
               loader: async ({ params }) => {
-                const collection = await app.collection(params.name!)
-                return { collection }
+                try {
+                  const collection = await app.collection(params.name!)
+                  return { collection }
+                } catch (err) {
+                  throw new AppError((err as any).message || '', err)
+                }
               },
               path: ':name',
             },
           ],
           element: <CollectionsPage />,
+          loader: async () => {
+            try {
+              await loadCollections()
+              return null
+            } catch (err) {
+              throw new AppError((err as any).message, err)
+            }
+          },
           path: 'collections',
         },
         {
@@ -78,6 +93,7 @@ const routes = createBrowserRouter(
         },
       ],
       element: <AdminLayout />,
+      errorElement: <LoaderErrorBoundary />,
       path: '',
     },
     {

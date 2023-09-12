@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import collections, { loadCollections } from '../../data/collections'
 import CollectionForm from '../../components/collection-form'
 import Input from '../../components/input'
 import NavContentLayout from '../../layouts/NavContentLayout'
 import React from 'preact/compat'
 import clsx from 'clsx'
+import collections from '../../data/collections'
 
 function CollectionsPage() {
   const formDialog = React.useRef<HTMLDialogElement>(null)
@@ -19,10 +19,6 @@ function CollectionsPage() {
     formDialog.current?.close()
     setShowingForm(false)
   }
-
-  React.useEffect(() => {
-    loadCollections()
-  }, [])
 
   return (
     <NavContentLayout

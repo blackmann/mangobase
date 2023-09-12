@@ -10,7 +10,6 @@ function CodeEditor(props: EditorProps) {
     }
 
     function onThemeChange(e: MediaQueryListEvent) {
-      console.log('matches?', e.matches)
       if (e.matches) {
         editor.updateOptions({ theme: 'vs-dark' })
         return
