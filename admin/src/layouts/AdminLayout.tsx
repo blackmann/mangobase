@@ -22,7 +22,7 @@ const navLinks = [
     title: 'Settings',
   },
   {
-    href: '/docs',
+    href: 'https://degreat.co.uk/mangobase/guide',
     icon: <span className="material-symbols-rounded">article</span>,
     title: 'Docs',
   },

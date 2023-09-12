@@ -60,8 +60,8 @@ function SchemaFields({ control, register, schema }: Props) {
         return (
           <label
             className={clsx('grid gap-4 [&+&]:mt-2 grid-cols-3', {
-              'gap-0': singleColumn,
-              'grid-cols-1': singleColumn,
+              '!gap-0': singleColumn,
+              '!grid-cols-1': singleColumn,
             })}
             key={name}
           >
