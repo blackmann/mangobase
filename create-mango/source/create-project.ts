@@ -153,6 +153,7 @@ async function createProject(options: Options) {
 					'@mangobase/mongodb',
 					'mongodb',
 					'@next/env',
+					'jose',
 				]
 				await execaInDirectory('npm', ['install', ...packages])
 			},

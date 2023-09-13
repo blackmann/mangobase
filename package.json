@@ -16,6 +16,7 @@
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:cli": "cd create-mango && yarn dev",
     "dev:express-mongo": "yarn workspace base-express-mongo run dev",
+    "dev:bun-mongo": "yarn workspace base-bun-mongo run dev",
     "dev:website": "yarn workspace website run dev",
     "docs:generate": "yarn workspace website run docs",
     "publish:base": "yarn workspace mangobase publish",

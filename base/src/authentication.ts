@@ -1,3 +1,4 @@
+import * as jose from 'jose'
 import {
   BadRequest,
   MethodNotAllowed,
@@ -11,12 +12,8 @@ import CollectionService from './collection-service'
 import { SchemaDefinitions } from './schema'
 import bcrypt from 'bcryptjs'
 import { context } from './context'
-import jsonwebtoken from 'jsonwebtoken'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
-interface JWTStructure {
-  user: string
-}
 
 const authCredentialsSchema: SchemaDefinitions = {
   password: { required: true, type: 'string' },
@@ -115,6 +112,8 @@ const CreatePasswordAuthCredential: Hook = {
 
 /** This is the primary authentication mechanism */
 async function baseAuthentication(app: App) {
+  const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
+
   const name = 'auth-credentials'
   if (!(await app.manifest.collection(name))) {
     // [ ] Ensure this index
@@ -175,9 +174,10 @@ async function baseAuthentication(app: App) {
 
     // [ ] Sign with distinction for dev access
     // [ ] Use `expiresIn` settings from dashboard
-    const jwt = jsonwebtoken.sign({ user: user._id }, process.env.SECRET_KEY!, {
-      expiresIn: '7d',
-    })
+    const jwt = await new jose.SignJWT({ user: user._id })
+      .setExpirationTime('7d')
+      .setProtectedHeader({ alg: 'HS256' })
+      .sign(secretKey)
 
     ctx.result = {
       auth: { token: jwt, type: 'Bearer' },
@@ -187,7 +187,7 @@ async function baseAuthentication(app: App) {
     return ctx
   })
 
-  app.before(checkAuth)
+  app.before(checkAuth())
   app.before(protectDevEndpoints)
 
   // [ ] Watch out for trailing slash? Should we standardize and remove/add trailing slashes?
@@ -246,34 +246,31 @@ async function upsertHooks(app: App) {
   return usersHooks
 }
 
-async function anonymousAuthentication(app: App) {
-  // just a stub
-}
+function checkAuth(): HookFn {
+  const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
+  return async (ctx, _, app) => {
+    checkSecretKeyEnv()
 
-const checkAuth: HookFn = async (ctx, _, app) => {
-  checkSecretKeyEnv()
+    const authHeader = ctx.headers['authorization']
+    if (authHeader) {
+      const [, token] = (authHeader as string).split(' ')
+      try {
+        const { payload } = await jose.jwtVerify(token, secretKey)
+        const { user: userId } = payload
 
-  const authHeader = ctx.headers['authorization']
-  if (authHeader) {
-    const [, token] = (authHeader as string).split(' ')
-    try {
-      const { user: userId } = jsonwebtoken.verify(
-        token,
-        process.env.SECRET_KEY!
-      ) as JWTStructure
+        const usersCollection = (app.service('users') as CollectionService)
+          .collection
+        const user = await usersCollection.get(userId as string)
 
-      const usersCollection = (app.service('users') as CollectionService)
-        .collection
-      const user = await usersCollection.get(userId)
-
-      ctx.user = user
-    } catch (err) {
-      console.log(err)
-      //
+        ctx.user = user
+      } catch (err) {
+        console.log(err)
+        //
+      }
     }
-  }
 
-  return ctx
+    return ctx
+  }
 }
 
 const protectedPathsRegexs = [/^collections(?:\/.*)?$/]
@@ -302,4 +299,4 @@ function checkSecretKeyEnv() {
   }
 }
 
-export { RequirePassword, anonymousAuthentication, baseAuthentication }
+export { RequirePassword, baseAuthentication }

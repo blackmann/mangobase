@@ -12,6 +12,7 @@
   "dependencies": {
     "mangobase": "*",
     "@mangobase/express": "*",
-    "@mangobase/mongodb": "*"
+    "@mangobase/mongodb": "*",
+    "jose": "4.14.6"
   }
 }

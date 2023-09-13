@@ -18,7 +18,7 @@ function bunServer(port = 5000) {
             headers: req.headers.toJSON(),
             method: methodFromHttp(req.method),
             path: url.pathname.replace(/^\/api\/?/, ''),
-            query: qs.parse(url.search),
+            query: qs.parse(url.search.replace(/^\?/, '')),
             url: req.url,
           })
 

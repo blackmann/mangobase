@@ -49,10 +49,6 @@ expressApp.listen(4000)
 
 Mango works with [bun](https://bun.sh) too.
 
-::: warning
-At the time of writing this, Mango works with bun, except that Bun has not implement the [KeyObject](https://github.com/oven-sh/bun/issues/2036) API yet. Making it impossible to do stuff around authentication/users.
-:::
-
 To use Mango with Bun, install [@mangobase/bun](https://www.npmjs.com/package/@mangobase/bun)
 
 Usage example:

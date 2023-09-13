@@ -17,7 +17,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
-    "@types/jsonwebtoken": "^9.0.2",
     "@vitest/coverage-c8": "^0.31.0",
     "@vitest/ui": "^0.31.0",
     "esbuild": "^0.17.19",
@@ -27,7 +26,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.1",
+    "jose": "^4.14.6",
     "radix3": "^1.0.1"
   }
 }

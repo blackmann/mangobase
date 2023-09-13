@@ -1,10 +1,15 @@
 {
   "name": "base-bun-mongo",
   "module": "src/index.ts",
+  "version": "0.0.1",
   "type": "module",
+  "scripts": {
+    "dev": "bun src/index.ts"
+  },
   "dependencies": {
     "mangobase": "*",
-    "@mangobase/mongodb": "*"
+    "@mangobase/mongodb": "*",
+    "jose": "4.14.6"
   },
   "devDependencies": {
     "bun-types": "latest"
