@@ -1,6 +1,3 @@
----
----
-
 # Introduction
 
 ::: warning
@@ -20,4 +17,41 @@ When building REST backends, it's ubiquitous that you implement all of these fea
 Being a low-code framework, you get to write code too, though a lot of things have been taken care of for you.
 :::
 
+## How it works
 
+A Mangobase app works by accepting a [`context`](/guide/context) from a server (like express, bun, etc.), processing it and returning a `context` back.
+
+To demonstrate with code, this is how it looks like:
+
+:::warning
+Just so it's not misleading, you wouldn't write any of the code demonstrated below. It's only an illustration (with code) about how it works.
+:::
+
+```javascript{5,12,15}
+const mangobaseApp = new App({})
+const app = express()
+
+app.get(['/songs', '/songs/:id'], async (req, res) => {
+  // create context
+  const context = {
+    path: req.path,
+    headers: req.headers,
+    // ... other properties here
+  }
+
+  // pass context to Mangobase and get result and statusCode back
+  const { result, statusCode} = await app.api(context)
+
+  // send response with express
+  res.status(statusCode).json(result)
+})
+```
+
+But with Mangobase, you don't have to do any of those. That was just a demonstration of the process looks like.
+
+If it wasn't clear, Mangobase only processes a context and does not deal with how an http request comes in or how a response is sent.
+This allows Mangobase to be able to work with any server (express, bun, nestjs, etc. etc.)
+
+### Dashboard
+
+Mangobase ships with a dashboard to allow you view your data, create collections, configure hooks and more. See [dashboard](/guide/dashboard).

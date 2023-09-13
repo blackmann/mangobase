@@ -38,3 +38,9 @@ These query operators are converted to the right filter and query by the databas
 Lets talk about them:
 
 ### $gt/gte
+
+Greater than/greater than or equal to
+
+## Format for queries
+
+

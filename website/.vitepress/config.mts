@@ -41,6 +41,7 @@ export default defineConfig({
             { text: 'Authentication', link: '/guide/authentication' },
             { text: 'Server adapters', link: '/guide/server-adapters' },
             { text: 'Database adapters', link: '/guide/database-adapters' },
+            { text: 'Version control', link: '/guide/version-control' },
             { text: 'Plugins', link: '/guide/plugins' },
             { text: 'FAQs', link: '/guide/faqs' },
           ],
@@ -56,6 +57,7 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
+    outline: [2,3]
   },
   head: [
     [

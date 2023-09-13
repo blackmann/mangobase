@@ -37,9 +37,9 @@ Here's a video on how to use the UI/Dashboard to compose hooks.
 
 The hooks demonstrated in the video are known as `plugin` hooks. They are installed on [`app.hooksRegistry`](/api/base/App#hooksregistry) and become available for use in the hooks editor of each collection.
 
-### Registering a plugin
+### Registering a plugin hook
 
-To register a plugin so that it becomes available in the hooks editor, you can follow this example:
+To register a plugin hook so that it becomes available in the hooks editor, you can follow this example:
 
 ```typescript
 // First define the hook
@@ -59,7 +59,7 @@ const AllowAdminsOnly: Hook {
   }
 }
 
-// the register it on the hook
+// then register it on the hook registry
 app.hooksRegistry.register(AllowAdminsOnly)
 ```
 
@@ -69,7 +69,7 @@ You can see more varied examples from here: https://github.com/blackmann/mangoba
 
 ### App level hooks
 
-Here's an implementation for `authenticateUser` as an example. This hook will be registered on the app. This means, the hook will called for every request (regardless of the service).
+Here's an implementation for `authenticateUser` as an example. This hook will be registered on the app. This means, the hook will be called for every request (regardless of the service).
 
 ```typescript
 async function authenticateUser(context: Context, app: App) {
@@ -129,3 +129,16 @@ usersPipeline.after(sendEmail)
 
 :::tip
 See API docs for what [Pipeline](/api/base/Pipeline) is.
+:::
+
+### Error hooks
+
+When an error is thrown in a pipeline, all subsequent before or after hooks for the service and the app are not called. The current context is then passed to all error hooks registered on the app. Error hooks can only be installed on the app
+
+```typescript
+const app = new App({ })
+
+app.error(async (ctx, app) => {
+  // report error to sentry, maybe
+})
+```
