@@ -11,12 +11,12 @@ import Listr from 'listr'
 const slugify = _slugify as unknown as typeof _slugify.default
 
 const candidates =
-  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+	'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
 function randomStr(length = 16) {
-  return Array.from({ length })
-    .map(() => candidates[Math.floor(Math.random() * candidates.length)])
-    .join('')
+	return Array.from({ length })
+		.map(() => candidates[Math.floor(Math.random() * candidates.length)])
+		.join('')
 }
 
 const copyWithTemplate = async (
@@ -156,6 +156,15 @@ async function createProject(options: Options) {
 					'jose',
 				]
 				await execaInDirectory('npm', ['install', ...packages])
+
+				if (typescript) {
+					await execaInDirectory('npm', [
+						'install',
+						'--save-dev',
+						'typescript',
+						'ts-node',
+					])
+				}
 			},
 		},
 		{

@@ -1,0 +1,12 @@
+{
+  "name": "ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
