@@ -3,7 +3,7 @@
 Mangobase is fundamentally designed to be easy to use while providing a cohesion of developer experience; that said, it's easy to get started.
 
 :::info
-We currently provide a database adapter for Mongo only, so you may need to install [Mongo](https://mongo.com) to be able to use Mango. You can however implement a custom database adapter for any database of choice. See [database adapters](/guide/database-adapters)
+We currently provide a database adapter for Mongo only, so you may need to install [Mongo](https://mongodb.com) to be able to use Mango. You can however implement a custom database adapter for any database of choice. See [database adapters](/guide/database-adapters)
 :::
 
 ## Starting a new project

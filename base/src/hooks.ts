@@ -1,4 +1,5 @@
 import { Hook, HookFn } from './hook'
+import { MethodNotAllowed } from './errors'
 
 const LogData: Hook = {
   description: 'Logs data. Check logs console.',
@@ -7,6 +8,22 @@ const LogData: Hook = {
   run: async (ctx) => {
     console.log(ctx.path, ctx.method, ctx.data)
     return ctx
+  },
+}
+
+const RestrictMethod: Hook = {
+  configSchema: {
+    allowDevs: { type: 'boolean' },
+  },
+  description: 'Restrict access to connected method',
+  id: 'restrict-method',
+  name: 'Restrict method',
+  run: async (ctx, config) => {
+    if (config?.allowDevs && ctx.user?.role === 'dev') {
+      return ctx
+    }
+
+    throw new MethodNotAllowed()
   },
 }
 
@@ -40,7 +57,7 @@ const CustomCode: Hook = {
   },
 }
 
-const allHooks = [LogData, CustomCode]
+const allHooks = [LogData, CustomCode, RestrictMethod]
 
 export default allHooks
 

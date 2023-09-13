@@ -64,7 +64,7 @@ app.hooksRegistry.register(AllowAdminsOnly)
 ```
 
 :::info
-You can see more varied examples from here: https://github.com/blackmann/mangobase/blob/master/base/src/hooks.ts
+You can see more varied examples from [here](https://github.com/blackmann/mangobase/blob/master/base/src/hooks.ts).
 :::
 
 ### App level hooks

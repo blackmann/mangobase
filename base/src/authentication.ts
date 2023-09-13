@@ -276,20 +276,18 @@ function checkAuth(): HookFn {
 const protectedPathsRegexs = [/^collections(?:\/.*)?$/]
 
 const protectDevEndpoints: HookFn = async (ctx) => {
-  if (ctx.path === '_dev/dev-setup') {
+  if (
+    !protectedPathsRegexs.some((reg) => reg.test(ctx.path)) ||
+    !App.isDevPath(ctx.path)
+  ) {
     return ctx
   }
 
-  const userIsDev = ctx.user?.role === 'dev'
-  if (App.isDevPath(ctx.path) && !userIsDev) {
-    throw new Unauthorized('Invalid auth')
+  if (ctx.path === '_dev/dev-setup' || ctx.user?.role === 'dev') {
+    return ctx
   }
 
-  if (protectedPathsRegexs.some((reg) => reg.test(ctx.path)) && !userIsDev) {
-    throw new Unauthorized('Invalid auth')
-  }
-
-  return ctx
+  throw new Unauthorized('Invalid auth')
 }
 
 function checkSecretKeyEnv() {

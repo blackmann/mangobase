@@ -19,3 +19,36 @@ Subsequent `before` hooks stop executing the moment `context.result` is set to a
 See the structure of a context [here](/api/base/Context).
 
 A context is normally created by the [server](/guide/server-adapters) and passed to the app with [`app.api(ctx)`](/api/base/App#api)
+
+## Methods
+
+In Mangobase, the following methods are used. It exists in the context as `ctx.method`.
+
+### create
+
+The equivalent HTTP method is `POST`. It is used to create a new resource. When you make a `POST` request to `/songs` for example, this is a `create` request.
+
+### find
+
+The equivalent HTTP method is `GET`. It is used to retrieve a list of resources. A `GET` request to `/songs` for example is a `find` request. This method is intended to always return a paginated response in the following format:
+
+```typescript
+interface PaginatedResponse {
+  data: any[]
+  total: number
+  limit: number
+  skip: number
+}
+```
+
+### get
+
+The equivalent HTTP method is `GET` but requires an `id` to be passed as a parameter. It is used to retrieve a single resource. When you make a `GET` request to `/songs/1` for example, this is a `get` request where the `id` is `1`.
+
+### update
+
+The equivalent HTTP method is `PATCH`. It is used to update a single resource. When you make a `PATCH` request to `/songs/1` for example, this is an `update` request. Note that this also requires the `id` of the resource to be passed as a parameter.
+
+### remove
+
+The equivalent HTTP method is `DELETE`. A `DELETE` request to `/songs/1` for example, this is a `remove` request. Note that this requires the `id` of the resource to be passed as a parameter.
