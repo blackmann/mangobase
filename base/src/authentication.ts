@@ -56,7 +56,7 @@ const AssignAuthUser: Hook = {
   name: 'Assign Auth User',
   run: async (ctx) => {
     if (ctx.data) {
-      ctx.data.user = ctx.user
+      ctx.data.user = ctx.user?._id.toString()
     }
 
     return ctx
