@@ -273,17 +273,14 @@ function checkAuth(): HookFn {
   }
 }
 
-const protectedPathsRegexs = [/^collections(?:\/.*)?$/]
+const protectedPathsRegexs = [/^collections(?:\/.*)?$/, /^_dev\//]
 
 const protectDevEndpoints: HookFn = async (ctx) => {
-  if (
-    !protectedPathsRegexs.some((reg) => reg.test(ctx.path)) ||
-    !App.isDevPath(ctx.path)
-  ) {
+  if (ctx.path === '_dev/dev-setup' || ctx.user?.role === 'dev') {
     return ctx
   }
 
-  if (ctx.path === '_dev/dev-setup' || ctx.user?.role === 'dev') {
+  if (!protectedPathsRegexs.some((reg) => reg.test(ctx.path))) {
     return ctx
   }
 

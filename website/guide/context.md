@@ -43,12 +43,16 @@ interface PaginatedResponse {
 
 ### get
 
-The equivalent HTTP method is `GET` but requires an `id` to be passed as a parameter. It is used to retrieve a single resource. When you make a `GET` request to `/songs/1` for example, this is a `get` request where the `id` is `1`.
+Making a  `GET` request to `/songs/1` for example is `get`. This method is intended to always return a single item.
 
 ### update
 
-The equivalent HTTP method is `PATCH`. It is used to update a single resource. When you make a `PATCH` request to `/songs/1` for example, this is an `update` request. Note that this also requires the `id` of the resource to be passed as a parameter.
+The equivalent HTTP method is `PATCH`. It is used to update a single resource. For example, when you make a `PATCH` request to `/songs/1`.
 
 ### remove
 
 The equivalent HTTP method is `DELETE`. A `DELETE` request to `/songs/1` for example, this is a `remove` request. Note that this requires the `id` of the resource to be passed as a parameter.
+
+:::tip
+All these methods can accept a query parameter. For example, with `find`, you can make a GET `/songs?title=hello` request to search for songs with the title `hello`.
+:::

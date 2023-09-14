@@ -27,7 +27,7 @@
     "tb": "yarn turbo build --filter=!@mangobase/admin",
     "test:base": "yarn workspace mangobase run test",
     "test:mongodb": "yarn workspace @mangobase/mongodb run test",
-    "test": "yarn test:base -w false && yarn test:mongodb -w false"
+    "test": "yarn test:base && yarn test:mongodb"
   },
   "keywords": [],
   "author": "",

@@ -34,7 +34,7 @@ afterAll(async () => {
 
   try {
     // this is a safeguard so that files are not mistakenly removed
-    assert(Manifest.getDirectory().startsWith('.mb_'))
+    assert(Manifest.getDirectory().startsWith('.mangobase'))
     await rm(Manifest.getDirectory(), { recursive: true })
   } catch (err) {
     console.log(err)

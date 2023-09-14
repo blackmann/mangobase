@@ -11,18 +11,18 @@
     "clean": "rm -rf dist",
     "copy-admin": "cp -R ../admin/dist dist/admin",
     "prepare": "yarn build && yarn copy-admin",
-    "test": "vitest"
+    "test": "vitest -w false"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
-    "@vitest/coverage-c8": "^0.31.0",
+    "@vitest/coverage-v8": "^0.34.4",
     "@vitest/ui": "^0.31.0",
     "esbuild": "^0.17.19",
     "eslint-config-base": "*",
     "typescript": "^5.0.4",
-    "vitest": "^0.31.1"
+    "vitest": "^0.34.4"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

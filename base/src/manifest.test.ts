@@ -29,6 +29,7 @@ describe('Manifest', () => {
       ).toBeDefined()
 
       expect(await manifest.collection('mock')).toStrictEqual({
+        indexes: [],
         name: 'mock',
         schema: { name: { type: 'string' } },
       })

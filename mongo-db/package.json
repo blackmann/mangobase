@@ -10,7 +10,7 @@
     "clean": "rm -rf dist",
     "build": "node ./build.mjs && tsc -p tsconfig.build.json",
     "prepare": "yarn build",
-    "test": "vitest"
+    "test": "vitest -w false"
   },
   "keywords": [],
   "author": "",
