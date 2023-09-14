@@ -33,7 +33,7 @@ Generally, you'll use the UI to compose your hooks. Mangobase ships with a numbe
 
 Here's a video on how to use the UI/Dashboard to compose hooks.
 
--[X] Create video [YT]
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1Y9OZurDlkY?si=3qZOX4DaaVDDz7NF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 The hooks demonstrated in the video are known as `plugin` hooks. They are installed on [`app.hooksRegistry`](/api/base/App#hooksregistry) and become available for use in the hooks editor of each collection.
 
