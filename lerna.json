@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "version": "0.0.16",
-  "packages": ["base", "express-server", "mongo-db"],
+  "packages": ["base", "express-server", "mongo-db", "create-mango"],
   "npmClient": "yarn"
 }

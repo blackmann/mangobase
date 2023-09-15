@@ -30,8 +30,10 @@ jobs:
         run: yarn tb && yarn build:admin
       - name: Test
         run: yarn test
+      - name: Bump version
+        run: npx lerna version ${{ github.event.inputs.version }} --conventional-commits --yes --no-private
       - name: Publish
-        run: npx
+        run: npx lerna publish --yes --no-private
       - run: git config --global user.email "mail@degreat.co.uk"
       - run: git config --global user.name "De-Great Yartey"
       - name: Push tag
