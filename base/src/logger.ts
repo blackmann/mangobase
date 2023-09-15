@@ -1,11 +1,12 @@
-import App from './app'
+import type App from './app'
 import CollectionService from './collection-service'
 import { HookFn } from './hook'
 import { MethodNotAllowed } from './errors'
 import Schema from './schema'
+import { onDev } from './lib/api-paths'
 
-const getPath = () => App.onDev('logs')
-const getStatsPath = () => App.onDev('log-stats')
+const getPath = () => onDev('logs')
+const getStatsPath = () => onDev('log-stats')
 
 async function logger(app: App) {
   const collectionName = '_logs'

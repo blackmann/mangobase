@@ -11,16 +11,18 @@
     "clean": "rm -rf dist",
     "copy-admin": "cp -R ../admin/dist dist/admin",
     "prepare": "yarn build && yarn copy-admin",
-    "test": "vitest -w false"
+    "test": "vitest"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
+    "@mangobase/mongodb": "*",
     "@types/bcryptjs": "^2.4.2",
     "@vitest/coverage-v8": "^0.34.4",
     "@vitest/ui": "^0.31.0",
     "esbuild": "^0.17.19",
     "eslint-config-base": "*",
+    "mongodb-memory-server-core": "8.15.1",
     "typescript": "^5.0.4",
     "vitest": "^0.34.4"
   },

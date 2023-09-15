@@ -13,6 +13,7 @@ import Manifest, { CollectionConfig } from './manifest'
 import Schema, { ValidationError } from './schema'
 import dbMigrations, { saveMigration } from './db-migrations'
 import logger, { logEnd, logStart } from './logger'
+import { onDev, unexposed } from './lib/api-paths'
 import CollectionService from './collection-service'
 import type { Context } from './context'
 import HooksRegistry from './hooks-registry'
@@ -221,6 +222,10 @@ class AnonymouseService implements Service {
 
 const collectionsService: Service & { schema: Schema } = {
   async handle(ctx: Context, app: App) {
+    if (ctx.method !== 'get' && ctx.user?.role !== 'dev') {
+      throw new errors.Unauthorized()
+    }
+
     switch (ctx.method) {
       case 'create': {
         if (ctx.params?.id) {
@@ -282,6 +287,15 @@ const collectionsService: Service & { schema: Schema } = {
           Schema.validateSchema(validData.schema)
         }
 
+        if (validData.name && validData.name !== existing.name) {
+          const existing = await app.manifest.collection(validData.name)
+          if (existing) {
+            throw new Conflict(
+              `A collection with name \`${validData.name}\` already exists`
+            )
+          }
+        }
+
         const { migrationSteps, ...patch } = validData
         const collectionConfig = {
           ...existing,
@@ -328,7 +342,11 @@ const collectionsService: Service & { schema: Schema } = {
       }
 
       case 'remove': {
-        await app.manifest.removeCollection(ctx.params!.id)
+        if (!ctx.params?.id) {
+          throw new MethodNotAllowed('`remove` method not allowed on base path')
+        }
+
+        await app.manifest.removeCollection(ctx.params.id)
         app.leave(ctx.params!.id)
         return ctx
       }
@@ -492,10 +510,10 @@ class App {
       await this.internalPlug(dbMigrations)
 
       this.addService('collections', collectionsService)
-      this.addService(App.onDev('hooks-registry'), hooksRegistry)
-      this.addService(App.onDev('hooks'), hooksService)
-      this.addService(App.onDev('editors'), editorService)
-      this.addService(App.onDev('dev-setup'), devSetupService)
+      this.addService(onDev('hooks-registry'), hooksRegistry)
+      this.addService(onDev('hooks'), hooksService)
+      this.addService(onDev('editors'), editorService)
+      this.addService(onDev('dev-setup'), devSetupService)
 
       await this.internalPlug(logger)
       await this.internalPlug(users)
@@ -590,7 +608,7 @@ class App {
   async installCollection(collection: CollectionConfig) {
     // remove old [possible] installations of this collection
     // [ ] Add middleware to prevent `_x/*` and `_dev/*` access by non-admin users
-    const unexposedPath = App.unexposed(collection.name)
+    const unexposedPath = unexposed(collection.name)
     const exposedPath = collection.name
 
     this.leave(unexposedPath)
@@ -691,16 +709,8 @@ class App {
     return server(this)
   }
 
-  static onDev(path: string) {
-    return `_dev/${path}`
-  }
-
   static isDevPath(path: string) {
     return path.startsWith('_dev/')
-  }
-
-  static unexposed(path: string) {
-    return `_x/${path}`
   }
 }
 

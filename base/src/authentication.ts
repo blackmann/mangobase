@@ -7,7 +7,8 @@ import {
 } from './errors'
 import { CollectionHooks, HOOKS_STUB } from './manifest'
 import { Hook, HookFn } from './hook'
-import App from './app'
+import { onDev, unexposed } from './lib/api-paths'
+import type App from './app'
 import CollectionService from './collection-service'
 import { SchemaDefinitions } from './schema'
 import bcrypt from 'bcryptjs'
@@ -83,7 +84,7 @@ const CreatePasswordAuthCredential: Hook = {
       )
     }
 
-    const credentialsPipeline = app.pipeline(App.unexposed('auth-credentials'))!
+    const credentialsPipeline = app.pipeline(unexposed('auth-credentials'))!
 
     const hashedPassword = await bcrypt.hash(password, ROUNDS)
 
@@ -155,9 +156,7 @@ async function baseAuthentication(app: App) {
       throw new BadRequest('Incorrect username/password combination')
     }
 
-    const credentialService = app.service(
-      App.unexposed(name)
-    ) as CollectionService
+    const credentialService = app.service(unexposed(name)) as CollectionService
 
     const {
       data: [credential],
@@ -192,7 +191,7 @@ async function baseAuthentication(app: App) {
 
   // [ ] Watch out for trailing slash? Should we standardize and remove/add trailing slashes?
   app.after(async (ctx) => {
-    if (ctx.method === 'patch' && ctx.path === `${App.onDev('hooks')}/users`) {
+    if (ctx.method === 'patch' && ctx.path === `${onDev('hooks')}/users`) {
       const usersHooks = await upsertHooks(app)
       ctx.result = usersHooks
     }
@@ -232,7 +231,7 @@ async function upsertHooks(app: App) {
   }
 
   if (dirty) {
-    const { data } = await app.pipeline(App.onDev('hooks'))!.run(
+    const { data } = await app.pipeline(onDev('hooks'))!.run(
       context({
         data: usersHooks,
         method: 'patch',
@@ -273,7 +272,9 @@ function checkAuth(): HookFn {
   }
 }
 
-const protectedPathsRegexs = [/^collections(?:\/.*)?$/, /^_dev\//]
+const DEV_BASE = /^_dev\//
+const UNEXPOSED_BASE = /^_x\//
+const protectedPathsRegexs = [DEV_BASE, UNEXPOSED_BASE]
 
 const protectDevEndpoints: HookFn = async (ctx) => {
   if (ctx.path === '_dev/dev-setup' || ctx.user?.role === 'dev') {

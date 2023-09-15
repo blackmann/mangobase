@@ -771,8 +771,6 @@ function findRelations(schema: SchemaDefinitions, name: string) {
   return find()
 }
 
-// TODO: Implement a schema validator, one that validates the schema itself
-
 export default Schema
 
 export { ValidationError, findRelations }

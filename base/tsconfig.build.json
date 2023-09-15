@@ -4,6 +4,7 @@
     "global.setup.ts",
     "vitest.config.ts",
     "src/**/*.test.ts",
+    "src/**/*.spec.ts",
     "dist/**/**"
   ]
 }
