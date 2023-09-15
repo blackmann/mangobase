@@ -1,0 +1,43 @@
+name: Publish packages (!@mangobase/bun) to npm
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: choice
+        description: 'Version to publish'
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - run: yarn config set version-git-tag false
+      - name: Install dependencies
+        run: yarn
+      - name: Turbo+Build
+        run: yarn tb && yarn build:admin
+      - name: Test
+        run: yarn test
+      - name: Publish
+        run: npx
+      - run: git config --global user.email "mail@degreat.co.uk"
+      - run: git config --global user.name "De-Great Yartey"
+      - name: Push tag
+        run: git push --follow-tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-bun:
+    runs-on: ubuntu-latest

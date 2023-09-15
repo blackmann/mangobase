@@ -43,10 +43,14 @@
       "mongo-db",
       "website"
     ],
-    "nohoist": ["@types/react"]
+    "nohoist": [
+      "@types/react"
+    ]
   },
   "devDependencies": {
+    "lerna": "^7.3.0",
     "prettier": "^2.8.8",
     "turbo": "^1.10.3"
-  }
+  },
+  "dependencies": {}
 }

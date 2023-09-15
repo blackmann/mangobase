@@ -16,7 +16,6 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@mangobase/mongodb": "*",
     "@types/bcryptjs": "^2.4.2",
     "@vitest/coverage-v8": "^0.34.4",
     "@vitest/ui": "^0.31.0",
