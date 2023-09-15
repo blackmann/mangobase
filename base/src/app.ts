@@ -291,7 +291,7 @@ const collectionsService: Service & { schema: Schema } = {
           const existing = await app.manifest.collection(validData.name)
           if (existing) {
             throw new Conflict(
-              `A collection with name \`${validData.name}\` already exists`
+              `A collection with name \`${validData.name}\` already exists.`
             )
           }
         }
