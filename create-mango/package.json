@@ -1,65 +1,65 @@
 {
-	"name": "create-mango",
-	"version": "0.0.10",
-	"license": "MIT",
-	"bin": "dist/cli.js",
-	"type": "module",
-	"engines": {
-		"node": ">=16"
-	},
-	"scripts": {
-		"build": "tsc",
-		"clean": "rm -rf dist",
-		"copy-files": "cp -R templates ./dist/templates",
-		"dev": "tsc --watch",
-		"test": "prettier --check . && xo && ava",
-		"prepare": "yarn clean && yarn build && yarn copy-files"
-	},
-	"files": [
-		"dist"
-	],
-	"dependencies": {
-		"@types/listr": "^0.14.5",
-		"execa": "^8.0.1",
-		"ink": "^4.1.0",
-		"ink-select-input": "^5.0.0",
-		"ink-text-input": "^5.0.1",
-		"listr": "^0.14.3",
-		"make-dir": "^4.0.0",
-		"meow": "^11.0.0",
-		"react": "^18.2.0",
-		"replace-string": "^4.0.0",
-		"slugify": "^1.6.6"
-	},
-	"devDependencies": {
-		"@next/env": "^13.4.19",
-		"@sindresorhus/tsconfig": "^3.0.1",
-		"@types/react": "^18.0.32",
-		"ava": "^5.2.0",
-		"chalk": "^5.2.0",
-		"eslint-config-xo-react": "^0.27.0",
-		"eslint-plugin-react": "^7.32.2",
-		"eslint-plugin-react-hooks": "^4.6.0",
-		"ink-testing-library": "^3.0.0",
-		"prettier": "^2.8.7",
-		"ts-node": "^10.9.1",
-		"typescript": "^5.0.3",
-		"xo": "^0.53.1"
-	},
-	"ava": {
-		"extensions": {
-			"ts": "module",
-			"tsx": "module"
-		},
-		"nodeArguments": [
-			"--loader=ts-node/esm"
-		]
-	},
-	"xo": {
-		"extends": "xo-react",
-		"prettier": true,
-		"rules": {
-			"react/prop-types": "off"
-		}
-	}
+  "name": "create-mango",
+  "version": "0.0.17",
+  "license": "MIT",
+  "bin": "dist/cli.js",
+  "type": "module",
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "copy-files": "cp -R templates ./dist/templates",
+    "dev": "tsc --watch",
+    "test": "prettier --check . && xo && ava",
+    "prepare": "yarn clean && yarn build && yarn copy-files"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@types/listr": "^0.14.5",
+    "execa": "^8.0.1",
+    "ink": "^4.1.0",
+    "ink-select-input": "^5.0.0",
+    "ink-text-input": "^5.0.1",
+    "listr": "^0.14.3",
+    "make-dir": "^4.0.0",
+    "meow": "^11.0.0",
+    "react": "^18.2.0",
+    "replace-string": "^4.0.0",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "@next/env": "^13.4.19",
+    "@sindresorhus/tsconfig": "^3.0.1",
+    "@types/react": "^18.0.32",
+    "ava": "^5.2.0",
+    "chalk": "^5.2.0",
+    "eslint-config-xo-react": "^0.27.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "ink-testing-library": "^3.0.0",
+    "prettier": "^2.8.7",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.3",
+    "xo": "^0.53.1"
+  },
+  "ava": {
+    "extensions": {
+      "ts": "module",
+      "tsx": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
+    ]
+  },
+  "xo": {
+    "extends": "xo-react",
+    "prettier": true,
+    "rules": {
+      "react/prop-types": "off"
+    }
+  }
 }
