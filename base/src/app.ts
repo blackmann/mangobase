@@ -287,15 +287,6 @@ const collectionsService: Service & { schema: Schema } = {
           Schema.validateSchema(validData.schema)
         }
 
-        if (validData.name && validData.name !== existing.name) {
-          const existing = await app.manifest.collection(validData.name)
-          if (existing) {
-            throw new Conflict(
-              `A collection with name \`${validData.name}\` already exists.`
-            )
-          }
-        }
-
         const { migrationSteps, ...patch } = validData
         const collectionConfig = {
           ...existing,

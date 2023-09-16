@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import NavContentLayout from '../../layouts/NavContentLayout'
 import clsx from 'clsx'
-import styles from './index.module.css'
+import NavLinks from '../../components/nav-links'
 
 const links = [
   {
@@ -15,35 +16,17 @@ const links = [
 
 function Settings() {
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-md-2">
-          <header className={styles.navHeader}>Settings</header>
-          <nav className={styles.nav}>
-            <ul>
-              {links.map((link) => (
-                <li key={link.path}>
-                  <NavLink
-                    className={({ isActive }: { isActive: boolean }) =>
-                      clsx('text-secondary', styles.navLink, {
-                        [styles.active]: isActive,
-                      })
-                    }
-                    to={link.path}
-                  >
-                    {link.title}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
+    <NavContentLayout
+      nav={
+        <>
+          <header className="text-base font-bold">Settings</header>
 
-        <div className="col-md-10">
-          <Outlet />
-        </div>
-      </div>
-    </div>
+          <NavLinks links={links} />
+        </>
+      }
+    >
+      <Outlet />
+    </NavContentLayout>
   )
 }
 

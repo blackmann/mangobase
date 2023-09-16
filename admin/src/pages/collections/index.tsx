@@ -1,9 +1,9 @@
-import { NavLink, Outlet } from 'react-router-dom'
 import CollectionForm from '../../components/collection-form'
 import Input from '../../components/input'
 import NavContentLayout from '../../layouts/NavContentLayout'
+import NavLinks from '../../components/nav-links'
+import { Outlet } from 'react-router-dom'
 import React from 'preact/compat'
-import clsx from 'clsx'
 import collections from '../../data/collections'
 
 function CollectionsPage() {
@@ -24,10 +24,10 @@ function CollectionsPage() {
     <NavContentLayout
       nav={
         <>
-          <header className="flex justify-between align-items-center mb-2">
-            <div className="font-medium">Collections</div>
+          <header className="flex justify-between items-center mb-2">
+            <div className=" text-base font-bold">Collections</div>
             <button
-              className="text-slate-400 dark:text-neutral-300"
+              className="text-slate-400 dark:text-neutral-300 leading-none"
               onClick={() => showFormDialog()}
             >
               <span className="material-symbols-rounded">add</span>
@@ -53,27 +53,12 @@ function CollectionsPage() {
             )}
           </dialog>
 
-          <ol className="list-none p-0">
-            {collections.value.map((collection) => (
-              <li key={collection.name}>
-                <NavLink
-                  className={({ isActive }: { isActive: boolean }) =>
-                    clsx(
-                      'text-slate-500 dark:text-neutral-400 d-flex no-underline px-0 hover:underline',
-                      {
-                        'text-slate-800 dark:!text-neutral-200 !underline':
-                          isActive,
-                      }
-                    )
-                  }
-                  to={collection.name}
-                >
-                  {collection.exposed ? '/' : '-'}
-                  {collection.name}
-                </NavLink>
-              </li>
-            ))}
-          </ol>
+          <NavLinks
+            links={collections.value.map((collection) => ({
+              path: collection.name,
+              title: `${collection.exposed ? '' : '-'}${collection.name}`,
+            }))}
+          />
         </>
       }
     >

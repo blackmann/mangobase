@@ -45,3 +45,11 @@ body {
   font-family: "Zed Mono", sans-serif;
   font-size: 14px;
 }
+
+.react-flow__controls-button {
+  @apply dark:!bg-neutral-600 dark:!border-b-neutral-700 dark:!text-white dark:hover:!bg-neutral-500;
+}
+
+.react-flow__controls-button svg path {
+  fill: currentColor;
+}

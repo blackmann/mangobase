@@ -1,5 +1,6 @@
 import { Index, Migration } from './database'
 import { SchemaDefinitions, findRelations } from './schema'
+import { Conflict } from './errors'
 import { HookConfig } from './hook'
 import Method from './method'
 import fs from 'fs/promises'
@@ -155,7 +156,7 @@ class Manifest {
 
   async renameCollection(from: string, to: string) {
     if (this.collectionsIndex[to]) {
-      throw new Error(
+      throw new Conflict(
         `A collection with name \`${to}\` already exists. Cannot rename \`${from}\` to \`${to}\``
       )
     }
