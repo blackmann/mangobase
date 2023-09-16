@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name: Turbo+Build
-        run: yarn tb && yarn build:admin
+        run: yarn build
       - name: Test
         run: yarn test
       - name: Bump version
