@@ -11,7 +11,7 @@
     "build:express-server": "yarn workspace @mangobase/express run build",
     "build:mongodb": "yarn workspace @mangobase/mongodb run build",
     "build:website": "yarn workspace website run build",
-    "build": "yarn turbo build --filter=!@mangobase/bun --filter=!create-mango",
+    "build": "yarn turbo build --filter=!@mangobase/bun --filter=!create-mango --filter=!website && yarn turbo build --filter=website && yarn turbo build --filter=@mangobase/admin",
     "clean": "yarn turbo clean",
     "dev:admin": "yarn workspace @mangobase/admin run dev",
     "dev:cli": "cd create-mango && yarn dev",
@@ -24,7 +24,6 @@
     "publish:cli": "cd create-mango && yarn publish --access public",
     "publish:express": "yarn workspace @mangobase/express publish --access public",
     "publish:mongodb": "yarn workspace @mangobase/mongodb publish --access public",
-    "tb": "yarn turbo build --filter=!@mangobase/admin",
     "test:base": "yarn workspace mangobase run test",
     "test:mongodb": "yarn workspace @mangobase/mongodb run test",
     "test": "yarn test:base && yarn test:mongodb"
