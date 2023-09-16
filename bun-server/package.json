@@ -8,12 +8,13 @@
     "dist/"
   ],
   "scripts": {
-    "build": "bun ./build.js && tsc -p tsconfig.build.json",
+    "build": "node ./build.js && tsc -p tsconfig.build.json",
     "clean": "rm -rf ./dist",
-    "prepare": "bun run clean && bun run build"
+    "prepare": "yarn clean && yarn build"
   },
   "devDependencies": {
     "bun-types": "latest",
+    "esbuild": "^0.19.3",
     "mangobase": "*"
   },
   "peerDependencies": {

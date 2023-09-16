@@ -8,10 +8,6 @@
       "outputs": ["dist/**", "api/**"],
       "dependsOn": ["^build"]
     },
-    "express-server#build": {
-      "outputs": ["express-server/dist/**"],
-      "dependsOn": ["build"]
-    },
     "copy-admin": {
       "dependsOn": ["build"],
       "outputs": ["base/dist/admin/**"]

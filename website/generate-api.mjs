@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import fsSync from 'fs'
 import typedoc, { Comment } from 'typedoc'
 
-const projects = ['base', 'express-server', 'mongo-db']
+const projects = ['base', 'express-server', 'bun-server', 'mongo-db']
 
 const apiDocPaths = []
 
