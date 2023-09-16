@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node.js
@@ -25,8 +26,6 @@ jobs:
           node-version: 18
       - run: git config --global user.email "mail@degreat.co.uk"
       - run: git config --global user.name "De-Great Yartey"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: yarn config set version-git-tag false
       - name: Install dependencies
         run: yarn
