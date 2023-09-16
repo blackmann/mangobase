@@ -1,6 +1,6 @@
 {
   "name": "@mangobase/mongodb",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "",
   "main": "dist/index.js",
   "files": [
@@ -19,7 +19,7 @@
     "@vitest/coverage-c8": "^0.31.0",
     "@vitest/ui": "^0.31.0",
     "eslint-config-base": "*",
-    "mangobase": "^0.0.17",
+    "mangobase": "^0.0.18",
     "mongodb": "^5.5.0",
     "mongodb-memory-server-core": "^8.12.2",
     "typescript": "^5.0.4",
