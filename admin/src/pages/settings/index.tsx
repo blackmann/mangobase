@@ -1,7 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
 import NavContentLayout from '../../layouts/NavContentLayout'
-import clsx from 'clsx'
 import NavLinks from '../../components/nav-links'
+import { Outlet } from 'react-router-dom'
 
 const links = [
   {

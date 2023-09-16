@@ -25,7 +25,7 @@ function CollectionsPage() {
       nav={
         <>
           <header className="flex justify-between items-center mb-2">
-            <div className=" text-base font-bold">Collections</div>
+            <div className="text-base font-bold">Collections</div>
             <button
               className="text-slate-400 dark:text-neutral-300 leading-none"
               onClick={() => showFormDialog()}

@@ -1,5 +1,6 @@
 import type App from './app'
 import { ReactFlowJsonObject } from 'reactflow'
+import qs from 'qs'
 
 type Schema = Record<string, any>
 type Editor = ReactFlowJsonObject
@@ -35,8 +36,10 @@ class Collection {
     return `_x/${this.name}`
   }
 
-  async find() {
-    const { data } = await this.app.req.get(`/${this.base}`)
+  async find(query: Record<string, any> = {}) {
+    const endpoint = this.getEndpoint(`/${this.base}`, query)
+
+    const { data } = await this.app.req.get(endpoint)
     return data
   }
 
@@ -56,6 +59,17 @@ class Collection {
 
   async setEditor(editor: Editor) {
     await this.app.req.patch(`/_dev/editors/${this.name}`, editor)
+  }
+
+  private getEndpoint(path: string, filter: Record<string, any> = {}) {
+    const endpointParts = [path]
+    const queryString = qs.stringify(filter)
+
+    if (queryString) {
+      endpointParts.push(queryString)
+    }
+
+    return endpointParts.join('?')
   }
 }
 

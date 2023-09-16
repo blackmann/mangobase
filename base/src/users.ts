@@ -13,7 +13,7 @@ const usersSchema: SchemaDefinitions = {
 }
 
 // [ ] Validate users schema to make sure it's not corrupted
-// [ ] Run migration on changes
+// [ ] Make collection schema read-only
 async function users(app: App) {
   if (!(await app.manifest.collection('users'))) {
     const indexes = [

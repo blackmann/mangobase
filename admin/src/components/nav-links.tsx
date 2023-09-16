@@ -16,7 +16,7 @@ function NavLinks({ links }: Props) {
           <NavLink
             className={({ isActive }: { isActive: boolean }) =>
               clsx(
-                'text-slate-500 dark:text-neutral-400 d-flex no-underline px-0 hover:underline',
+                'text-slate-500 dark:text-neutral-400 d-flex no-underline px-0 hover:underline hover:text-slate-800 dark:hover:!text-neutral-200',
                 {
                   'text-slate-800 dark:!text-neutral-200 !underline': isActive,
                 }

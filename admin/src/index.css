@@ -53,3 +53,11 @@ body {
 .react-flow__controls-button svg path {
   fill: currentColor;
 }
+
+.react-flow__attribution {
+  @apply dark:!bg-neutral-700 rounded rounded-b-none;
+}
+
+code {
+  @apply bg-slate-400 dark:bg-neutral-600 text-inherit font-['Zed_Mono'] rounded px-1;
+}

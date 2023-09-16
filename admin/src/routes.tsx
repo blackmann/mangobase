@@ -15,6 +15,7 @@ import Settings from './pages/settings'
 import Wip from './pages/wip'
 import app from './mangobase-app'
 import { loadCollections } from './data/collections'
+import CollectionEmptyState from './components/collections-empty-state'
 
 interface CollectionRouteData {
   collection: Collection
@@ -53,6 +54,10 @@ const routes = createBrowserRouter(
               },
               path: ':name',
             },
+            {
+              element: <CollectionEmptyState />,
+              path: '',
+            },
           ],
           element: <CollectionsPage />,
           loader: async () => {
@@ -78,6 +83,10 @@ const routes = createBrowserRouter(
             {
               element: <Devs />,
               path: 'devs',
+            },
+            {
+              element: <Navigate to="devs" replace />,
+              path: '',
             },
           ],
           element: <Settings />,
