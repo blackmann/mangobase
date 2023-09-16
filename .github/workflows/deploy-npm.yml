@@ -1,4 +1,4 @@
-name: Publish packages (!@mangobase/bun) to npm
+name: Publish packages to npm
 on:
   workflow_dispatch:
     inputs:
