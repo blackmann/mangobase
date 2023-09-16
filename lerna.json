@@ -5,7 +5,6 @@
     "base",
     "express-server",
     "mongo-db",
-    "create-mango",
     "bun-server"
   ],
   "npmClient": "yarn"
