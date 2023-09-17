@@ -5,7 +5,6 @@ import {
   useForm,
 } from 'react-hook-form'
 import Button from './button'
-import Chip from './chip'
 import Collection from '../client/collection'
 import Field from './field'
 import { FieldType } from '../lib/field-types'

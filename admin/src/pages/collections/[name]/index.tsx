@@ -7,11 +7,11 @@ import {
 import Chip from '../../../components/chip'
 import CleanDate from '../../../components/date'
 import type Collection from '../../../client/collection'
+import Copy from '../../../components/copy'
 import IdTag from '../../../components/id-tag'
 import Input from '../../../components/input'
 import React from 'preact/compat'
 import clsx from 'clsx'
-import Copy from '../../../components/copy'
 
 type RouteData = { collection: Collection }
 

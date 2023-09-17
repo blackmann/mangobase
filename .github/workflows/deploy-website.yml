@@ -48,7 +48,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Install dependencies
-        run: yarn
+        run: yarn --frozen-lockfile
       - name: Build with VitePress
         run: |
           yarn build
