@@ -10,6 +10,23 @@ function CollectionsPage() {
   const formDialog = React.useRef<HTMLDialogElement>(null)
   const [showingForm, setShowingForm] = React.useState(false)
 
+  const collectionLinks = React.useMemo(
+    () =>
+      [...collections.value]
+        .sort((a, b) => {
+          if (a.exposed && !b.exposed) {
+            return -1
+          }
+
+          return a.name.localeCompare(b.name)
+        })
+        .map((collection) => ({
+          path: collection.name,
+          title: `${collection.exposed ? '' : '-'}${collection.name}`,
+        })),
+    []
+  )
+
   function showFormDialog() {
     formDialog.current?.showModal()
     setShowingForm(true)
@@ -53,12 +70,7 @@ function CollectionsPage() {
             )}
           </dialog>
 
-          <NavLinks
-            links={collections.value.map((collection) => ({
-              path: collection.name,
-              title: `${collection.exposed ? '' : '-'}${collection.name}`,
-            }))}
-          />
+          <NavLinks links={collectionLinks} />
         </>
       }
     >

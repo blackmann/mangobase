@@ -4,12 +4,14 @@ import {
   useLoaderData,
   useRouteLoaderData,
 } from 'react-router-dom'
+import Chip from '../../../components/chip'
 import CleanDate from '../../../components/date'
 import type Collection from '../../../client/collection'
 import IdTag from '../../../components/id-tag'
 import Input from '../../../components/input'
 import React from 'preact/compat'
 import clsx from 'clsx'
+import Copy from '../../../components/copy'
 
 type RouteData = { collection: Collection }
 
@@ -35,28 +37,64 @@ function CollectionDetail() {
     },
   ]
 
+  const path = `/api${collection.exposed ? '/' : '/_x/'}${collection.name}`
+  const endpoint = `${window.location.protocol}//${window.location.host}${path}`
+
   return (
     <div className="h-screen flex flex-col">
       <header className="mt-2">
         <h1 className="m-0 text-xl font-bold">{collection.name}</h1>
-        <div className="mt-2">
-          {links.map((link) => (
-            <NavLink
-              className={({ isActive }: { isActive: boolean }) =>
-                clsx(
-                  'text-slate-500 dark:text-neutral-400 me-2 hover:underline',
-                  {
-                    'text-slate-800 dark:!text-neutral-200 underline': isActive,
-                  }
-                )
-              }
-              end
-              key={link.href}
-              to={link.href}
+
+        <div className="flex items-center">
+          <Chip
+            className="!px-1 !py-0 me-2"
+            title="Only devs can access hidden collections"
+          >
+            {collection.exposed ? 'exposed' : 'hidden'}
+          </Chip>
+
+          <Chip className="!px-1 !py-0">
+            <Copy className="text-sm" value={endpoint} />
+            {path}
+          </Chip>
+        </div>
+
+        <div className="mt-2 flex justify-between">
+          <div>
+            {links.map((link) => (
+              <NavLink
+                className={({ isActive }: { isActive: boolean }) =>
+                  clsx(
+                    'text-slate-500 dark:text-neutral-400 me-2 hover:underline',
+                    {
+                      'text-slate-800 dark:!text-neutral-200 underline':
+                        isActive,
+                    }
+                  )
+                }
+                end
+                key={link.href}
+                to={link.href}
+              >
+                {link.title}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="flex items-center">
+            <span className="material-symbols-rounded text-base me-2 text-slate-500 dark:text-neutral-400">
+              code
+            </span>
+
+            <a
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+              href="https://degreat.co.uk/mangobase/guide/faqs.html#how-do-i-make-requests-to-my-api"
             >
-              {link.title}
-            </NavLink>
-          ))}
+              How to make requests?
+            </a>
+          </div>
         </div>
       </header>
 

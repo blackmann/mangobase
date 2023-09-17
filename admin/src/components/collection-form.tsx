@@ -235,8 +235,8 @@ function CollectionForm({ collection, onHide }: Props) {
 
       <footer>
         <p className="my-8">
-          <Chip className="py-0">created_at</Chip> and{' '}
-          <Chip className="py-0">updated_at</Chip> fields are automatically set
+          <code className="py-0">created_at</code> and{' '}
+          <code className="py-0">updated_at</code> fields are automatically set
         </p>
 
         <div>

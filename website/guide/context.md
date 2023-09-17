@@ -28,6 +28,23 @@ In Mangobase, the following methods are used. It exists in the context as `ctx.m
 
 The equivalent HTTP method is `POST`. It is used to create a new resource. When you make a `POST` request to `/songs` for example, this is a `create` request.
 
+Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), this will look like:
+
+```javascript{7}
+// The API endpoint is [conventionally] prefixed with `/api`
+const data = {
+  title: 'Hello',
+  artist: 'Adele',
+}
+
+fetch('/api/songs', {
+  method: 'POST',
+  body: JSON.stringify(data),
+})
+```
+
+A successful call to `create` will return a `201` status code with the created resource in the response body.
+
 ### find
 
 The equivalent HTTP method is `GET`. It is used to retrieve a list of resources. A `GET` request to `/songs` for example is a `find` request. This method is intended to always return a paginated response in the following format:
@@ -41,9 +58,57 @@ interface PaginatedResponse {
 }
 ```
 
+In frontend code, this will look like:
+
+```javascript
+fetch('/api/songs', {
+  method: 'GET',
+})
+```
+
+The response will look like:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Hello",
+      "artist": "Adele"
+    },
+    {
+      "id": 2,
+      "title": "Someone Like You",
+      "artist": "Adele"
+    }
+  ],
+  "total": 2,
+  "limit": 10,
+  "skip": 0
+}
+```
+
+If you wanted to limit the number of items returned, you can pass a `limit` query parameter. For example, `/songs?$limit=1` will return only one item.
+
+Pagination is done using the `skip` query parameter. For example, `/songs?$skip=5` will skip the first 5 items.
+
+:::info
+You may notice a `$` prefix on the query parameter. This is to prevent conflicts with the fields of a collection. For example, if you have a `limit` field on your collection, you can make a request to `/<collection>?limit=100km&$limit=3` _find_ items with a limit of 100km but only return 3 items.
+:::
+
 ### get
 
-Making a  `GET` request to `/songs/1` for example is `get`. This method is intended to always return a single item.
+Making a `GET` request to `/songs/1` for example is `get`. This method is intended to always return a single item.
+
+In frontend code, this will look like:
+
+```javascript
+fetch('/api/songs/1', {
+  method: 'GET',
+})
+```
+
+A status code of `404` will be returned if the item is not found.
 
 ### update
 
