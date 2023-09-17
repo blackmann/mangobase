@@ -1,6 +1,6 @@
 {
   "name": "@mangobase/express",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "",
   "main": "dist/index.js",
   "files": [
@@ -22,7 +22,7 @@
     "@types/express": "^4.17.17",
     "esbuild": "^0.17.19",
     "express": "^4.18.2",
-    "mangobase": "^0.0.18"
+    "mangobase": "^0.0.19"
   },
   "peerDependencies": {
     "express": "^4.18.2",
