@@ -56,3 +56,11 @@ The equivalent HTTP method is `DELETE`. A `DELETE` request to `/songs/1` for exa
 :::tip
 All these methods can accept a query parameter. For example, with `find`, you can make a GET `/songs?title=hello` request to search for songs with the title `hello`.
 :::
+
+## Invalid requests
+
+As far as Mangobase is concerned, some requests like the following are not supported:
+
+- POST `/songs/1` - You cannot create an item on a detail path.
+- PATCH `/songs` - You cannot patch a base path.
+- DELETE `/songs` - You cannot delete a base path.

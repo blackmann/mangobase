@@ -23,7 +23,7 @@ export default defineConfig({
             { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Recap on REST', link: '/guide/rest' },
             { text: 'Dashboard', link: '/guide/dashboard' },
-            { text: 'Development and Production', link: '/guide/dev-prod' },
+            { text: 'Development & Production', link: '/guide/dev-prod' },
           ],
         },
         {
@@ -31,7 +31,7 @@ export default defineConfig({
           items: [
             { text: 'Context', link: '/guide/context' },
             { text: 'Hooks', link: '/guide/hooks' },
-            { text: 'Query', link: '/guide/query' },
+            { text: 'Paths & Queries', link: '/guide/query' },
             { text: 'Migrations', link: '/guide/migrations' },
           ],
         },
@@ -57,7 +57,7 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
-    outline: [2,3]
+    outline: [2,4]
   },
   head: [
     [
