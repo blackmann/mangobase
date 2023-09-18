@@ -29,8 +29,19 @@ interface FieldProps {
   unique?: boolean
 }
 
+const SLUG_REGEX = /^[A-Za-z0-9_]+(?:-[A-Za-z0-9]+)*$/
+
 function CollectionForm({ collection, onHide }: Props) {
-  const { control, handleSubmit, register, reset, setValue, watch } = useForm()
+  const {
+    control,
+    formState,
+    getFieldState,
+    handleSubmit,
+    register,
+    reset,
+    setValue,
+    watch,
+  } = useForm()
   const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
 
   function handleRemove(index: number) {
@@ -165,12 +176,20 @@ function CollectionForm({ collection, onHide }: Props) {
         <Input
           className="block w-full"
           type="text"
-          {...register('name', { required: true })}
+          {...register('name', {
+            pattern: SLUG_REGEX,
+            required: true,
+          })}
         />
       </label>
 
       <div className="text-slate-500 dark:text-neutral-400">
-        This becomes endpoint name
+        This becomes endpoint name.{' '}
+        {getFieldState('name', formState).error && (
+          <span className="text-red-500 dark:text-orange-400 mt-1">
+            Name must be a valid slug.
+          </span>
+        )}
       </div>
 
       <div className="mt-3 grid grid-cols-12">
