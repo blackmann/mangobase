@@ -9,6 +9,7 @@ interface CollectionProps {
   name: string
   schema: Schema
   exposed: boolean
+  readOnlySchema?: boolean
   template: boolean
 }
 
@@ -18,6 +19,7 @@ class Collection {
   schema: Schema
   exposed: boolean
   template: boolean
+  readOnlySchema?: boolean
 
   constructor(app: App, data: CollectionProps) {
     this.app = app
@@ -26,6 +28,7 @@ class Collection {
     this.schema = data.schema
     this.exposed = data.exposed
     this.template = data.template
+    this.readOnlySchema = data.readOnlySchema
   }
 
   private get base() {

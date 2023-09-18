@@ -121,6 +121,7 @@ async function baseAuthentication(app: App) {
     await app.manifest.collection(name, {
       indexes: index,
       name,
+      readOnlySchema: true,
       schema: authCredentialsSchema,
     })
 

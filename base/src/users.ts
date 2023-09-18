@@ -24,6 +24,7 @@ async function users(app: App) {
       exposed: true,
       indexes,
       name: 'users',
+      readOnlySchema: true,
       schema: usersSchema,
     })
 

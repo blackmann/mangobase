@@ -44,6 +44,8 @@ function CollectionForm({ collection, onHide }: Props) {
   } = useForm()
   const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
 
+  const [submitting, setSubmitting] = React.useState(false)
+
   function handleRemove(index: number) {
     const field = fields[index] as unknown as FieldProps
     if (field.existing) {
@@ -56,6 +58,19 @@ function CollectionForm({ collection, onHide }: Props) {
 
   function handleRestore(index: number) {
     setValue(`fields.${index}.removed`, false)
+  }
+
+  async function submitForm(form: FieldValues) {
+    if (submitting || collection?.readOnlySchema) {
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      await save(form)
+    } catch (err) {
+      setSubmitting(false)
+    }
   }
 
   async function save(form: FieldValues) {
@@ -170,7 +185,7 @@ function CollectionForm({ collection, onHide }: Props) {
   const submitLabel = collection ? 'Update' : 'Create'
 
   return (
-    <form className="w-[500px] pb-4" onSubmit={handleSubmit(save)}>
+    <form className="w-[500px] pb-4" onSubmit={handleSubmit(submitForm)}>
       <label>
         <div>Name</div>
         <Input
@@ -231,6 +246,16 @@ function CollectionForm({ collection, onHide }: Props) {
         </div>
       </div>
 
+      {collection?.readOnlySchema && (
+        <div className="bg-slate-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
+          <span className="material-symbols-rounded text-red-500 dark:text-orange-500 me-2">error</span>
+          <p>
+            This collection's schema is read-only and controlled by the plugin
+            that installed it.
+          </p>
+        </div>
+      )}
+
       <fieldset className="mt-8">
         <legend>Fields</legend>
 
@@ -258,7 +283,11 @@ function CollectionForm({ collection, onHide }: Props) {
         </p>
 
         <div>
-          <Button className="me-2" variant="primary">
+          <Button
+            className="me-2"
+            disabled={submitting || collection?.readOnlySchema}
+            variant="primary"
+          >
             {submitLabel}
           </Button>
           <Button onClick={() => handleOnHide()} type="reset">

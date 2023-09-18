@@ -27,6 +27,7 @@ interface CollectionConfig {
    */
   template?: boolean
   indexes: Index[]
+  readOnlySchema?: boolean
 }
 
 // [ ] Type editor
