@@ -3,6 +3,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom'
 import AdminLayout from './layouts/AdminLayout'
 import AppError from './lib/app-error'
 import Collection from './client/collection'
+import CollectionEmptyState from './components/collections-empty-state'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import CollectionsPage from './pages/collections'
 import Devs from './pages/settings/devs'
@@ -11,11 +12,11 @@ import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import Logs from './pages/logs'
 import Profile from './pages/settings/profile'
+import Schemas from './pages/settings/schemas'
 import Settings from './pages/settings'
 import Wip from './pages/wip'
 import app from './mangobase-app'
 import { loadCollections } from './data/collections'
-import CollectionEmptyState from './components/collections-empty-state'
 
 interface CollectionRouteData {
   collection: Collection
@@ -76,6 +77,10 @@ const routes = createBrowserRouter(
         },
         {
           children: [
+            {
+              element: <Schemas />,
+              path: 'schemas',
+            },
             {
               element: <Profile />,
               path: 'profile',

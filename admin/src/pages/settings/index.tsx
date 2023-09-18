@@ -4,6 +4,10 @@ import { Outlet } from 'react-router-dom'
 
 const links = [
   {
+    path: 'schemas',
+    title: 'Validation Schemas',
+  },
+  {
     path: 'devs',
     title: 'Devs',
   },
