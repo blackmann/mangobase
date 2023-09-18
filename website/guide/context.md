@@ -129,3 +129,4 @@ As far as Mangobase is concerned, some requests like the following are not suppo
 - POST `/songs/1` - You cannot create an item on a detail path.
 - PATCH `/songs` - You cannot patch a base path.
 - DELETE `/songs` - You cannot delete a base path.
+- PUT - Mangobase does not support `PUT` requests.
