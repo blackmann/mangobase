@@ -29,7 +29,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: git config --global user.email "mail@degreat.co.uk"
       - run: git config --global user.name "De-Great Yartey"
-      - run: yarn config set version-git-tag false
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Turbo+Build

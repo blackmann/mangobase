@@ -12,7 +12,6 @@ const usersSchema: SchemaDefinitions = {
   verified: { type: 'boolean' },
 }
 
-// [ ] Validate users schema to make sure it's not corrupted
 // [ ] Make collection schema read-only
 async function users(app: App) {
   if (!(await app.manifest.collection('users'))) {

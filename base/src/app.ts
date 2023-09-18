@@ -362,7 +362,6 @@ const collectionsService: Service & { schema: Schema } = {
       },
       type: 'array',
     },
-    // [ ]
     migrationSteps: {
       defaultValue: [],
       schema: {

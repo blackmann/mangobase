@@ -443,7 +443,7 @@ describe('collections', () => {
       expect(res.statusCode).toBe(405)
     })
 
-    // [ ] Throw error when collection is used as a relation
+    // [ ] Throw error when collection is used as a relation in other collections
 
     it('returns 200 when collection is deleted', async () => {
       const res = await app.api(

@@ -117,12 +117,14 @@ async function baseAuthentication(app: App) {
 
   const name = 'auth-credentials'
   if (!(await app.manifest.collection(name))) {
-    // [ ] Ensure this index
+    const index = [{ fields: ['user'], options: { unique: true } }]
     await app.manifest.collection(name, {
-      indexes: [{ fields: ['user'], options: { unique: true } }],
+      indexes: index,
       name,
       schema: authCredentialsSchema,
     })
+
+    await app.database.syncIndex(name, index)
   }
 
   app.hooksRegistry.register(
@@ -290,7 +292,6 @@ const protectDevEndpoints: HookFn = async (ctx) => {
 
 function checkSecretKeyEnv() {
   if (!process.env.SECRET_KEY) {
-    // [ ] Add link to docs on how to solve
     throw new ServiceError('Your environment is missing `SECRET_KEY` variable.')
   }
 }

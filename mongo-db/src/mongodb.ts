@@ -84,8 +84,6 @@ class MongoCursor implements Cursor {
     const results = await cursor.toArray()
 
     // [ ] take care of nested select fields
-    // [ ] Seems we can use .aggregate with $lookup
-    // https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/#mongodb-pipeline-pipe.-lookup
     for (const field of this.filters.populate || []) {
       const [collection, fieldToPopulate] =
         typeof field === 'string'

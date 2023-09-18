@@ -24,7 +24,7 @@ function CollectionsPage() {
           path: collection.name,
           title: `${collection.exposed ? '' : '-'}${collection.name}`,
         })),
-    []
+    [collections.value]
   )
 
   function showFormDialog() {
