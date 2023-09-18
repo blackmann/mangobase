@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.2.1 (2023-09-18)
+
+### Bug Fixes
+
+- add collections.value as dependency ([2601cdb](https://github.com/blackmann/mangobase/commit/2601cdb4870a2e48333802fd431496e1ad4d8a2c))
+
 # 0.2.0 (2023-09-17)
 
 **Note:** Version bump only for package @mangobase/bun
