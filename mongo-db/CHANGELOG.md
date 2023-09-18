@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.2.2 (2023-09-18)
+
+### Bug Fixes
+
+- add pattern check for collection name ([#2](https://github.com/blackmann/mangobase/issues/2)) ([1879574](https://github.com/blackmann/mangobase/commit/18795743ccbc8449190e663544576cbeb161a7a1))
+
 ## 0.2.1 (2023-09-18)
 
 ### Bug Fixes
