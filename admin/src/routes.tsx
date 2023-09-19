@@ -12,6 +12,7 @@ import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import Logs from './pages/logs'
 import Profile from './pages/settings/profile'
+import SchemaDetail from './pages/settings/schemas/[name]'
 import Schemas from './pages/settings/schemas'
 import Settings from './pages/settings'
 import Wip from './pages/wip'
@@ -80,6 +81,10 @@ const routes = createBrowserRouter(
             {
               element: <Schemas />,
               path: 'schemas',
+            },
+            {
+              element: <SchemaDetail />,
+              path: 'schemas/:name',
             },
             {
               element: <Profile />,

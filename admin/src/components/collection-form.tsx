@@ -248,7 +248,9 @@ function CollectionForm({ collection, onHide }: Props) {
 
       {collection?.readOnlySchema && (
         <div className="bg-slate-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
-          <span className="material-symbols-rounded text-red-500 dark:text-orange-500 me-2">error</span>
+          <span className="material-symbols-rounded text-red-500 dark:text-orange-500 me-2">
+            error
+          </span>
           <p>
             This collection's schema is read-only and controlled by the plugin
             that installed it.

@@ -38,6 +38,7 @@ type Handle = (ctx: Context, app: App) => Promise<Context>
 
 interface Service {
   handle: Handle
+  [key: string]: any
 }
 
 /**
@@ -220,7 +221,7 @@ class AnonymouseService implements Service {
   }
 }
 
-const collectionsService: Service & { schema: Schema } = {
+const collectionsService: Service = {
   async handle(ctx: Context, app: App) {
     if (ctx.method !== 'get' && ctx.user?.role !== 'dev') {
       throw new errors.Unauthorized()
@@ -465,6 +466,26 @@ const hooksService: Service = {
   },
 }
 
+const schemaRefsService: Service = {
+  async handle(ctx, app) {
+    switch (ctx.method) {
+      case 'find': {
+        ctx.result = Object.entries(app.manifest.schemaRefs())
+        return ctx
+      }
+
+      case 'create': {
+        return ctx
+      }
+
+      default: {
+        throw new MethodNotAllowed()
+      }
+    }
+  },
+  schema: new Schema({}),
+}
+
 interface Options {
   db: Database
 }
@@ -504,6 +525,7 @@ class App {
       this.addService(onDev('hooks'), hooksService)
       this.addService(onDev('editors'), editorService)
       this.addService(onDev('dev-setup'), devSetupService)
+      this.addService(onDev('schema-refs'), schemaRefsService)
 
       await this.internalPlug(logger)
       await this.internalPlug(users)

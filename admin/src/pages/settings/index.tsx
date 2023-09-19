@@ -4,12 +4,16 @@ import { Outlet } from 'react-router-dom'
 
 const links = [
   {
-    path: 'schemas',
-    title: 'Validation Schemas',
-  },
-  {
     path: 'devs',
     title: 'Devs',
+  },
+  {
+    children: Promise.resolve([
+      { path: 'schemas/users', title: 'Users' },
+      { path: 'schemas/roles', title: 'Roles' },
+    ]),
+    path: 'schemas',
+    title: 'Validation Schemas',
   },
   {
     path: 'profile',
