@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, useApp, useInput } from 'ink'
+import { Box, Text, useApp, useInput } from 'ink'
 import SelectInput from 'ink-select-input'
 import TextInput from 'ink-text-input'
 import {
@@ -72,15 +72,17 @@ function Wizard() {
 		return (
 			<>
 				<Text>[💽] Enter name of this project</Text>
-				<Text color={'gray'}>
-					App will be created in a folder with this name in this directory.
-				</Text>
-				<TextInput
-					onChange={(value) => setProjectName(value)}
-					value={projectName}
-					onSubmit={handleDestinationSelect}
-					showCursor
-				/>
+				<Box>
+					<Text color={'gray'}>
+						App will be created in a folder with this name in this directory.{' '}
+					</Text>
+					<TextInput
+						onChange={(value) => setProjectName(value)}
+						value={projectName}
+						onSubmit={handleDestinationSelect}
+						showCursor
+					/>
+				</Box>
 			</>
 		)
 	}
