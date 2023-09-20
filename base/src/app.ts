@@ -36,9 +36,12 @@ const DEV = process.env.NODE_ENV !== 'production'
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
 
+interface WithSchema {
+  schema: Schema
+}
+
 interface Service {
   handle: Handle
-  [key: string]: any
 }
 
 /**
@@ -221,7 +224,7 @@ class AnonymouseService implements Service {
   }
 }
 
-const collectionsService: Service = {
+const collectionsService: Service & WithSchema = {
   async handle(ctx: Context, app: App) {
     if (ctx.method !== 'get' && ctx.user?.role !== 'dev') {
       throw new errors.Unauthorized()
@@ -466,15 +469,24 @@ const hooksService: Service = {
   },
 }
 
-const schemaRefsService: Service = {
+const schemaRefsService: Service & WithSchema = {
   async handle(ctx, app) {
     switch (ctx.method) {
       case 'find': {
-        ctx.result = Object.entries(app.manifest.schemaRefs())
+        ctx.result = await app.manifest.schemaRefs()
         return ctx
       }
 
       case 'create': {
+        const data = this.schema.validate(ctx.data, true)
+        data.schema = Schema.validateSchema(data.schema)
+
+        ctx.result = await app.manifest.schemaRef(data.name, data)
+        return ctx
+      }
+
+      case 'patch': {
+        // [ ]: patch schema refs
         return ctx
       }
 
@@ -483,7 +495,10 @@ const schemaRefsService: Service = {
       }
     }
   },
-  schema: new Schema({}),
+  schema: new Schema({
+    name: { required: true, type: 'string' },
+    schema: { required: true, type: 'any' },
+  }),
 }
 
 interface Options {

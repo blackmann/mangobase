@@ -10,7 +10,7 @@ type LinkProp = {
 interface Props {
   links: (LinkProp & {
     // no nesting above 2 levels
-    children?: Promise<LinkProp[]>
+    children?: LinkProp[]
   })[]
 }
 
@@ -56,27 +56,22 @@ function LinkItem({
   children,
 }: {
   link: LinkProp
-  children?: Promise<LinkProp[]>
+  children?: LinkProp[]
 }) {
-  const [nested, setNested] = React.useState<LinkProp[]>()
   const [expanded, setExpanded] = React.useState(false)
-
-  React.useEffect(() => {
-    children?.then((links) => setNested(links))
-  }, [children])
 
   return (
     <div>
       <L
         link={link}
         onClick={() => setExpanded((v) => !v)}
-        hasChildren={Boolean(nested?.length)}
+        hasChildren={Boolean(children?.length)}
         expanded={expanded}
       />
 
-      {nested && expanded && (
+      {children && expanded && (
         <ol className="list-none p-0 ms-3">
-          {nested.map((link) => (
+          {children.map((link) => (
             <li key={link.title}>
               <L link={link} />
             </li>

@@ -16,7 +16,6 @@ const MIGRATION_FILENAME_REG = /migration\.\d{4}\.json/
 interface Ref {
   name: string
   schema: SchemaDefinitions
-  source?: string
 }
 
 type Refs = Record<string, Ref>
@@ -69,10 +68,13 @@ class Manifest {
   private async load() {
     try {
       await Promise.allSettled([
-        this.loadCollections(),
+        (async () => {
+          await this.loadCollections()
+          // this depends on collections being loaded
+          await this.loadSchemaRefs()
+        })(),
         this.loadHooks(),
         this.loadEditors(),
-        this.loadSchemaRefs(),
       ])
     } catch (err) {
       if (err instanceof Error && err.message.includes('ENOENT')) {
@@ -86,8 +88,7 @@ class Manifest {
   }
 
   private async loadSchemaRefs() {
-    const collections = await this.collections()
-
+    const collections = Object.values(this.collectionsIndex)
     for (const collection of collections) {
       if (collection.template) {
         const name = `collection/${collection.name}`
@@ -161,6 +162,11 @@ class Manifest {
     }
 
     this.collectionsIndex[name] = config
+    if (config.template) {
+      const refName = `collection/${name}`
+      this.refs[refName] = { name: refName, schema: config.schema }
+    }
+
     await this.save()
 
     return config
@@ -173,7 +179,7 @@ class Manifest {
 
   async schemaRefs() {
     await this.init()
-    return this.refs
+    return Object.values(this.refs)
   }
 
   async getHooks(collection: string) {
@@ -296,6 +302,18 @@ class Manifest {
     )
   }
 
+  async schemaRef(name: string, ref?: Ref) {
+    await this.init()
+    if (!ref) {
+      return this.refs[name]
+    }
+
+    this.refs[name] = ref
+    await this.save()
+
+    return ref
+  }
+
   private getMigrationFileName(version: number) {
     return `migration.${version.toString().padStart(4, '0')}.json`
   }
@@ -336,4 +354,4 @@ const HOOKS_STUB: Hooks = {
 
 export default Manifest
 export { HOOKS_STUB }
-export type { CollectionConfig, Hooks as CollectionHooks }
+export type { CollectionConfig, Hooks as CollectionHooks, Ref }

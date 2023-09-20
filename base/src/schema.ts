@@ -584,6 +584,7 @@ class Schema {
       switch (type) {
         case 'array': {
           if (
+            typeof definition.schema !== 'string' ||
             typeof definition.schema !== 'object' ||
             Array.isArray(definition.schema)
           ) {
@@ -593,14 +594,16 @@ class Schema {
             )
           }
 
-          if (!definition.schema.item) {
+          const isRef = typeof definition.schema === 'string'
+
+          if (!isRef && !definition.schema.item) {
             throw new ValidationError(
               fieldPath,
               '`schema` should be in the format `{ item: { type: "string" | ... } }'
             )
           }
 
-          Schema.validateSchema(definition.schema, fieldPath)
+          !isRef && Schema.validateSchema(definition.schema, fieldPath)
 
           // validate the default values
           if (definition.defaultValue) {
@@ -693,16 +696,18 @@ class Schema {
 
         case 'object': {
           if (
+            typeof definition.schema !== 'string' ||
             typeof definition.schema !== 'object' ||
             Array.isArray(definition.schema)
           ) {
             throw new ValidationError(
               fieldPath,
-              '`schema` is required when type is `array`'
+              '`schema` is required when type is `object`'
             )
           }
 
-          if (definition.defaultValue) {
+          const isRef = typeof definition.schema === 'string'
+          if (!isRef && definition.defaultValue) {
             if (
               typeof definition.defaultValue !== 'object' ||
               Array.isArray(definition.defaultValue)

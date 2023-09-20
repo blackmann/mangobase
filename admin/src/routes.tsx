@@ -87,6 +87,10 @@ const routes = createBrowserRouter(
               path: 'schemas/:name',
             },
             {
+              element: <SchemaDetail />,
+              path: 'schemas/:collection/:name',
+            },
+            {
               element: <Profile />,
               path: 'profile',
             },
