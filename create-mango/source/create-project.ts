@@ -53,6 +53,15 @@ async function createProject(options: Options) {
 	const projectDirectoryPath = path.join(process.cwd(), options.projectName)
 	const pkgName = slugify(path.basename(projectDirectoryPath))
 
+	if (
+		await fs
+			.access(projectDirectoryPath)
+			.then(() => true)
+			.catch(() => false)
+	) {
+		throw new Error('Project directory already exists')
+	}
+
 	const execaInDirectory = (file: string, args: string[], options = {}) =>
 		execa(file, args, {
 			...options,

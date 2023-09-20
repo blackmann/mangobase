@@ -116,13 +116,19 @@ function CreateProject(options: CreateProjectOptions) {
 	const { exit } = useApp()
 
 	React.useEffect(() => {
-		createProject(options).then(() => {
-			console.log('')
-			console.log('🌵 Done setting up project.')
-			console.log('')
-			console.log('Start project with `npm run dev`')
-			exit()
-		})
+		createProject(options)
+			.then(() => {
+				console.log('')
+				console.log('🌵 Done setting up project.')
+				console.log('')
+				console.log('Start project with `npm run dev`')
+				exit()
+			})
+			.catch((error) => {
+				console.log('')
+				console.log(`❌ ${error.message}`)
+				exit()
+			})
 	}, [options])
 
 	return null
