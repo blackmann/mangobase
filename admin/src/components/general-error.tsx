@@ -37,6 +37,14 @@ function ResponseError({ error }: Props) {
         Status code: {error.data.status}
       </p>
 
+      {error.data.detail && (
+        <>
+          <p className="text-slate-500 dark:text-neutral-600">
+            {error.data.detail}
+          </p>
+        </>
+      )}
+
       {error.data.status === 401 && (
         <div>
           <p>
@@ -63,7 +71,13 @@ function ResponseError({ error }: Props) {
         </div>
       )}
 
-      {error.data.status !== 401 && (
+      {error.data.status === 404 && (
+        <div className="mt-2">
+          <p>The resource you are looking for does not exist.</p>
+        </div>
+      )}
+
+      {![401, 404].includes(error.data?.status) && (
         <div>
           This error is unexpected. Check the console logs to get an idea of
           what could be happening.

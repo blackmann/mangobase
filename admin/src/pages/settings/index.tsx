@@ -8,6 +8,11 @@ function Settings() {
   const links = React.useMemo(
     () => [
       {
+        leading: (
+          <span className="material-symbols-rounded leading-none me-2 text-sm">
+            supervised_user_circle
+          </span>
+        ),
         path: 'devs',
         title: 'Devs',
       },
@@ -16,10 +21,20 @@ function Settings() {
           path: `schemas/${ref.name}`,
           title: ref.name,
         })),
+        leading: (
+          <span className="material-symbols-rounded leading-none me-2 text-sm">
+            code_blocks
+          </span>
+        ),
         path: 'schemas',
         title: 'Validation Schemas',
       },
       {
+        leading: (
+          <span className="material-symbols-rounded leading-none me-2 text-sm">
+            face_4
+          </span>
+        ),
         path: 'profile',
         title: 'Profile',
       },
@@ -28,7 +43,6 @@ function Settings() {
   )
 
   React.useEffect(() => {
-    console.log('loading schemas')
     loadSchemaRefs()
   }, [])
 
@@ -36,7 +50,7 @@ function Settings() {
     <NavContentLayout
       nav={
         <>
-          <header className="text-base font-bold">Settings</header>
+          <header className="text-base font-bold mb-2">Configurations</header>
 
           <NavLinks links={links} />
         </>

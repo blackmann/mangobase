@@ -3,8 +3,9 @@ import React from 'preact/compat'
 import clsx from 'clsx'
 
 type LinkProp = {
+  leading?: React.ReactNode
   path: string
-  title: string
+  title: React.ReactNode
 }
 
 interface Props {
@@ -26,28 +27,32 @@ function L({
   onClick?: () => void
 }) {
   return (
-    <div className="flex justify-between items-center">
-      <NavLink
-        className={({ isActive }: { isActive: boolean }) =>
-          clsx(
-            'text-slate-500 dark:text-neutral-400 no-underline px-0 hover:underline hover:text-slate-800 dark:hover:!text-neutral-200',
-            {
-              'text-slate-800 dark:!text-neutral-200 !underline': isActive,
-            }
-          )
-        }
-        to={link.path}
-        onClick={onClick}
-      >
-        {link.title}
-      </NavLink>
+    <NavLink
+      className={({ isActive }: { isActive: boolean }) =>
+        clsx(
+          'group flex justify-between items-center text-slate-500 dark:text-neutral-400 no-underline px-0 hover:text-slate-800 dark:hover:!text-neutral-200',
+          {
+            'text-slate-800 dark:!text-neutral-200 is-active': isActive,
+          }
+        )
+      }
+      to={link.path}
+      onClick={onClick}
+    >
+      <div className="flex items-center">
+        {link.leading}
+
+        <span className="group-hover:last:underline group-[.is-active]:!underline">
+          {link.title}
+        </span>
+      </div>
 
       {hasChildren && (
-        <span className="material-symbols-rounded leading-none text-sm text-slate-500 dark:text-neutral-400">
+        <span className="material-symbols-rounded leading-none text-md text-slate-400 dark:text-neutral-500">
           {expanded ? 'expand_less' : 'expand_more'}
         </span>
       )}
-    </div>
+    </NavLink>
   )
 }
 
@@ -70,7 +75,7 @@ function LinkItem({
       />
 
       {children && expanded && (
-        <ol className="list-none p-0 ms-3">
+        <ol className="list-none p-0 ms-6">
           {children.map((link) => (
             <li key={link.title}>
               <L link={link} />

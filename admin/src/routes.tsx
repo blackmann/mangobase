@@ -1,5 +1,6 @@
 import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
+import schemaRefs, { loadSchemaRefs } from './data/schema-refs'
 import AdminLayout from './layouts/AdminLayout'
 import AppError from './lib/app-error'
 import Collection from './client/collection'
@@ -21,6 +22,24 @@ import { loadCollections } from './data/collections'
 
 interface CollectionRouteData {
   collection: Collection
+}
+
+async function getSchema(name: string) {
+  if (!schemaRefs.value?.length) {
+    await loadCollections()
+    await loadSchemaRefs()
+  }
+
+  const schema = schemaRefs.value.find((ref) => ref.name === name)
+
+  if (!schema) {
+    throw new AppError('Schema not found', {
+      detail: `Schema \`${name}\` not found`,
+      status: 404,
+    })
+  }
+
+  return schema
 }
 
 const routes = createBrowserRouter(
@@ -84,11 +103,17 @@ const routes = createBrowserRouter(
             },
             {
               element: <SchemaDetail />,
+              loader: async ({ params }) => {
+                return await getSchema(params.name!)
+              },
               path: 'schemas/:name',
             },
             {
               element: <SchemaDetail />,
-              path: 'schemas/:collection/:name',
+              loader: async ({ params }) => {
+                return await getSchema(`collection/${params.name}`)
+              },
+              path: 'schemas/collection/:name',
             },
             {
               element: <Profile />,

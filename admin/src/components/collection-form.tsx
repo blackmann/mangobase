@@ -161,12 +161,23 @@ function CollectionForm({ collection, onHide }: Props) {
     if (!collection) return
 
     setValue('name', collection.name)
-    setValue('exposed', collection.exposed)
+
+    const options: string[] = []
+    if (collection.exposed) {
+      options.push('expose')
+    }
+
+    if (collection.template) {
+      options.push('is-template')
+    }
+
+    setValue('options', options)
 
     for (const [field, options] of Object.entries(collection.schema)) {
       append({
         existing: true,
         name: field,
+        relation: options.relation,
         required: options.required,
         type: options.type,
         unique: options.unique,
@@ -225,6 +236,7 @@ function CollectionForm({ collection, onHide }: Props) {
             <Link to="/docs" className="underline">
               docs
             </Link>
+            .
           </p>
         </div>
 
@@ -269,7 +281,7 @@ function CollectionForm({ collection, onHide }: Props) {
             register={(f: string, o?: RegisterOptions) =>
               register(`fields.${i}.${f}`, o)
             }
-            watch={(key) => watch(`fields.${i}.${key}`)}
+            watch={(f) => watch(`fields.${i}.${f}`)}
           />
         ))}
 
