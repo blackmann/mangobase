@@ -305,6 +305,8 @@ const collectionsService: Service & WithSchema = {
           app.leave(existing.name)
         }
 
+        // [ ] Remove/add collection from schema refs based on `collection.template`
+
         const collection = await app.manifest.collection(
           collectionConfig.name,
           collectionConfig
@@ -479,8 +481,7 @@ const schemaRefsService: Service & WithSchema = {
 
       case 'create': {
         const data = this.schema.validate(ctx.data, true)
-        data.schema = Schema.validateSchema(data.schema)
-
+        Schema.validateSchema(data.schema)
         ctx.result = await app.manifest.schemaRef(data.name, data)
         return ctx
       }

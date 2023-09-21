@@ -328,6 +328,7 @@ class Manifest {
       [this.collectionsIndex, COLLECTIONS_FILE],
       [this.hooksIndex, HOOKS_FILE],
       [this.editorsIndex, EDITORS_FILE],
+      [this.refs, SCHEMA_REFS_FILE],
     ]
 
     for (const [index, file] of dataOuts) {

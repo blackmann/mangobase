@@ -1,19 +1,32 @@
-import { RegisterOptions, useFieldArray, useForm } from 'react-hook-form'
+import {
+  FieldValues,
+  RegisterOptions,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form'
+import { Link, useLoaderData, useNavigate, useParams } from 'react-router-dom'
+import { Ref, SchemaDefinitions } from 'mangobase'
 import Button from '../../../components/button'
 import Chip from '../../../components/chip'
 import Field from '../../../components/field'
 import { FieldProps } from '../../../components/collection-form'
+import Input from '../../../components/input'
 import React from 'preact/compat'
-import { Ref } from 'mangobase'
+import app from '../../../mangobase-app'
 import appendSchemaFields from '../../../lib/append-schema-fields'
 import getNewFieldName from '../../../lib/get-new-field-name'
+import { loadSchemaRefs } from '../../../data/schema-refs'
 import removeFieldsItem from '../../../lib/remove-fields-item'
-import { useLoaderData } from 'react-router-dom'
 
 function SchemaDetail() {
   const { control, handleSubmit, register, reset, setValue, watch } = useForm()
   const { append, fields, remove } = useFieldArray({ control, name: 'fields' })
   const ref = useLoaderData() as Ref
+
+  const { name } = useParams()
+  const isNew = name === 'new'
+
+  const navigate = useNavigate()
 
   function handleRemove(index: number) {
     removeFieldsItem({
@@ -24,8 +37,23 @@ function SchemaDetail() {
     })
   }
 
-  function submit() {
-    //
+  async function submit(data: FieldValues) {
+    const schema: SchemaDefinitions = {}
+
+    for (const { name, ...definition } of data.fields) {
+      schema[name] = definition
+    }
+
+    const ref = {
+      name: data.name,
+      schema,
+    }
+
+    await app.req.post('/_dev/schema-refs', ref)
+
+    await loadSchemaRefs()
+    // [ ] Add ?created=1 to help show a created notification
+    navigate(`/settings/schemas/${data.name}`)
   }
 
   const addNewField = React.useCallback(() => {
@@ -35,31 +63,78 @@ function SchemaDetail() {
     })
   }, [append, fields])
 
+  // this is a wild hack:
+  // React effects are called in order but with the previous state
+  // So even if you updated a state in a previous effect, it won't be
+  // available in the next effect.
+  const [ready, setReady] = React.useState(false)
+
   React.useEffect(() => {
     reset()
 
+    if (!isNew) {
+      setValue('name', ref.name)
+    }
+
     appendSchemaFields(append, ref.schema)
-  }, [append, ref, reset, setValue])
+    setReady(true)
+  }, [append, isNew, ref, reset, setValue])
 
   React.useEffect(() => {
-    if (fields.length === 0) {
-      addNewField()
+    if (fields.length || !ready) {
+      return
     }
-  }, [addNewField, fields])
+
+    addNewField()
+  }, [addNewField, fields, ref, ready])
 
   // we don't allow edits on template collections
   const fromCollection = ref.name.startsWith('collection/')
+
+  const collectionEdit = fromCollection
+    ? `${ref.name.replace('collection/', '/collections/')}/edit`
+    : ''
 
   return (
     <div className="mt-3">
       <h1 className="font-bold text-base">{ref.name}</h1>
       <Chip className="!py-0">3 usages</Chip>
 
-      <div className="grid grid-cols-3 mt-3 gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-3 mt-3 gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
         <form className="col-span-2" onSubmit={handleSubmit(submit)}>
+          <label className="mb-2 block">
+            <div>Name</div>
+            <Input
+              className="block w-full"
+              placeholder="eg. address"
+              {...register('name', { required: true })}
+            />
+          </label>
+
           <h2 className="font-bold text-md text-slate-500 dark:text-neutral-500">
             Schema
           </h2>
+
+          {fromCollection && (
+            <div className="p-2 rounded-md bg-slate-200 dark:bg-neutral-600 flex">
+              <div className="leading-none">
+                <span className="material-symbols-rounded text-base text-blue-600 dark:text-blue-300 me-2">
+                  info
+                </span>
+              </div>
+
+              <p>
+                This is a collection template. You cannot edit this schema from
+                here. Go here instead:{' '}
+                <Link
+                  className="underline text-slate-500 dark:text-neutral-300"
+                  to={collectionEdit}
+                >
+                  {collectionEdit}
+                </Link>
+              </p>
+            </div>
+          )}
 
           <fieldset disabled={fromCollection}>
             {fields.map((field, i) => (
@@ -75,16 +150,26 @@ function SchemaDetail() {
           </fieldset>
 
           <div className="mb-2">
-            <Button onClick={addNewField} type="button">
+            <Button
+              disabled={fromCollection}
+              onClick={addNewField}
+              type="button"
+            >
               Add new field
             </Button>
           </div>
 
-          <Button variant="primary">Update</Button>
+          <Button disabled={fromCollection} variant="primary">
+            {isNew ? 'Create' : 'Update'}
+          </Button>
         </form>
 
         <div className="col-span-1">
-          <h2>Usages</h2>
+          <h2 className="font-bold text-slate-500 dark:text-neutral-500">
+            Usages
+          </h2>
+
+          <p>This schema has no usages</p>
         </div>
       </div>
     </div>
