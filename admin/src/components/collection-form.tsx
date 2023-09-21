@@ -12,6 +12,8 @@ import Input from './input'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import app from '../mangobase-app'
+import appendSchemaFields from '../lib/append-schema-fields'
+import getNewFieldName from '../lib/get-new-field-name'
 import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
 
@@ -132,24 +134,12 @@ function CollectionForm({ collection, onHide }: Props) {
     handleOnHide(newCollection)
   }
 
-  const getFieldName = React.useCallback(() => {
-    const unnamedFields = (fields as unknown as { name: string }[])
-      .filter((field) => /^field\d*$/.test(field.name))
-      .sort((a, b) => a.name.localeCompare(b.name))
-
-    let fieldName = 'field1'
-    let i = 0
-    while (unnamedFields[i]?.name === fieldName) {
-      i += 1
-      fieldName = `field${i + 1}`
-    }
-
-    return fieldName
-  }, [fields])
-
   const addNewField = React.useCallback(() => {
-    append({ name: getFieldName(), type: 'string' })
-  }, [append, getFieldName])
+    append({
+      name: getNewFieldName(fields as unknown as { name: string }[]),
+      type: 'string',
+    })
+  }, [append, fields])
 
   function handleOnHide(collection?: Collection) {
     reset()
@@ -173,16 +163,7 @@ function CollectionForm({ collection, onHide }: Props) {
 
     setValue('options', options)
 
-    for (const [field, options] of Object.entries(collection.schema)) {
-      append({
-        existing: true,
-        name: field,
-        relation: options.relation,
-        required: options.required,
-        type: options.type,
-        unique: options.unique,
-      })
-    }
+    appendSchemaFields(append, collection.schema)
   }, [append, collection, setValue])
 
   React.useEffect(() => {
@@ -341,3 +322,4 @@ function indexesFromForm(fields: FieldProps[]) {
 }
 
 export default CollectionForm
+export type { FieldProps }

@@ -13,6 +13,7 @@ import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import Logs from './pages/logs'
 import Profile from './pages/settings/profile'
+import type { Ref } from 'mangobase'
 import SchemaDetail from './pages/settings/schemas/[name]'
 import Schemas from './pages/settings/schemas'
 import Settings from './pages/settings'
@@ -24,10 +25,17 @@ interface CollectionRouteData {
   collection: Collection
 }
 
-async function getSchema(name: string) {
+async function getSchema(name: string): Promise<Ref> {
   if (!schemaRefs.value?.length) {
     await loadCollections()
     await loadSchemaRefs()
+  }
+
+  if (name === 'new') {
+    return {
+      name: 'Add new schema',
+      schema: {},
+    }
   }
 
   const schema = schemaRefs.value.find((ref) => ref.name === name)
