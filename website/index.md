@@ -6,7 +6,7 @@ title: Home
 
 hero:
   name: "Mangobase"
-  text: "Low-code Javscript backend framework"
+  text: "Low-code Javascript backend framework"
   tagline: Build RESTful backend services quickly, with very few concepts to learn
   actions:
     - theme: brand

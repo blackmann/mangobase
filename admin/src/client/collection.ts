@@ -1,13 +1,13 @@
 import type App from './app'
 import { ReactFlowJsonObject } from 'reactflow'
+import type { SchemaDefinitions } from 'mangobase'
 import qs from 'qs'
 
-type Schema = Record<string, any>
 type Editor = ReactFlowJsonObject
 
 interface CollectionProps {
   name: string
-  schema: Schema
+  schema: SchemaDefinitions
   exposed: boolean
   readOnlySchema?: boolean
   template: boolean
@@ -16,7 +16,7 @@ interface CollectionProps {
 class Collection {
   app: App
   name: string
-  schema: Schema
+  schema: SchemaDefinitions
   exposed: boolean
   template: boolean
   readOnlySchema?: boolean

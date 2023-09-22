@@ -78,7 +78,7 @@ function SchemaFields({ control, register, schema }: Props) {
                           name={name}
                           render={({ field: { onChange, value } }) => (
                             <CodeEditor
-                              className="rounded-md bg-slate-100 border border-slate-300 dark:border-neutral-600 overflow-hidden"
+                              className="rounded-md bg-zinc-100 border border-zinc-300 dark:border-neutral-600 overflow-hidden"
                               language="javascript"
                               defaultValue={value || definition.defaultValue}
                               height="14rem"
