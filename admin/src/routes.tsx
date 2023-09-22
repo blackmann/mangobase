@@ -91,6 +91,7 @@ const routes = createBrowserRouter(
           element: <CollectionsPage />,
           loader: async () => {
             try {
+              await loadSchemaRefs()
               await loadCollections()
               return null
             } catch (err) {

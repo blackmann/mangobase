@@ -584,9 +584,9 @@ class Schema {
       switch (type) {
         case 'array': {
           if (
-            typeof definition.schema !== 'string' ||
-            typeof definition.schema !== 'object' ||
-            Array.isArray(definition.schema)
+            typeof definition.schema !== 'string' &&
+            (typeof definition.schema !== 'object' ||
+              Array.isArray(definition.schema))
           ) {
             throw new ValidationError(
               fieldPath,
@@ -696,9 +696,9 @@ class Schema {
 
         case 'object': {
           if (
-            typeof definition.schema !== 'string' ||
-            typeof definition.schema !== 'object' ||
-            Array.isArray(definition.schema)
+            typeof definition.schema !== 'string' &&
+            (typeof definition.schema !== 'object' ||
+              Array.isArray(definition.schema))
           ) {
             throw new ValidationError(
               fieldPath,
