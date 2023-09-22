@@ -58,7 +58,7 @@ describe('collections', () => {
     schema: new Promise((res) => {
       mockManifest
         .collection('mock')
-        .then(({ schema }) => res(new Schema(schema)))
+        .then((config) => res(new Schema(config!.schema)))
     }),
   })
 
