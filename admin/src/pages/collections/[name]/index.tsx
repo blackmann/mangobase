@@ -11,6 +11,7 @@ import Copy from '../../../components/copy'
 import IdTag from '../../../components/id-tag'
 import Input from '../../../components/input'
 import React from 'preact/compat'
+import Value from '../../../components/value'
 import clsx from 'clsx'
 
 type RouteData = { collection: Collection }
@@ -158,11 +159,10 @@ function CollectionRecords() {
               </td>
               {fields.map((field) => (
                 <td key={field}>
-                  {collection.schema[field].type === 'id' ? (
-                    <IdTag id={row[field]} />
-                  ) : (
-                    row[field]
-                  )}
+                  <Value
+                    type={collection.schema[field].type}
+                    value={row[field]}
+                  />
                 </td>
               ))}
               <td>
