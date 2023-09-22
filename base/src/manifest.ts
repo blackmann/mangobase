@@ -9,8 +9,16 @@ import setWithPath from './lib/set-with-path'
 const COLLECTIONS_FILE = 'collections.json'
 const HOOKS_FILE = 'hooks.json'
 const EDITORS_FILE = 'editors.json'
+const SCHEMA_REFS_FILE = 'schema-refs.json'
 
 const MIGRATION_FILENAME_REG = /migration\.\d{4}\.json/
+
+interface Ref {
+  name: string
+  schema: SchemaDefinitions
+}
+
+type Refs = Record<string, Ref>
 
 interface CollectionConfig {
   name: string
@@ -45,6 +53,7 @@ class Manifest {
   private collectionsIndex: Record<CollectionName, CollectionConfig> = {}
   private hooksIndex: Record<CollectionName, Hooks> = {}
   private editorsIndex: Record<CollectionName, Editor> = {}
+  private refs: Refs = {}
 
   private initialize: Promise<void>
 
@@ -59,7 +68,11 @@ class Manifest {
   private async load() {
     try {
       await Promise.allSettled([
-        this.loadCollections(),
+        (async () => {
+          await this.loadCollections()
+          // this depends on collections being loaded
+          await this.loadSchemaRefs()
+        })(),
         this.loadHooks(),
         this.loadEditors(),
       ])
@@ -71,6 +84,28 @@ class Manifest {
       }
 
       console.error(err)
+    }
+  }
+
+  private async loadSchemaRefs() {
+    const collections = Object.values(this.collectionsIndex)
+    for (const collection of collections) {
+      if (collection.template) {
+        const name = `collection/${collection.name}`
+        this.refs[name] = { name, schema: collection.schema }
+      }
+    }
+
+    const dir = Manifest.getDirectory()
+    const refsJSON = await fs.readFile([dir, SCHEMA_REFS_FILE].join('/'), {
+      encoding: 'utf-8',
+    })
+
+    const refs = JSON.parse(refsJSON) as Refs
+
+    for (const name in refs) {
+      const ref = refs[name]
+      this.refs[name] = ref
     }
   }
 
@@ -119,7 +154,7 @@ class Manifest {
   async collection(
     name: string,
     config?: CollectionConfig
-  ): Promise<CollectionConfig> {
+  ): Promise<CollectionConfig | undefined> {
     await this.init()
 
     if (!config) {
@@ -127,6 +162,11 @@ class Manifest {
     }
 
     this.collectionsIndex[name] = config
+    if (config.template) {
+      const refName = `collection/${name}`
+      this.refs[refName] = { name: refName, schema: config.schema }
+    }
+
     await this.save()
 
     return config
@@ -135,6 +175,11 @@ class Manifest {
   async collections() {
     await this.init()
     return Object.values(this.collectionsIndex)
+  }
+
+  async schemaRefs() {
+    await this.init()
+    return Object.values(this.refs)
   }
 
   async getHooks(collection: string) {
@@ -178,6 +223,8 @@ class Manifest {
         setWithPath(schema, [...usage, 'relation'], to)
       }
     }
+
+    // [ ] Rename refs
 
     await this.save()
   }
@@ -255,6 +302,33 @@ class Manifest {
     )
   }
 
+  async schemaRef(name: string, ref?: Ref): Promise<Ref | undefined> {
+    await this.init()
+    if (!ref) {
+      return this.refs[name]
+    }
+
+    this.refs[name] = ref
+    await this.save()
+
+    return ref
+  }
+
+  async renameSchemaRef(from: string, to: string) {
+    if (this.refs[to]) {
+      throw new Conflict(
+        `A schema ref with name \`${to}\` already exists. Cannot rename \`${from}\` to \`${to}\``
+      )
+    }
+
+    // [ ] Rename refs in collections and also update data fields
+
+    this.refs[to] = this.refs[from]
+    delete this.refs[from]
+
+    await this.save()
+  }
+
   private getMigrationFileName(version: number) {
     return `migration.${version.toString().padStart(4, '0')}.json`
   }
@@ -269,6 +343,7 @@ class Manifest {
       [this.collectionsIndex, COLLECTIONS_FILE],
       [this.hooksIndex, HOOKS_FILE],
       [this.editorsIndex, EDITORS_FILE],
+      [this.refs, SCHEMA_REFS_FILE],
     ]
 
     for (const [index, file] of dataOuts) {
@@ -277,6 +352,10 @@ class Manifest {
         encoding: 'utf-8',
       })
     }
+  }
+
+  getSchemaRef(name: string) {
+    return this.refs[name]
   }
 
   static getDirectory() {
@@ -291,4 +370,4 @@ const HOOKS_STUB: Hooks = {
 
 export default Manifest
 export { HOOKS_STUB }
-export type { CollectionConfig, Hooks as CollectionHooks }
+export type { CollectionConfig, Hooks as CollectionHooks, Ref }

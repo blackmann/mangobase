@@ -8,7 +8,7 @@ function CleanDate({ date }: Props) {
   return (
     <div>
       <div>{cleanDate(date)}</div>
-      <div className="text-slate-500 dark:text-neutral-400 text-sm">
+      <div className="text-zinc-500 dark:text-neutral-400 text-sm">
         {cleanTime(date)}
       </div>
     </div>

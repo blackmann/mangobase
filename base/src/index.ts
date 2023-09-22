@@ -20,6 +20,6 @@ export type {
   MigrationStep,
 } from './database'
 export type { Hook, HookFn, Hooks, HookConfig } from './hook'
-export type { CollectionConfig } from './manifest'
+export type { CollectionConfig, Ref } from './manifest'
 export type { default as Method } from './method'
 export type { SchemaDefinitions, Definition, DefinitionType } from './schema'

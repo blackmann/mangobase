@@ -1,8 +1,10 @@
 import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
+import schemaRefs, { loadSchemaRefs } from './data/schema-refs'
 import AdminLayout from './layouts/AdminLayout'
 import AppError from './lib/app-error'
 import Collection from './client/collection'
+import CollectionEmptyState from './components/collections-empty-state'
 import CollectionHooks from './pages/collections/[name]/hooks'
 import CollectionsPage from './pages/collections'
 import Devs from './pages/settings/devs'
@@ -11,14 +13,41 @@ import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import Logs from './pages/logs'
 import Profile from './pages/settings/profile'
+import type { Ref } from 'mangobase'
+import SchemaDetail from './pages/settings/schemas/[name]'
+import Schemas from './pages/settings/schemas'
 import Settings from './pages/settings'
 import Wip from './pages/wip'
 import app from './mangobase-app'
 import { loadCollections } from './data/collections'
-import CollectionEmptyState from './components/collections-empty-state'
 
 interface CollectionRouteData {
   collection: Collection
+}
+
+async function getSchema(name: string): Promise<Ref> {
+  if (!schemaRefs.value?.length) {
+    await loadCollections()
+    await loadSchemaRefs()
+  }
+
+  if (name === 'new') {
+    return {
+      name: 'Add new schema',
+      schema: {},
+    }
+  }
+
+  const schema = schemaRefs.value.find((ref) => ref.name === name)
+
+  if (!schema) {
+    throw new AppError('Schema not found', {
+      detail: `Schema \`${name}\` not found`,
+      status: 404,
+    })
+  }
+
+  return schema
 }
 
 const routes = createBrowserRouter(
@@ -62,6 +91,7 @@ const routes = createBrowserRouter(
           element: <CollectionsPage />,
           loader: async () => {
             try {
+              await loadSchemaRefs()
               await loadCollections()
               return null
             } catch (err) {
@@ -76,6 +106,24 @@ const routes = createBrowserRouter(
         },
         {
           children: [
+            {
+              element: <Schemas />,
+              path: 'schemas',
+            },
+            {
+              element: <SchemaDetail />,
+              loader: async ({ params }) => {
+                return await getSchema(params.name!)
+              },
+              path: 'schemas/:name',
+            },
+            {
+              element: <SchemaDetail />,
+              loader: async ({ params }) => {
+                return await getSchema(`collection/${params.name}`)
+              },
+              path: 'schemas/collection/:name',
+            },
             {
               element: <Profile />,
               path: 'profile',

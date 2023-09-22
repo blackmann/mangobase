@@ -33,7 +33,7 @@ function Logs() {
 
       <div className="flex-1 h-0 overflow-y-auto">
         <table className="w-full">
-          <thead className="sticky top-0 bg-slate-100 dark:bg-neutral-800">
+          <thead className="sticky top-0 bg-zinc-100 dark:bg-neutral-800">
             <tr>
               <th>Category</th>
               <th>Label</th>
@@ -47,7 +47,7 @@ function Logs() {
           <tbody>
             {logs.value.map((log) => (
               <tr
-                className="hover:bg-slate-200 dark:hover:bg-neutral-700 transition-background duration-150"
+                className="hover:bg-zinc-200 dark:hover:bg-neutral-700 transition-background duration-150"
                 key={log._id}
               >
                 <td>
@@ -55,7 +55,7 @@ function Logs() {
                 </td>
                 <td>{log.label}</td>
                 <td>{log.status}</td>
-                <td className="max-w-[14rem] text-slate-500 dark:text-neutral-400">
+                <td className="max-w-[14rem] text-zinc-500 dark:text-neutral-400">
                   {log.data && JSON.stringify(log.data)}
                 </td>
                 <td>{typeof log.time === 'number' ? `${log.time}ms` : ''}</td>

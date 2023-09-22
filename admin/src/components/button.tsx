@@ -8,7 +8,7 @@ interface Props extends React.ComponentProps<'button'> {
 }
 
 const styles: Record<Variant, string> = {
-  muted: 'bg-slate-300 dark:bg-neutral-500 dark:text-neutral-100',
+  muted: 'bg-zinc-300 dark:bg-neutral-500 dark:text-neutral-100',
   primary:
     'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-75 disabled:hover:bg-blue-600',
   secondary: 'bg-green-600 text-white hover:bg-green-700',

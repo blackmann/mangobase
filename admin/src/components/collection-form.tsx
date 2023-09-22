@@ -12,6 +12,8 @@ import Input from './input'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import app from '../mangobase-app'
+import appendSchemaFields from '../lib/append-schema-fields'
+import getNewFieldName from '../lib/get-new-field-name'
 import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
 
@@ -132,24 +134,12 @@ function CollectionForm({ collection, onHide }: Props) {
     handleOnHide(newCollection)
   }
 
-  const getFieldName = React.useCallback(() => {
-    const unnamedFields = (fields as unknown as { name: string }[])
-      .filter((field) => /^field\d*$/.test(field.name))
-      .sort((a, b) => a.name.localeCompare(b.name))
-
-    let fieldName = 'field1'
-    let i = 0
-    while (unnamedFields[i]?.name === fieldName) {
-      i += 1
-      fieldName = `field${i + 1}`
-    }
-
-    return fieldName
-  }, [fields])
-
   const addNewField = React.useCallback(() => {
-    append({ name: getFieldName(), type: 'string' })
-  }, [append, getFieldName])
+    append({
+      name: getNewFieldName(fields as unknown as { name: string }[]),
+      type: 'string',
+    })
+  }, [append, fields])
 
   function handleOnHide(collection?: Collection) {
     reset()
@@ -161,17 +151,19 @@ function CollectionForm({ collection, onHide }: Props) {
     if (!collection) return
 
     setValue('name', collection.name)
-    setValue('exposed', collection.exposed)
 
-    for (const [field, options] of Object.entries(collection.schema)) {
-      append({
-        existing: true,
-        name: field,
-        required: options.required,
-        type: options.type,
-        unique: options.unique,
-      })
+    const options: string[] = []
+    if (collection.exposed) {
+      options.push('expose')
     }
+
+    if (collection.template) {
+      options.push('is-template')
+    }
+
+    setValue('options', options)
+
+    appendSchemaFields(append, collection.schema)
   }, [append, collection, setValue])
 
   React.useEffect(() => {
@@ -198,7 +190,7 @@ function CollectionForm({ collection, onHide }: Props) {
         />
       </label>
 
-      <div className="text-slate-500 dark:text-neutral-400">
+      <div className="text-zinc-500 dark:text-neutral-400">
         This becomes endpoint name.{' '}
         {getFieldState('name', formState).error && (
           <span className="text-red-500 dark:text-orange-400 mt-1">
@@ -220,11 +212,12 @@ function CollectionForm({ collection, onHide }: Props) {
             Expose
           </label>
 
-          <p className="text-slate-500 dark:text-neutral-400 ms-5">
+          <p className="text-zinc-500 dark:text-neutral-400 ms-5">
             Check this if this collection should have a public endpoint. See{' '}
             <Link to="/docs" className="underline">
               docs
             </Link>
+            .
           </p>
         </div>
 
@@ -239,7 +232,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Use as template
           </label>
 
-          <p className="text-slate-500 dark:text-neutral-400 mt-0 ms-5">
+          <p className="text-zinc-500 dark:text-neutral-400 mt-0 ms-5">
             Allow this collection to be used to validate fields of other
             collections
           </p>
@@ -247,8 +240,10 @@ function CollectionForm({ collection, onHide }: Props) {
       </div>
 
       {collection?.readOnlySchema && (
-        <div className="bg-slate-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
-          <span className="material-symbols-rounded text-red-500 dark:text-orange-500 me-2">error</span>
+        <div className="bg-zinc-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
+          <span className="material-symbols-rounded text-blue-500 dark:text-blue-300 me-2 text-base">
+            error
+          </span>
           <p>
             This collection's schema is read-only and controlled by the plugin
             that installed it.
@@ -267,7 +262,7 @@ function CollectionForm({ collection, onHide }: Props) {
             register={(f: string, o?: RegisterOptions) =>
               register(`fields.${i}.${f}`, o)
             }
-            watch={(key) => watch(`fields.${i}.${key}`)}
+            watch={(f) => watch(`fields.${i}.${f}`)}
           />
         ))}
 
@@ -327,3 +322,4 @@ function indexesFromForm(fields: FieldProps[]) {
 }
 
 export default CollectionForm
+export type { FieldProps }
