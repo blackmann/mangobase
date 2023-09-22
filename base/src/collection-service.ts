@@ -27,12 +27,12 @@ class CollectionService implements Service {
       schema: schema
         ? Promise.resolve(schema)
         : (async () => {
-            const { schema } = await app.manifest.collection(name)
-            if (!schema) {
+            const collection = await app.manifest.collection(name)
+            if (!collection) {
               throw new Error(`no collection with \`${name}\` exists`)
             }
 
-            return new Schema(schema, { parser: app.database.cast })
+            return new Schema(collection.schema, { parser: app.database.cast })
           })(),
     })
   }

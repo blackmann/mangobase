@@ -7,7 +7,7 @@ import {
   NotFound,
   ServiceError,
 } from './errors'
-import { Database, Migration } from './database'
+import { Database, Migration, MigrationStep } from './database'
 import type { HookConfig, HookFn, Hooks } from './hook'
 import Manifest, { CollectionConfig } from './manifest'
 import Schema, { ValidationError } from './schema'
@@ -249,7 +249,9 @@ const collectionsService: Service & WithSchema = {
 
         const { migrationSteps, ...data } = validData
 
-        const collection = await app.manifest.collection(data.name, data)
+        const collection = (await app.manifest.collection(data.name, data))!
+        await handleMigration(migrationSteps, app)
+
         await app.database.syncIndex(collection.name, collection.indexes)
 
         app.use(collection.name, new CollectionService(app, collection.name))
@@ -307,27 +309,12 @@ const collectionsService: Service & WithSchema = {
 
         // [ ] Remove/add collection from schema refs based on `collection.template`
 
-        const collection = await app.manifest.collection(
+        const collection = (await app.manifest.collection(
           collectionConfig.name,
           collectionConfig
-        )
+        ))!
 
-        if (migrationSteps.length) {
-          let lastVersion =
-            (await app.manifest.getLastMigrationCommit())?.version || 0
-
-          const version = ++lastVersion
-          const migration: Migration = {
-            id: `${version.toString().padStart(4, '0')}_${randomStr(8)}`,
-            steps: migrationSteps,
-            version,
-          }
-
-          await app.database.migrate(migration)
-          await app.manifest.commitMigration(migration)
-
-          await saveMigration(app, migration)
-        }
+        await handleMigration(migrationSteps, app)
 
         await app.database.syncIndex(collection.name, collection.indexes)
 
@@ -450,6 +437,13 @@ const hooksService: Service = {
 
         // reinstall collection with hooks
         const collection = await app.manifest.collection(collectionName)
+
+        if (!collection) {
+          throw new NotFound(
+            `No collection with name \`${collectionName}\` found`
+          )
+        }
+
         await app.installCollection(collection)
 
         ctx.result = await app.manifest.getHooks(collectionName)
@@ -487,7 +481,27 @@ const schemaRefsService: Service & WithSchema = {
       }
 
       case 'patch': {
-        // [ ]: patch schema refs
+        const existing = await app.manifest.schemaRef(ctx.params!.id)
+        if (!existing) {
+          throw new NotFound(
+            `No schema ref with name \`${ctx.params!.id}\` found`
+          )
+        }
+
+        const data = this.schema.validate(ctx.data, false, true)
+        if (data.schema) {
+          Schema.validateSchema(data.schema)
+        }
+
+        if (data.name && existing.name !== data.name) {
+          await app.manifest.renameSchemaRef(existing.name, data.name)
+        }
+
+        ctx.result = await app.manifest.schemaRef(data.name, {
+          ...existing,
+          ...data,
+        })
+
         return ctx
       }
 
@@ -740,6 +754,29 @@ class App {
   static isDevPath(path: string) {
     return path.startsWith('_dev/')
   }
+}
+
+async function handleMigration(migrationSteps: MigrationStep[], app: App) {
+  if (migrationSteps.length) {
+    let lastVersion =
+      (await app.manifest.getLastMigrationCommit())?.version || 0
+
+    const version = ++lastVersion
+    const migration: Migration = {
+      id: uniqueId(version),
+      steps: migrationSteps,
+      version,
+    }
+
+    await app.database.migrate(migration)
+    await app.manifest.commitMigration(migration)
+
+    await saveMigration(app, migration)
+  }
+}
+
+function uniqueId(version: number) {
+  return `${version.toString().padStart(4, '0')}_${randomStr(8)}`
 }
 
 export default App

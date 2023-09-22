@@ -37,6 +37,8 @@ function SchemaDetail() {
     })
   }
 
+  // [ ] schema name shouldn't start with 'collection/'. This is reserved
+  // for schema related to template collections
   async function submit(data: FieldValues) {
     const schema: SchemaDefinitions = {}
 
@@ -44,16 +46,18 @@ function SchemaDetail() {
       schema[name] = definition
     }
 
-    const ref = {
+    const refData = {
       name: data.name,
       schema,
     }
 
-    await app.req.post('/_dev/schema-refs', ref)
+    isNew
+      ? await app.req.post('/_dev/schema-refs', refData)
+      : await app.req.patch(`/_dev/schema-refs/${ref.name}`, refData)
 
     await loadSchemaRefs()
     // [ ] Add ?created=1 to help show a created notification
-    navigate(`/settings/schemas/${data.name}`)
+    navigate(`/settings/schemas/${refData.name}`)
   }
 
   const addNewField = React.useCallback(() => {

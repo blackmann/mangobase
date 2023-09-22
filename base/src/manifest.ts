@@ -154,7 +154,7 @@ class Manifest {
   async collection(
     name: string,
     config?: CollectionConfig
-  ): Promise<CollectionConfig> {
+  ): Promise<CollectionConfig | undefined> {
     await this.init()
 
     if (!config) {
@@ -302,7 +302,7 @@ class Manifest {
     )
   }
 
-  async schemaRef(name: string, ref?: Ref) {
+  async schemaRef(name: string, ref?: Ref): Promise<Ref | undefined> {
     await this.init()
     if (!ref) {
       return this.refs[name]
@@ -312,6 +312,21 @@ class Manifest {
     await this.save()
 
     return ref
+  }
+
+  async renameSchemaRef(from: string, to: string) {
+    if (this.refs[to]) {
+      throw new Conflict(
+        `A schema ref with name \`${to}\` already exists. Cannot rename \`${from}\` to \`${to}\``
+      )
+    }
+
+    // [ ] Rename refs in collections and also update data fields
+
+    this.refs[to] = this.refs[from]
+    delete this.refs[from]
+
+    await this.save()
   }
 
   private getMigrationFileName(version: number) {
