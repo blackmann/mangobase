@@ -164,10 +164,10 @@ async function createProject(options: Options) {
 					'@next/env',
 					'jose',
 				]
-				await execaInDirectory('npm', ['install', ...packages])
+				await execaInDirectory('bun', ['install', ...packages])
 
 				if (typescript) {
-					await execaInDirectory('npm', [
+					await execaInDirectory('bun', [
 						'install',
 						'--save-dev',
 						'typescript',
