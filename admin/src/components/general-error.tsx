@@ -12,7 +12,7 @@ function GeneralErrorBoundary({ error }: Props) {
   return (
     <div className="flex justify-center">
       <div className="bg-white dark:bg-neutral-800 p-3 rounded-md mt-[5rem] border-zinc-200 dark:border-neutral-600 border w-[30rem]">
-        {error.data.status ? (
+        {error.data?.status ? (
           <ResponseError error={error} />
         ) : (
           <UnknownErrorContent />

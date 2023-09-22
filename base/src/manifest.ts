@@ -4,6 +4,7 @@ import { Conflict } from './errors'
 import { HookConfig } from './hook'
 import Method from './method'
 import fs from 'fs/promises'
+import getRefUsage from './lib/get-ref-usage'
 import setWithPath from './lib/set-with-path'
 
 const COLLECTIONS_FILE = 'collections.json'
@@ -327,6 +328,25 @@ class Manifest {
     delete this.refs[from]
 
     await this.save()
+  }
+
+  async getSchemaRefUsages(refName: string) {
+    const usages: string[] = []
+
+    const collections = await this.collections()
+    for (const collection of collections) {
+      if (getRefUsage(refName, collection.schema).length) {
+        usages.push(`collection/${collection.name}`)
+      }
+    }
+
+    for (const ref of Object.values(this.refs)) {
+      if (getRefUsage(refName, ref.schema).length) {
+        usages.push(ref.name)
+      }
+    }
+
+    return usages
   }
 
   private getMigrationFileName(version: number) {

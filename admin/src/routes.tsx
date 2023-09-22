@@ -38,7 +38,7 @@ async function getSchema(name: string): Promise<Ref> {
     }
   }
 
-  const schema = schemaRefs.value.find((ref) => ref.name === name)
+  const { data: schema } = await app.req.get(`_dev/schema-refs/${name}`)
 
   if (!schema) {
     throw new AppError('Schema not found', {

@@ -21,7 +21,7 @@ import removeFieldsItem from '../../../lib/remove-fields-item'
 function SchemaDetail() {
   const { control, handleSubmit, register, reset, setValue, watch } = useForm()
   const { append, fields, remove } = useFieldArray({ control, name: 'fields' })
-  const ref = useLoaderData() as Ref
+  const ref = useLoaderData() as Ref & { $usages: string[] }
 
   const { name } = useParams()
   const isNew = name === 'new'
@@ -99,10 +99,12 @@ function SchemaDetail() {
     ? `${ref.name.replace('collection/', '/collections/')}/edit`
     : ''
 
+  const usages = ref.$usages
+
   return (
     <div className="mt-3">
       <h1 className="font-bold text-base">{ref.name}</h1>
-      <Chip className="!py-0">3 usages</Chip>
+      <Chip className="!py-0">{usages.length} usages</Chip>
 
       <div className="grid grid-cols-3 mt-3 gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
         <form className="col-span-2" onSubmit={handleSubmit(submit)}>
@@ -173,7 +175,24 @@ function SchemaDetail() {
             Usages
           </h2>
 
-          <p>This schema has no usages</p>
+          {!usages.length && <p>This schema has no usages</p>}
+
+          <ul className="mt-2">
+            {usages.map((usage) => (
+              <li key={usage}>
+                <Link
+                  className="underline text-zinc-500 dark:text-neutral-300"
+                  to={
+                    usage.startsWith('collection/')
+                      ? usage.replace('collection/', '/collections/')
+                      : `/settings/schemas/${usage}`
+                  }
+                >
+                  {usage}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
