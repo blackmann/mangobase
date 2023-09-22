@@ -16,14 +16,14 @@ const tips = [
 function CollectionEmptyState() {
   return (
     <div className="flex justify-center mt-[20%]">
-      <div className="text-slate-500 dark:text-neutral-400">
+      <div className="text-zinc-500 dark:text-neutral-400">
         <ul>
           {tips.map((tip) => (
             <li
               key={tip.title}
               className="flex items-center space-x-2 [&+&]:mt-2"
             >
-              <span className="material-symbols-rounded text-slate-400 dark:text-neutral-500">
+              <span className="material-symbols-rounded text-zinc-400 dark:text-neutral-500">
                 {tip.icon}
               </span>
               <span>{tip.title}</span>

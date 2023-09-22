@@ -18,7 +18,7 @@ function FlowHandle({ className, ...props }: Props) {
         className
       )}
     >
-      <div className="w-full h-full bg-slate-400 dark:bg-neutral-400 rounded-full pointer-events-none" />
+      <div className="w-full h-full bg-zinc-400 dark:bg-neutral-400 rounded-full pointer-events-none" />
     </Handle>
   )
 }

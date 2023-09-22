@@ -190,7 +190,7 @@ function CollectionForm({ collection, onHide }: Props) {
         />
       </label>
 
-      <div className="text-slate-500 dark:text-neutral-400">
+      <div className="text-zinc-500 dark:text-neutral-400">
         This becomes endpoint name.{' '}
         {getFieldState('name', formState).error && (
           <span className="text-red-500 dark:text-orange-400 mt-1">
@@ -212,7 +212,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Expose
           </label>
 
-          <p className="text-slate-500 dark:text-neutral-400 ms-5">
+          <p className="text-zinc-500 dark:text-neutral-400 ms-5">
             Check this if this collection should have a public endpoint. See{' '}
             <Link to="/docs" className="underline">
               docs
@@ -232,7 +232,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Use as template
           </label>
 
-          <p className="text-slate-500 dark:text-neutral-400 mt-0 ms-5">
+          <p className="text-zinc-500 dark:text-neutral-400 mt-0 ms-5">
             Allow this collection to be used to validate fields of other
             collections
           </p>
@@ -240,7 +240,7 @@ function CollectionForm({ collection, onHide }: Props) {
       </div>
 
       {collection?.readOnlySchema && (
-        <div className="bg-slate-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
+        <div className="bg-zinc-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
           <span className="material-symbols-rounded text-blue-500 dark:text-blue-300 me-2 text-base">
             error
           </span>

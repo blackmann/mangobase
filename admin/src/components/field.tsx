@@ -21,7 +21,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
 
   return (
     <div className="flex py-4">
-      <div className="text-slate-400 dark:text-neutral-500 me-2">
+      <div className="text-zinc-400 dark:text-neutral-500 me-2">
         <span className="material-symbols-rounded">
           {DATA_TYPE_ICONS[type]}
         </span>
@@ -213,7 +213,7 @@ function SchemaSelect({ name, register }: SchemaSelectProps) {
         </Button>
       </label>
       <a
-        className="underline text-slate-500 dark:text-neutral-400"
+        className="underline text-zinc-500 dark:text-neutral-400"
         href="/_/settings/schemas"
         target="_blank"
       >

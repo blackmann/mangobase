@@ -416,7 +416,7 @@ function CollectionHooks() {
               Save & activate hooks
             </Button>
             {hooksChanged && (
-              <p className="m-0 text-slate-500 dark:text-neutral-400">
+              <p className="m-0 text-zinc-500 dark:text-neutral-400">
                 Changes detected in the hooks
               </p>
             )}

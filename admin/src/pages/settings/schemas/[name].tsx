@@ -115,12 +115,12 @@ function SchemaDetail() {
             />
           </label>
 
-          <h2 className="font-bold text-md text-slate-500 dark:text-neutral-500">
+          <h2 className="font-bold text-md text-zinc-500 dark:text-neutral-500">
             Schema
           </h2>
 
           {fromCollection && (
-            <div className="p-2 rounded-md bg-slate-200 dark:bg-neutral-600 flex">
+            <div className="p-2 rounded-md bg-zinc-200 dark:bg-neutral-600 flex">
               <div className="leading-none">
                 <span className="material-symbols-rounded text-base text-blue-600 dark:text-blue-300 me-2">
                   info
@@ -131,7 +131,7 @@ function SchemaDetail() {
                 This is a collection template. You cannot edit this schema from
                 here. Go here instead:{' '}
                 <Link
-                  className="underline text-slate-500 dark:text-neutral-300"
+                  className="underline text-zinc-500 dark:text-neutral-300"
                   to={collectionEdit}
                 >
                   {collectionEdit}
@@ -169,7 +169,7 @@ function SchemaDetail() {
         </form>
 
         <div className="col-span-1">
-          <h2 className="font-bold text-slate-500 dark:text-neutral-500">
+          <h2 className="font-bold text-zinc-500 dark:text-neutral-500">
             Usages
           </h2>
 

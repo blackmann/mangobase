@@ -44,7 +44,7 @@ function CollectionsPage() {
           <header className="flex justify-between items-center mb-2">
             <div className="text-base font-bold">Collections</div>
             <button
-              className="text-slate-400 dark:text-neutral-300 leading-none"
+              className="text-zinc-400 dark:text-neutral-300 leading-none"
               onClick={() => showFormDialog()}
             >
               <span className="material-symbols-rounded">add</span>
@@ -62,7 +62,7 @@ function CollectionsPage() {
 
           <dialog
             ref={formDialog}
-            className="rounded-md p-3 border border-slate-300 dark:border-neutral-700 bg-slate-100 dark:bg-neutral-800"
+            className="rounded-md p-3 border border-zinc-300 dark:border-neutral-700 bg-zinc-100 dark:bg-neutral-800"
           >
             <h2 className="text-2xl font-bold mb-4">New collection</h2>
             {showingForm && (

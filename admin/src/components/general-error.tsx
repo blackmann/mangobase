@@ -11,7 +11,7 @@ function GeneralErrorBoundary({ error }: Props) {
 
   return (
     <div className="flex justify-center">
-      <div className="bg-white dark:bg-neutral-800 p-3 rounded-md mt-[5rem] border-slate-200 dark:border-neutral-600 border w-[30rem]">
+      <div className="bg-white dark:bg-neutral-800 p-3 rounded-md mt-[5rem] border-zinc-200 dark:border-neutral-600 border w-[30rem]">
         {error.data.status ? (
           <ResponseError error={error} />
         ) : (
@@ -33,13 +33,13 @@ function ResponseError({ error }: Props) {
         </span>
       </div>
       <h1 className="text-lg font-bold mt-3">An API error occurred</h1>
-      <p className="text-slate-500 dark:text-neutral-600">
+      <p className="text-zinc-500 dark:text-neutral-600">
         Status code: {error.data.status}
       </p>
 
       {error.data.detail && (
         <>
-          <p className="text-slate-500 dark:text-neutral-600">
+          <p className="text-zinc-500 dark:text-neutral-600">
             {error.data.detail}
           </p>
         </>
@@ -60,7 +60,7 @@ function ResponseError({ error }: Props) {
 
           <div className="mt-3">
             <Link
-              className="bg-slate-500 text-white px-2 py-1 rounded-md inline-block"
+              className="bg-zinc-500 text-white px-2 py-1 rounded-md inline-block"
               variant="primary"
               to="/login"
               replace
@@ -98,15 +98,15 @@ function UnknownErrorContent() {
         </span>
       </div>
       <h1 className="text-lg font-bold mt-3">An error occurred</h1>
-      <p className="text-slate-500 dark:text-neutral-400">
+      <p className="text-zinc-500 dark:text-neutral-400">
         The app encountered an error it could not handle
       </p>
 
       <h2 className="mt-3 font-bold">Message</h2>
-      <p className="text-slate-500 dark:text-neutral-400">{error.message}</p>
+      <p className="text-zinc-500 dark:text-neutral-400">{error.message}</p>
 
       <h2 className="font-bold  mt-3">Stacktrace</h2>
-      <div className="text-slate-500 dark:text-neutral-400">
+      <div className="text-zinc-500 dark:text-neutral-400">
         Check stacktrace from the browser's developer Console. If you think this
         is unexpected, please check{' '}
         <a

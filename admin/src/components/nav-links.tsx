@@ -30,9 +30,9 @@ function L({
     <NavLink
       className={({ isActive }: { isActive: boolean }) =>
         clsx(
-          'group flex justify-between items-center text-slate-500 dark:text-neutral-400 no-underline px-0 hover:text-slate-800 dark:hover:!text-neutral-200',
+          'group flex justify-between items-center text-zinc-500 dark:text-neutral-400 no-underline px-0 hover:text-zinc-800 dark:hover:!text-neutral-200',
           {
-            'text-slate-800 dark:!text-neutral-200 is-active': isActive,
+            'text-zinc-800 dark:!text-neutral-200 is-active': isActive,
           }
         )
       }
@@ -48,7 +48,7 @@ function L({
       </div>
 
       {hasChildren && (
-        <span className="material-symbols-rounded leading-none text-md text-slate-400 dark:text-neutral-500">
+        <span className="material-symbols-rounded leading-none text-md text-zinc-400 dark:text-neutral-500">
           {expanded ? 'expand_less' : 'expand_more'}
         </span>
       )}

@@ -19,7 +19,7 @@ function Copy({ value, className, title }: Props) {
   return (
     <span
       className={clsx(
-        'material-symbols-rounded cursor-pointer text-slate-500 dark:text-neutral-400',
+        'material-symbols-rounded cursor-pointer text-zinc-500 dark:text-neutral-400',
         className
       )}
       onClick={copy}

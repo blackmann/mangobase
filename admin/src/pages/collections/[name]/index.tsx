@@ -65,9 +65,9 @@ function CollectionDetail() {
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
                   clsx(
-                    'text-slate-500 dark:text-neutral-400 me-2 hover:underline',
+                    'text-zinc-500 dark:text-neutral-400 me-2 hover:underline',
                     {
-                      'text-slate-800 dark:!text-neutral-200 underline':
+                      'text-zinc-800 dark:!text-neutral-200 underline':
                         isActive,
                     }
                   )
@@ -82,7 +82,7 @@ function CollectionDetail() {
           </div>
 
           <div className="flex items-center">
-            <span className="material-symbols-rounded text-base me-2 text-slate-500 dark:text-neutral-400">
+            <span className="material-symbols-rounded text-base me-2 text-zinc-500 dark:text-neutral-400">
               code
             </span>
 
@@ -147,7 +147,7 @@ function CollectionRecords() {
         <tbody>
           {pages[pages.length - 1]?.data.map((row: any) => (
             <tr
-              className="transition-background hover:bg-slate-200 dark:hover:bg-neutral-700"
+              className="transition-background hover:bg-zinc-200 dark:hover:bg-neutral-700"
               key={row._id}
             >
               <td style={{ width: '2rem' }}>
