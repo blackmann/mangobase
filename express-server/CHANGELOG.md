@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.3.0 (2023-09-22)
+
+**Note:** Version bump only for package @mangobase/express
+
 ## 0.2.2 (2023-09-18)
 
 ### Bug Fixes
