@@ -52,7 +52,7 @@ interface ObjectDefinition {
 interface ArrayDefinition {
   type: 'array'
   // Nested into `item` because we can expect primitives (non-objects)
-  schema: RefName | { item: Definition }
+  schema: { item: Definition }
   defaultValue?: Array<any>
 }
 

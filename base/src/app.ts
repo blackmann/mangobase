@@ -480,6 +480,28 @@ const schemaRefsService: Service & WithSchema = {
         return ctx
       }
 
+      case 'get': {
+        const nameParts: (string | undefined)[] = [
+          ctx.query.$scope as string | undefined,
+          ctx.params!.id,
+        ]
+
+        const refName = nameParts.filter(Boolean).join('/')
+
+        const ref = await app.manifest.schemaRef(refName)
+
+        if (!ref) {
+          throw new NotFound(`No schema ref with name \`${refName}\` found`)
+        }
+
+        ctx.result = {
+          ...ref,
+          $usages: await app.manifest.getSchemaRefUsages(refName),
+        }
+
+        return ctx
+      }
+
       case 'patch': {
         const existing = await app.manifest.schemaRef(ctx.params!.id)
         if (!existing) {

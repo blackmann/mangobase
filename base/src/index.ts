@@ -7,6 +7,7 @@ export { default as Manifest } from './manifest'
 export { default as Schema, ValidationError } from './schema'
 
 export { default as methodFromHttp } from './lib/method-from-http'
+export { default as getRefUsage } from './lib/get-ref-usage'
 
 export type { Handle, Service } from './app'
 export type { Filter, FilterOperators, Query } from './collection'

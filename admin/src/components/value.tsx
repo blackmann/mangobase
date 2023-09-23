@@ -26,6 +26,10 @@ function Value({ type, value }: { type: DefinitionType; value: any }) {
       )
 
     default:
+      if (typeof value === 'object') {
+        return <div>{JSON.stringify(value)}</div>
+      }
+
       return <span>{value}</span>
   }
 }

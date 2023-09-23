@@ -4,6 +4,7 @@ import { Conflict } from './errors'
 import { HookConfig } from './hook'
 import Method from './method'
 import fs from 'fs/promises'
+import getRefUsage from './lib/get-ref-usage'
 import setWithPath from './lib/set-with-path'
 
 const COLLECTIONS_FILE = 'collections.json'
@@ -54,6 +55,7 @@ class Manifest {
   private hooksIndex: Record<CollectionName, Hooks> = {}
   private editorsIndex: Record<CollectionName, Editor> = {}
   private refs: Refs = {}
+  private collectionRefs: Refs = {}
 
   private initialize: Promise<void>
 
@@ -91,8 +93,8 @@ class Manifest {
     const collections = Object.values(this.collectionsIndex)
     for (const collection of collections) {
       if (collection.template) {
-        const name = `collection/${collection.name}`
-        this.refs[name] = { name, schema: collection.schema }
+        const name = `collections/${collection.name}`
+        this.collectionRefs[name] = { name, schema: collection.schema }
       }
     }
 
@@ -163,7 +165,7 @@ class Manifest {
 
     this.collectionsIndex[name] = config
     if (config.template) {
-      const refName = `collection/${name}`
+      const refName = `collections/${name}`
       this.refs[refName] = { name: refName, schema: config.schema }
     }
 
@@ -179,7 +181,7 @@ class Manifest {
 
   async schemaRefs() {
     await this.init()
-    return Object.values(this.refs)
+    return [...Object.values(this.refs), ...Object.values(this.collectionRefs)]
   }
 
   async getHooks(collection: string) {
@@ -305,7 +307,7 @@ class Manifest {
   async schemaRef(name: string, ref?: Ref): Promise<Ref | undefined> {
     await this.init()
     if (!ref) {
-      return this.refs[name]
+      return this.refs[name] || this.collectionRefs[name]
     }
 
     this.refs[name] = ref
@@ -327,6 +329,25 @@ class Manifest {
     delete this.refs[from]
 
     await this.save()
+  }
+
+  async getSchemaRefUsages(refName: string) {
+    const usages: string[] = []
+
+    const collections = await this.collections()
+    for (const collection of collections) {
+      if (getRefUsage(refName, collection.schema).length) {
+        usages.push(`collections/${collection.name}`)
+      }
+    }
+
+    for (const ref of Object.values(this.refs)) {
+      if (getRefUsage(refName, ref.schema).length) {
+        usages.push(ref.name)
+      }
+    }
+
+    return usages
   }
 
   private getMigrationFileName(version: number) {
