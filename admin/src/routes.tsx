@@ -12,12 +12,12 @@ import Edit from './pages/collections/[name]/edit'
 import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import Logs from './pages/logs'
+import NotFound from './pages/notfound'
 import Profile from './pages/settings/profile'
 import type { Ref } from 'mangobase'
 import SchemaDetail from './pages/settings/schemas/[name]'
 import Schemas from './pages/settings/schemas'
 import Settings from './pages/settings'
-import Wip from './pages/wip'
 import app from './mangobase-app'
 import { loadCollections } from './data/collections'
 
@@ -38,16 +38,19 @@ async function getSchema(name: string): Promise<Ref> {
     }
   }
 
-  const { data: schema } = await app.req.get(`_dev/schema-refs/${name}`)
+  const nameParts = name.split('/')
+  const refName = nameParts.pop()!
+  const [scope] = nameParts
 
-  if (!schema) {
-    throw new AppError('Schema not found', {
-      detail: `Schema \`${name}\` not found`,
-      status: 404,
-    })
+  try {
+    const { data: schema } = await app.req.get(
+      `_dev/schema-refs/${refName}?$scope=${scope || ''}`
+    )
+
+    return schema
+  } catch (err) {
+    throw new AppError((err as any).message, err)
   }
-
-  return schema
 }
 
 const routes = createBrowserRouter(
@@ -120,9 +123,9 @@ const routes = createBrowserRouter(
             {
               element: <SchemaDetail />,
               loader: async ({ params }) => {
-                return await getSchema(`collection/${params.name}`)
+                return await getSchema(`collections/${params.name}`)
               },
-              path: 'schemas/collection/:name',
+              path: 'schemas/collections/:name',
             },
             {
               element: <Profile />,
@@ -141,10 +144,6 @@ const routes = createBrowserRouter(
           path: 'settings',
         },
         {
-          element: <Wip />,
-          path: '*',
-        },
-        {
           element: <Navigate replace to="/collections" />,
           path: '',
         },
@@ -158,7 +157,7 @@ const routes = createBrowserRouter(
       path: 'login',
     },
     {
-      element: <>Come back later, after!</>,
+      element: <NotFound />,
       path: '*',
     },
   ],

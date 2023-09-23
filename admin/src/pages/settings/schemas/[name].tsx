@@ -37,7 +37,7 @@ function SchemaDetail() {
     })
   }
 
-  // [ ] schema name shouldn't start with 'collection/'. This is reserved
+  // [ ] schema name shouldn't start with 'collections/'. This is reserved
   // for schema related to template collections
   async function submit(data: FieldValues) {
     const schema: SchemaDefinitions = {}
@@ -93,18 +93,16 @@ function SchemaDetail() {
   }, [addNewField, fields, ref, ready])
 
   // we don't allow edits on template collections
-  const fromCollection = ref.name.startsWith('collection/')
+  const fromCollection = ref.name.startsWith('collections/')
 
-  const collectionEdit = fromCollection
-    ? `${ref.name.replace('collection/', '/collections/')}/edit`
-    : ''
+  const collectionEdit = fromCollection ? `${ref.name}/edit` : ''
 
-  const usages = ref.$usages
+  const usages = ref.$usages as string[] | undefined
 
   return (
     <div className="mt-3">
       <h1 className="font-bold text-base">{ref.name}</h1>
-      <Chip className="!py-0">{usages.length} usages</Chip>
+      <Chip className="!py-0">{usages?.length || 'No'} usages</Chip>
 
       <div className="grid grid-cols-3 mt-3 gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
         <form className="col-span-2" onSubmit={handleSubmit(submit)}>
@@ -175,24 +173,26 @@ function SchemaDetail() {
             Usages
           </h2>
 
-          {!usages.length && <p>This schema has no usages</p>}
+          {!usages?.length && <p>This schema has no usages</p>}
 
-          <ul className="mt-2">
-            {usages.map((usage) => (
-              <li key={usage}>
-                <Link
-                  className="underline text-zinc-500 dark:text-neutral-300"
-                  to={
-                    usage.startsWith('collection/')
-                      ? usage.replace('collection/', '/collections/')
-                      : `/settings/schemas/${usage}`
-                  }
-                >
-                  {usage}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {usages && (
+            <ul className="mt-2">
+              {usages.map((usage) => (
+                <li key={usage}>
+                  <Link
+                    className="underline text-zinc-500 dark:text-neutral-300"
+                    to={
+                      usage.startsWith('collections/')
+                        ? `/${usage}`
+                        : `/settings/schemas/${usage}`
+                    }
+                  >
+                    {usage}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
