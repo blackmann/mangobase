@@ -185,21 +185,31 @@ async function createProject(options: Options) {
 		{
 			title: 'Initialize Git repository',
 			async task() {
-				await execaInDirectory('git', ['init'], {
-					cwd: projectDirectoryPath,
-				})
+				try {
+					// Check if git is already initialized
+					await execaInDirectory('git', ['rev-parse', '--is-inside-work-tree'])
+					throw new Error('Git repository already initialized')
+				} catch (error) {
+					if (error.message.includes('not a git repository')) {
+						await execaInDirectory('git', ['init'], {
+							cwd: projectDirectoryPath,
+						})
 
-				await execaInDirectory('git', ['add', '.'], {
-					cwd: projectDirectoryPath,
-				})
+						await execaInDirectory('git', ['add', '.'], {
+							cwd: projectDirectoryPath,
+						})
 
-				await execaInDirectory(
-					'git',
-					['commit', '-m', 'Initial commit from Mangobase'],
-					{
-						cwd: projectDirectoryPath,
+						await execaInDirectory(
+							'git',
+							['commit', '-m', 'Initial commit from Mangobase'],
+							{
+								cwd: projectDirectoryPath,
+							}
+						)
+					} else {
+						throw error
 					}
-				)
+				}
 			},
 		},
 	])
