@@ -1,4 +1,3 @@
-import * as jose from 'jose'
 import {
   BadRequest,
   MethodNotAllowed,
@@ -13,6 +12,7 @@ import CollectionService from './collection-service'
 import { SchemaDefinitions } from './schema'
 import bcrypt from 'bcryptjs'
 import { context } from './context'
+import jsonwebtoken from 'jsonwebtoken'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
 
@@ -113,8 +113,6 @@ const CreatePasswordAuthCredential: Hook = {
 
 /** This is the primary authentication mechanism */
 async function baseAuthentication(app: App) {
-  const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
-
   const name = 'auth-credentials'
   if (!(await app.manifest.collection(name))) {
     const index = [{ fields: ['user'], options: { unique: true } }]
@@ -176,10 +174,9 @@ async function baseAuthentication(app: App) {
 
     // [ ] Sign with distinction for dev access
     // [ ] Use `expiresIn` settings from dashboard
-    const jwt = await new jose.SignJWT({ user: user._id })
-      .setExpirationTime('7d')
-      .setProtectedHeader({ alg: 'HS256' })
-      .sign(secretKey)
+    const jwt = jsonwebtoken.sign({ user: user._id }, process.env.SECRET_KEY!, {
+      expiresIn: '7d',
+    })
 
     ctx.result = {
       auth: { token: jwt, type: 'Bearer' },
@@ -249,7 +246,6 @@ async function upsertHooks(app: App) {
 }
 
 function checkAuth(): HookFn {
-  const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
   return async (ctx, _, app) => {
     checkSecretKeyEnv()
 
@@ -257,8 +253,14 @@ function checkAuth(): HookFn {
     if (authHeader) {
       const [, token] = (authHeader as string).split(' ')
       try {
-        const { payload } = await jose.jwtVerify(token, secretKey)
-        const { user: userId } = payload
+        interface JWTStructure {
+          user: string
+        }
+
+        const { user: userId } = jsonwebtoken.verify(
+          token,
+          process.env.SECRET_KEY!
+        ) as JWTStructure
 
         const usersCollection = (app.service('users') as CollectionService)
           .collection

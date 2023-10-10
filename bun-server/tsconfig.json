@@ -21,6 +21,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "resolveJsonModule": true
-  }
+  },
 }

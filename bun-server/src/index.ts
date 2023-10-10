@@ -45,4 +45,4 @@ function bunServer(port = 5000) {
     })
 }
 
-export default bunServer
+export { bunServer }

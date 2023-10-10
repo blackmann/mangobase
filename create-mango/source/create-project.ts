@@ -100,6 +100,12 @@ async function createProject(options: Options) {
 								variables
 							)
 
+							await copyWithTemplate(
+								fromPath('../_common/Dockerfile'),
+								toPath(projectDirectoryPath, 'Dockerfile'),
+								variables
+							)
+
 							await fs.copyFile(
 								fromPath('../_common/_gitattributes'),
 								toPath(projectDirectoryPath, '.gitattributes')
@@ -153,7 +159,6 @@ async function createProject(options: Options) {
 					'@mangobase/mongodb',
 					'mongodb',
 					'@next/env',
-					'jose',
 				]
 				await execaInDirectory('npm', ['install', ...packages])
 

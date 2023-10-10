@@ -1,10 +1,11 @@
 {
-  "name": "ts",
+  "name": "%NAME%",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts --watch"
+    "dev": "ts-node src/index.ts --watch",
+    "build": "npx esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js"
   },
   "keywords": [],
   "author": "",

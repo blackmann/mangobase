@@ -23,7 +23,7 @@ export default defineConfig({
             { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Recap on REST', link: '/guide/rest' },
             { text: 'Dashboard', link: '/guide/dashboard' },
-            { text: 'Development & Production', link: '/guide/dev-prod' },
+            { text: 'Deployment', link: '/guide/deployment' },
           ],
         },
         {
