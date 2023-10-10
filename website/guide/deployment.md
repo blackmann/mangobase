@@ -13,7 +13,7 @@ git push dokku master
 ```
 
 :::info
-Dokku is a self-hosted Heroku alternative. You can read more about it [here](http://dokku.viewdocs.io/dokku/).
+Dokku is a self-hosted Heroku alternative. You can read more about it [here](https://dokku.com).
 :::
 
 ## Docker-based deploys
