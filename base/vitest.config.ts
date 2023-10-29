@@ -8,5 +8,6 @@ export default defineConfig({
       enabled: true,
     },
     reporters: ['default', 'html'],
+    threads: false,
   },
 })

@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import App from './app'
 import { MongoDb } from '@mangobase/mongodb'
-import { MongoMemoryServer } from 'mongodb-memory-server-core'
+import MongoMemoryServer from 'mongodb-memory-server-core'
 import { context } from './context'
 import fs from 'fs'
 
@@ -22,16 +22,18 @@ async function teardown() {
   fs.rmSync('./.mangobase', { force: true, recursive: true })
 }
 
-beforeAll(setup, 30000)
+beforeAll(setup, 30_000)
 afterAll(teardown)
 
 describe('setup', () => {
   describe('dev-setup', () => {
     beforeAll(async () => {
-      await app.api(
+      // this user doesn't have the role: `dev` so checking for dev-setup should return false
+      const { statusCode } = await app.api(
         context({
           data: {
-            email: 'mock-1@mail.com',
+            email: 'mock-11@mail.com',
+            fullname: 'Mock User',
             password: 'hello',
             username: 'mock-1',
           },
@@ -39,6 +41,8 @@ describe('setup', () => {
           path: 'users',
         })
       )
+
+      assert(statusCode === 201)
     })
 
     it('returns false on initial setup', async () => {

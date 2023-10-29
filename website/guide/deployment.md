@@ -16,6 +16,12 @@ git push dokku master
 Dokku is a self-hosted Heroku alternative. You can read more about it [here](https://dokku.com).
 :::
 
+Set the proxy port if your app is not receiving requests:
+
+```bash
+dokku ports:set <app-name> http:80:5000
+```
+
 ## Docker-based deploys
 
 You can deploy your Mangobase app using Docker. When you use the [Mangobase CLI](/guide/getting-started#starting-a-new-project), it will generate a `Dockerfile` for you. You can then build and run the Docker image:

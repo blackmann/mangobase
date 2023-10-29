@@ -17,6 +17,7 @@ You can then login by making a `POST` request to `/api/login` with body:
 ```json
 {
   "username": "carlson",
+  // or "email": "carlson@gmail",
   "password": "gocarl"
 }
 ```

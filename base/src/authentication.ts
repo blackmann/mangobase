@@ -142,15 +142,18 @@ async function baseAuthentication(app: App) {
       throw new MethodNotAllowed()
     }
 
-    if (!(ctx.data?.username && ctx.data?.password)) {
-      throw new BadRequest('`username` and `password` required')
+    if (!((ctx.data?.username || ctx.data?.email) && ctx.data?.password)) {
+      throw new BadRequest('`username`/`email` and `password` required')
     }
 
     const usersService = app.service('users') as CollectionService
     const {
       data: [user],
     } = await usersService.collection.find({
-      query: { username: ctx.data.username },
+      query: {
+        // [ ] Support casting in $or queries
+        $or: [{ username: ctx.data.username }, { email: ctx.data.email }],
+      },
     })
 
     if (!user) {
