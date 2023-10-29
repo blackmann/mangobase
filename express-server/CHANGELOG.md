@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.4.1 (2023-10-29)
+
+### Features
+
+- login with email ([83e84ed](https://github.com/blackmann/mangobase/commit/83e84edee594be266afd1d39e3913f6810f9a615))
+
 # 0.4.0 (2023-10-10)
 
 **Note:** Version bump only for package @mangobase/express
