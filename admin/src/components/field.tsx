@@ -213,7 +213,7 @@ function SchemaSelect({ name, register }: SchemaSelectProps) {
         </Button>
       </label>
       <a
-        className="underline text-zinc-500 dark:text-neutral-400"
+        className="underline text-secondary"
         href="/_/settings/schemas"
         target="_blank"
       >

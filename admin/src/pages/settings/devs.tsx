@@ -11,7 +11,7 @@ function Devs() {
   return (
     <div className="mt-3">
       <h1 className="font-bold text-lg leading-none">Devs</h1>
-      <p className="text-zinc-500 dark:text-neutral-400">
+      <p className="text-secondary">
         Accounts with developer permissions for the app
       </p>
 
@@ -26,7 +26,7 @@ function Devs() {
               />
 
               <div className="-ms-2">
-                <span className="text-zinc-500 dark:text-neutral-400">@</span>
+                <span className="text-secondary">@</span>
                 {dev.username}
               </div>
             </div>

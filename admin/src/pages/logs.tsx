@@ -55,7 +55,7 @@ function Logs() {
                 </td>
                 <td>{log.label}</td>
                 <td>{log.status}</td>
-                <td className="max-w-[14rem] text-zinc-500 dark:text-neutral-400">
+                <td className="max-w-[14rem] text-secondary">
                   {log.data && JSON.stringify(log.data)}
                 </td>
                 <td>{typeof log.time === 'number' ? `${log.time}ms` : ''}</td>

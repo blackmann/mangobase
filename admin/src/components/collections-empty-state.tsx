@@ -16,7 +16,7 @@ const tips = [
 function CollectionEmptyState() {
   return (
     <div className="flex justify-center mt-[20%]">
-      <div className="text-zinc-500 dark:text-neutral-400">
+      <div className="text-secondary">
         <ul>
           {tips.map((tip) => (
             <li

@@ -22,7 +22,13 @@ function Edit() {
     navigate(`/collections/${collection.name}`, { replace: true })
   }
 
-  return <CollectionForm collection={collection} onHide={goBack} />
+  return (
+    <CollectionForm
+      collection={collection}
+      key={collection.name}
+      onHide={goBack}
+    />
+  )
 }
 
 export default Edit

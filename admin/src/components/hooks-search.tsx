@@ -57,7 +57,7 @@ function HooksSearch({ onSelect }: Props) {
                 onMouseDown={() => selectHook(hook.id)}
               >
                 <header className="font-medium">{hook.name}</header>
-                <p className="text-zinc-500 dark:text-neutral-400 m-0">
+                <p className="text-secondary m-0">
                   {hook.description}
                 </p>
               </li>

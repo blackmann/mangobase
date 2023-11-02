@@ -66,7 +66,7 @@ function CollectionDetail() {
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
                   clsx(
-                    'text-zinc-500 dark:text-neutral-400 me-2 hover:underline',
+                    'text-secondary me-2 hover:underline',
                     {
                       'text-zinc-800 dark:!text-neutral-200 underline':
                         isActive,
@@ -83,7 +83,7 @@ function CollectionDetail() {
           </div>
 
           <div className="flex items-center">
-            <span className="material-symbols-rounded text-base me-2 text-zinc-500 dark:text-neutral-400">
+            <span className="material-symbols-rounded text-base me-2 text-secondary">
               code
             </span>
 

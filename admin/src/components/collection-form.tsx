@@ -16,6 +16,7 @@ import appendSchemaFields from '../lib/append-schema-fields'
 import getNewFieldName from '../lib/get-new-field-name'
 import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
+import { ControlledChipsInput } from './chips-input'
 
 interface Props {
   onHide?: (collection?: Collection) => void
@@ -163,8 +164,12 @@ function CollectionForm({ collection, onHide }: Props) {
 
     setValue('options', options)
 
+    // for some reason, when developing, updating this component causes
+    // the fields to repeat themselves. remove() clears old insertions
+    remove()
+
     appendSchemaFields(append, collection.schema)
-  }, [append, collection, setValue])
+  }, [append, collection, remove, setValue])
 
   React.useEffect(() => {
     if (collection || fields.length) {
@@ -174,7 +179,7 @@ function CollectionForm({ collection, onHide }: Props) {
     addNewField()
   }, [addNewField, collection, fields])
 
-  const submitLabel = collection ? 'Update' : 'Create'
+  const submitLabel = collection ? 'Updated' : 'Create'
 
   return (
     <form className="w-[500px] pb-4" onSubmit={handleSubmit(submitForm)}>
@@ -190,7 +195,7 @@ function CollectionForm({ collection, onHide }: Props) {
         />
       </label>
 
-      <div className="text-zinc-500 dark:text-neutral-400">
+      <div className="text-secondary">
         This becomes endpoint name.{' '}
         {getFieldState('name', formState).error && (
           <span className="text-red-500 dark:text-orange-400 mt-1">
@@ -212,7 +217,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Expose
           </label>
 
-          <p className="text-zinc-500 dark:text-neutral-400 ms-7">
+          <p className="text-secondary ms-7">
             Check this if this collection should have a public endpoint. See{' '}
             <Link to="/docs" className="underline">
               docs
@@ -232,7 +237,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Use as template
           </label>
 
-          <p className="text-zinc-500 dark:text-neutral-400 mt-0 ms-7">
+          <p className="text-secondary mt-0 ms-7">
             Allow this collection to be used to validate fields of other
             collections
           </p>
@@ -273,6 +278,8 @@ function CollectionForm({ collection, onHide }: Props) {
 
       <fieldset className="mt-8">
         <legend className="font-medium">Indexes</legend>
+
+        <ControlledChipsInput control={control} name="indexes" />
       </fieldset>
 
       <footer>

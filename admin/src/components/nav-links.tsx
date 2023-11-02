@@ -30,7 +30,7 @@ function L({
     <NavLink
       className={({ isActive }: { isActive: boolean }) =>
         clsx(
-          'group flex justify-between items-center text-zinc-500 dark:text-neutral-400 no-underline px-0 hover:text-zinc-800 dark:hover:!text-neutral-200',
+          'group flex justify-between items-center text-secondary no-underline px-0 hover:text-zinc-800 dark:hover:!text-neutral-200',
           {
             'text-zinc-800 dark:!text-neutral-200 is-active': isActive,
           }

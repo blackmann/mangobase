@@ -50,12 +50,12 @@ function HookNode({ data, id: nodeId, selected }: NodeProps<Data>) {
         />
 
         <header className="flex-1 flex">
-          <div className="me-2 text-zinc-500 dark:text-neutral-400">
+          <div className="me-2 text-secondary">
             <span className="material-symbols-rounded">line_start_circle</span>
           </div>
           <div>
             <div>{hookInfo.name}</div>
-            <p className="text-zinc-500 dark:text-neutral-400">
+            <p className="text-secondary">
               {hookInfo.description}
             </p>
           </div>

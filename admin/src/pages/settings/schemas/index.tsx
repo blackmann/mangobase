@@ -9,7 +9,7 @@ function Schemas() {
   }
   return (
     <div className="flex flex-col items-center mt-[20vh]">
-      <div className="text-zinc-500 dark:text-neutral-400 max-w-[20rem]">
+      <div className="text-secondary max-w-[20rem]">
         <span className="text-zinc-400 dark:text-neutral-500 material-symbols-rounded">
           reply
         </span>
