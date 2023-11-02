@@ -77,6 +77,7 @@ const routes = createBrowserRouter(
               element: <CollectionDetail />,
               id: 'collection',
               loader: async ({ params }) => {
+                console.log('reloaded')
                 try {
                   const collection = await app.collection(params.name!)
                   return { collection }

@@ -52,7 +52,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             </label>
 
             <Button
-              className="material-symbols-rounded !bg-transparent text-sm"
+              className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm"
               onClick={removed ? onRestore : onRemove}
               title={removed ? 'Restore' : 'Remove'}
               type="button"
@@ -64,7 +64,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
         <div className="mt-1 d-flex justify-content-between">
           <div>
             <label className="me-3">
-              <input
+              <Input
                 disabled={removed}
                 type="checkbox"
                 {...register('required')}
@@ -75,7 +75,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
 
             {!['boolean', 'object', 'array'].includes(type) && (
               <label>
-                <input
+                <Input
                   disabled={removed}
                   type="checkbox"
                   {...register('unique')}

@@ -202,7 +202,7 @@ function CollectionForm({ collection, onHide }: Props) {
       <div className="mt-3 grid grid-cols-12">
         <div className="col-span-6">
           <label>
-            <input
+            <Input
               checked={true}
               type="checkbox"
               value="expose"
@@ -212,7 +212,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Expose
           </label>
 
-          <p className="text-zinc-500 dark:text-neutral-400 ms-5">
+          <p className="text-zinc-500 dark:text-neutral-400 ms-7">
             Check this if this collection should have a public endpoint. See{' '}
             <Link to="/docs" className="underline">
               docs
@@ -223,7 +223,7 @@ function CollectionForm({ collection, onHide }: Props) {
 
         <div className="col-span-6">
           <label>
-            <input
+            <Input
               type="checkbox"
               value="is-template"
               {...register('options')}
@@ -232,7 +232,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Use as template
           </label>
 
-          <p className="text-zinc-500 dark:text-neutral-400 mt-0 ms-5">
+          <p className="text-zinc-500 dark:text-neutral-400 mt-0 ms-7">
             Allow this collection to be used to validate fields of other
             collections
           </p>
@@ -252,7 +252,7 @@ function CollectionForm({ collection, onHide }: Props) {
       )}
 
       <fieldset className="mt-8">
-        <legend>Fields</legend>
+        <legend className="font-medium">Fields</legend>
 
         {fields.map((field, i) => (
           <Field
@@ -269,6 +269,10 @@ function CollectionForm({ collection, onHide }: Props) {
         <Button className="mt-3" onClick={addNewField} type="button">
           Add new field
         </Button>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <legend className="font-medium">Indexes</legend>
       </fieldset>
 
       <footer>

@@ -5,6 +5,7 @@
 @font-face {
 	font-family: "Zed Mono";
 	src: url("/zed-mono/zed-mono-regular.woff2");
+  font-weight: 400;
 }
 
 @font-face {
@@ -31,19 +32,10 @@
 
 :root {
   color-scheme: light dark;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-  font-weight: 500;
   accent-color: #0E9544;
-}
 
-
-body {
-  font-family: "Zed Mono", sans-serif;
   font-size: 14px;
+  font-family: "Zed Mono", sans-serif;
 }
 
 .react-flow__controls-button {
