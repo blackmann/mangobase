@@ -19,13 +19,29 @@ function getRefUsage(refName: string, schema: SchemaDefinitions) {
     }
 
     if (value.type === 'array') {
-      if (value.schema.item.type === 'object') {
-        if (typeof value.schema.item.schema === 'string') {
-          if (value.schema.item.schema === refName) {
+      if (Array.isArray(value.items)) {
+        for (const [i, itemDefinition] of value.items.entries()) {
+          if (itemDefinition.type === 'object') {
+            if (typeof itemDefinition.schema === 'string') {
+              if (itemDefinition.schema === refName) {
+                usage.push([key, i.toString()])
+              }
+              continue
+            }
+
+            const nestedUsage = getRefUsage(refName, itemDefinition.schema)
+            for (const path of nestedUsage) {
+              usage.push([key, i.toString(), ...path])
+            }
+          }
+        }
+      } else if (value.items.type === 'object') {
+        if (typeof value.items.schema === 'string') {
+          if (value.items.schema === refName) {
             usage.push([key])
           }
         } else {
-          const nestedUsage = getRefUsage(refName, value.schema.item.schema)
+          const nestedUsage = getRefUsage(refName, value.items.schema)
           for (const path of nestedUsage) {
             usage.push([key, ...path])
           }

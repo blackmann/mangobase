@@ -495,7 +495,7 @@ describe('schema', () => {
 
   describe('array type', () => {
     const schema = new Schema({
-      tags: { schema: { item: { type: 'string' } }, type: 'array' },
+      tags: { items: { type: 'string' }, type: 'array' },
     })
 
     it('returns correctly with passed value', () => {
@@ -511,8 +511,8 @@ describe('schema', () => {
     describe('when required', () => {
       const schema = new Schema({
         tags: {
+          items: { type: 'string' },
           required: true,
-          schema: { item: { type: 'string' } },
           type: 'array',
         },
       })
@@ -532,7 +532,7 @@ describe('schema', () => {
       const schema = new Schema({
         tags: {
           defaultValue: ['Mock'],
-          schema: { item: { type: 'string' } },
+          items: { type: 'string' },
           type: 'array',
         },
       })
@@ -553,8 +553,8 @@ describe('schema', () => {
         const schema = new Schema({
           tags: {
             defaultValue: ['Mock'],
+            items: { type: 'string' },
             required: true,
-            schema: { item: { type: 'string' } },
             type: 'array',
           },
         })
@@ -567,12 +567,36 @@ describe('schema', () => {
       })
     })
 
+    describe('when tuple is defined', () => {
+      const schema = new Schema({
+        tags: {
+          items: [
+            { type: 'string' },
+            { type: 'number' },
+            { schema: { mock: { type: 'boolean' } }, type: 'object' },
+          ],
+          type: 'array',
+        },
+      })
+
+      it('returns with data when valid', () => {
+        const data = schema.validate({ tags: ['hello', 1, { mock: false }] })
+        expect(data).toStrictEqual({ tags: ['hello', 1, { mock: false }] })
+      })
+
+      it('throws when data is invalid', () => {
+        expect(() => schema.validate({ tags: [1, 'hello'] })).toThrow(
+          'value is not of type `string`'
+        )
+      })
+    })
+
     describe('when item is not of type array', () => {
       const schema = new Schema({
         tags: {
           defaultValue: ['Mock'],
+          items: { type: 'string' },
           required: true,
-          schema: { item: { type: 'string' } },
           type: 'array',
         },
       })

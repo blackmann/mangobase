@@ -1,6 +1,6 @@
 import type App from './app'
 import { ReactFlowJsonObject } from 'reactflow'
-import type { SchemaDefinitions } from 'mangobase'
+import type { Index, SchemaDefinitions } from 'mangobase'
 import qs from 'qs'
 
 type Editor = ReactFlowJsonObject
@@ -11,6 +11,7 @@ interface CollectionProps {
   exposed: boolean
   readOnlySchema?: boolean
   template: boolean
+  indexes: Index[]
 }
 
 class Collection {
@@ -20,6 +21,7 @@ class Collection {
   exposed: boolean
   template: boolean
   readOnlySchema?: boolean
+  indexes: Index[]
 
   constructor(app: App, data: CollectionProps) {
     this.app = app
@@ -29,6 +31,7 @@ class Collection {
     this.exposed = data.exposed
     this.template = data.template
     this.readOnlySchema = data.readOnlySchema
+    this.indexes = data.indexes
   }
 
   private get base() {

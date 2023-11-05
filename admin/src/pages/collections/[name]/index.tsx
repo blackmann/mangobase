@@ -65,13 +65,9 @@ function CollectionDetail() {
             {links.map((link) => (
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
-                  clsx(
-                    'text-secondary me-2 hover:underline',
-                    {
-                      'text-zinc-800 dark:!text-neutral-200 underline':
-                        isActive,
-                    }
-                  )
+                  clsx('text-secondary me-2 hover:underline', {
+                    'text-zinc-800 dark:!text-neutral-200 underline': isActive,
+                  })
                 }
                 end
                 key={link.href}
@@ -134,13 +130,17 @@ function CollectionRecords() {
         <thead>
           <tr>
             <th>
-              <input type="checkbox" />
+              <input type="checkbox" className="ms-1" />
             </th>
+
             <th>id</th>
+
             {fields.map((field) => (
               <th key={field}>{field}</th>
             ))}
+
             <th>created_at</th>
+
             <th>updated_at</th>
           </tr>
         </thead>

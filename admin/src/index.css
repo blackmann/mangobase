@@ -38,6 +38,10 @@
   font-family: "Zed Mono", sans-serif;
 }
 
+input[type="checkbox"] {
+  @apply rounded-md bg-zinc-200 dark:bg-neutral-700 w-5 h-4 focus:ring-white focus:ring-1 focus:ring-offset-0;
+}
+
 .react-flow__controls-button {
   @apply dark:!bg-neutral-600 dark:!border-b-neutral-700 dark:!text-white dark:hover:!bg-neutral-500;
 }

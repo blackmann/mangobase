@@ -1,5 +1,7 @@
 import { Definition, DefinitionType } from './schema'
 
+type SortOrder = -1 | 1
+
 interface Cursor<T = any> {
   exec(): Promise<T>
   limit(n: number): Cursor<T>
@@ -8,7 +10,7 @@ interface Cursor<T = any> {
   ): Cursor<T>
   select(fields: string[]): Cursor<T>
   skip(n: number): Cursor<T>
-  sort(config: Record<string, -1 | 1>): Cursor<T>
+  sort(config: Record<string, SortOrder>): Cursor<T>
 }
 
 interface Filter {
@@ -16,15 +18,17 @@ interface Filter {
   populate?: string[]
   select?: string[]
   skip?: number
-  sort?: Record<string, -1 | 1>
+  sort?: Record<string, SortOrder>
 }
 
 type Data = Record<string, any>
 
 interface Index {
-  fields: string[]
+  // when sort is not specified, it defaults to ascending (1)
+  fields: [string, SortOrder][] | string[]
   options: {
     unique?: boolean
+    sparse?: boolean
   }
 }
 
@@ -107,4 +111,5 @@ export type {
   Index,
   Migration,
   MigrationStep,
+  SortOrder,
 }

@@ -341,29 +341,37 @@ const collectionsService: Service & WithSchema = {
     exposed: { defaultValue: true, type: 'boolean' },
     indexes: {
       defaultValue: [],
-      schema: {
-        item: {
-          schema: {
-            fields: { schema: { item: { type: 'string' } }, type: 'array' },
-            options: {
-              schema: { unique: { type: 'boolean' } },
-              type: 'object',
+      items: {
+        schema: {
+          fields: {
+            items: {
+              items: [
+                { description: 'field', type: 'string' },
+                { description: 'sort', type: 'number' },
+              ],
+              type: 'array',
             },
+            type: 'array',
           },
-          type: 'object',
+          options: {
+            schema: {
+              sparse: { type: 'boolean' },
+              unique: { type: 'boolean' },
+            },
+            type: 'object',
+          },
         },
+        type: 'object',
       },
       type: 'array',
     },
     migrationSteps: {
       defaultValue: [],
-      schema: {
-        item: {
-          schema: {
-            // [ ] Provide schema definitions
-          },
-          type: 'object',
+      items: {
+        schema: {
+          // [ ] Provide schema definitions
         },
+        type: 'object',
       },
       type: 'array',
     },

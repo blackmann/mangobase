@@ -5,6 +5,7 @@ import {
   useFieldArray,
   useForm,
 } from 'react-hook-form'
+import type { Index, SortOrder } from 'mangobase'
 import Button from './button'
 import Collection from '../client/collection'
 import Field from './field'
@@ -18,6 +19,7 @@ import appendSchemaFields from '../lib/append-schema-fields'
 import getNewFieldName from '../lib/get-new-field-name'
 import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
+import { appendIndexFields } from '../lib/append-index-fields'
 
 interface Props {
   onHide?: (collection?: Collection) => void
@@ -45,6 +47,7 @@ function CollectionForm({ collection, onHide }: Props) {
     register,
     reset,
     setValue,
+    setError,
     watch,
   } = useForm()
   const { fields, append, remove } = useFieldArray({
@@ -94,21 +97,69 @@ function CollectionForm({ collection, onHide }: Props) {
     })
   }
 
-  async function submitForm(form: FieldValues) {
-    // if (submitting || collection?.readOnlySchema) {
-    //   return
-    // }
+  function validateIndexes() {
+    const fieldsNamesEntries = getValues('fields').map(
+      ({ name }: FieldProps) => [name, true]
+    )
 
-    // try {
-    //   setSubmitting(true)
-    //   await save(form)
-    // } catch (err) {
-    //   setSubmitting(false)
-    // }
-    console.log('fields', form)
+    const indexes = getValues('indexes') as {
+      fields: (Value & { sort?: SortOrder })[]
+      constraint: string
+    }[]
+
+    const fieldsNames = Object.fromEntries(fieldsNamesEntries)
+
+    const validatedIndexes: Index[] = []
+
+    for (const [{ fields, constraint }, i] of indexed(indexes)) {
+      const validFields: [string, SortOrder][] = []
+      for (const { text, sort } of fields) {
+        if (!fieldsNames[text]) {
+          // [ ]: render error
+          setError(
+            `indexes.${i}.fields`,
+            {
+              message: `Index field "${text}" does not exist on this collection`,
+              type: 'custom',
+            },
+            {
+              shouldFocus: true,
+            }
+          )
+
+          return undefined
+        }
+
+        validFields.push([text, sort || 1])
+      }
+
+      const options: Record<string, any> = {}
+      if (constraint && constraint !== 'none') {
+        options[constraint] = true
+      }
+
+      validatedIndexes.push({ fields: validFields, options })
+    }
+
+    return validatedIndexes
   }
 
-  async function save(form: FieldValues) {
+  async function submitForm(form: FieldValues) {
+    const indexes = validateIndexes()
+
+    if (!indexes || submitting || collection?.readOnlySchema) {
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      await save(form, indexes)
+    } catch (err) {
+      setSubmitting(false)
+    }
+  }
+
+  async function save(form: FieldValues, indexes: Index[]) {
     const { name, options, fields } = form
 
     const migrationSteps = []
@@ -151,7 +202,7 @@ function CollectionForm({ collection, onHide }: Props) {
 
     const data = {
       exposed: options.includes('expose'),
-      indexes: indexesFromForm(fields),
+      indexes: [...indexesFromForm(fields), ...indexes],
       migrationSteps,
       name,
       schema: schemaFromForm(fields),
@@ -201,6 +252,7 @@ function CollectionForm({ collection, onHide }: Props) {
     remove()
 
     appendSchemaFields(append, collection.schema)
+    appendIndexFields(appendIndex, collection.indexes)
   }, [append, collection, remove, setValue])
 
   React.useEffect(() => {
@@ -317,11 +369,10 @@ function CollectionForm({ collection, onHide }: Props) {
         <legend className="font-medium w-full mb-2">Indexes (Optional)</legend>
 
         {indexes.map((indexConfig, index) => (
-          <div className="flex gap-2 [&+&]:mt-4" key={indexConfig.id}>
+          <div className="flex gap-2 [&+&]:mt-2" key={indexConfig.id}>
             <div className="flex-1">
               <ControlledChipsInput
                 control={control}
-                helperText={<>Click on tag to set sort order.</>}
                 name={`indexes.${index}.fields`}
                 placeholder="Enter field names"
                 getAction={(it: Value, subfieldIndex) => (
@@ -412,7 +463,7 @@ function indexesFromForm(fields: FieldProps[]) {
       continue
     }
 
-    indexes.push({ fields: [name], options: { unique: true } })
+    indexes.push({ fields: [[name, 1]], options: { unique: true } })
   }
 
   return indexes

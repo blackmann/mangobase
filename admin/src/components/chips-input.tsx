@@ -141,7 +141,9 @@ const ControlledChipsInput = React.forwardRef<
   <Controller
     control={control}
     name={name}
-    rules={{ validate: (value) => value?.length !== 0 }}
+    rules={{
+      validate: (v) => !!v?.length,
+    }}
     render={({ field: { onChange, value, ref } }) => (
       <ChipsInput
         onChange={onChange}
