@@ -1,3 +1,4 @@
+import { ControlledChipsInput, Value } from './chips-input'
 import {
   FieldValues,
   RegisterOptions,
@@ -11,12 +12,12 @@ import { FieldType } from '../lib/field-types'
 import Input from './input'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
+import Select from './select'
 import app from '../mangobase-app'
 import appendSchemaFields from '../lib/append-schema-fields'
 import getNewFieldName from '../lib/get-new-field-name'
 import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
-import { ControlledChipsInput } from './chips-input'
 
 interface Props {
   onHide?: (collection?: Collection) => void
@@ -39,13 +40,27 @@ function CollectionForm({ collection, onHide }: Props) {
     control,
     formState,
     getFieldState,
+    getValues,
     handleSubmit,
     register,
     reset,
     setValue,
     watch,
   } = useForm()
-  const { fields, append, remove } = useFieldArray({ control, name: 'fields' })
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'fields',
+  })
+
+  const {
+    fields: indexes,
+    append: appendIndex,
+    remove: removeIndex,
+    update: updateIndexes,
+  } = useFieldArray({
+    control,
+    name: 'indexes',
+  })
 
   const [submitting, setSubmitting] = React.useState(false)
 
@@ -63,17 +78,34 @@ function CollectionForm({ collection, onHide }: Props) {
     setValue(`fields.${index}.removed`, false)
   }
 
-  async function submitForm(form: FieldValues) {
-    if (submitting || collection?.readOnlySchema) {
-      return
-    }
+  function handleUpdateIndexFieldSort(index: number, subfieldIndex: number) {
+    const indexConfig = getValues(`indexes.${index}`)
+    updateIndexes(index, {
+      ...indexConfig,
+      fields: indexConfig.fields.map((f: Value, i: number) =>
+        i !== subfieldIndex ? f : { ...f, sort: f.sort === -1 ? 1 : -1 }
+      ),
+    })
+  }
 
-    try {
-      setSubmitting(true)
-      await save(form)
-    } catch (err) {
-      setSubmitting(false)
-    }
+  function addIndexEntry() {
+    appendIndex({
+      fields: [],
+    })
+  }
+
+  async function submitForm(form: FieldValues) {
+    // if (submitting || collection?.readOnlySchema) {
+    //   return
+    // }
+
+    // try {
+    //   setSubmitting(true)
+    //   await save(form)
+    // } catch (err) {
+    //   setSubmitting(false)
+    // }
+    console.log('fields', form)
   }
 
   async function save(form: FieldValues) {
@@ -179,7 +211,7 @@ function CollectionForm({ collection, onHide }: Props) {
     addNewField()
   }, [addNewField, collection, fields])
 
-  const submitLabel = collection ? 'Updated' : 'Create'
+  const submitLabel = collection ? 'Update' : 'Create'
 
   return (
     <form className="w-[500px] pb-4" onSubmit={handleSubmit(submitForm)}>
@@ -195,7 +227,7 @@ function CollectionForm({ collection, onHide }: Props) {
         />
       </label>
 
-      <div className="text-secondary">
+      <div className="text-secondary text-sm">
         This becomes endpoint name.{' '}
         {getFieldState('name', formState).error && (
           <span className="text-red-500 dark:text-orange-400 mt-1">
@@ -204,8 +236,8 @@ function CollectionForm({ collection, onHide }: Props) {
         )}
       </div>
 
-      <div className="mt-3 grid grid-cols-12">
-        <div className="col-span-6">
+      <div className="mt-3 grid grid-cols-2 gap-4">
+        <div className="col-span-1">
           <label>
             <Input
               checked={true}
@@ -217,7 +249,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Expose
           </label>
 
-          <p className="text-secondary ms-7">
+          <p className="text-secondary ms-7 text-sm">
             Check this if this collection should have a public endpoint. See{' '}
             <Link to="/docs" className="underline">
               docs
@@ -226,7 +258,7 @@ function CollectionForm({ collection, onHide }: Props) {
           </p>
         </div>
 
-        <div className="col-span-6">
+        <div className="col-span-1">
           <label>
             <Input
               type="checkbox"
@@ -237,7 +269,7 @@ function CollectionForm({ collection, onHide }: Props) {
             Use as template
           </label>
 
-          <p className="text-secondary mt-0 ms-7">
+          <p className="text-secondary mt-0 ms-7 text-sm">
             Allow this collection to be used to validate fields of other
             collections
           </p>
@@ -274,20 +306,74 @@ function CollectionForm({ collection, onHide }: Props) {
         <Button className="mt-3" onClick={addNewField} type="button">
           Add new field
         </Button>
-      </fieldset>
 
-      <fieldset className="mt-8">
-        <legend className="font-medium">Indexes</legend>
-
-        <ControlledChipsInput control={control} name="indexes" />
-      </fieldset>
-
-      <footer>
-        <p className="my-8">
+        <p className="my-4">
           <code className="py-0">created_at</code> and{' '}
           <code className="py-0">updated_at</code> fields are automatically set
         </p>
+      </fieldset>
 
+      <fieldset className="my-4">
+        <legend className="font-medium w-full mb-2">Indexes (Optional)</legend>
+
+        {indexes.map((indexConfig, index) => (
+          <div className="flex gap-2 [&+&]:mt-4" key={indexConfig.id}>
+            <div className="flex-1">
+              <ControlledChipsInput
+                control={control}
+                helperText={<>Click on tag to set sort order.</>}
+                name={`indexes.${index}.fields`}
+                placeholder="Enter field names"
+                getAction={(it: Value, subfieldIndex) => (
+                  <button
+                    className="material-symbols-rounded text-lg text-secondary"
+                    title="sort: asc"
+                    type="button"
+                    onClick={() =>
+                      handleUpdateIndexFieldSort(index, subfieldIndex)
+                    }
+                  >
+                    {it.sort === -1 ? 'expand_less' : 'expand_more'}
+                  </button>
+                )}
+              />
+            </div>
+
+            <div>
+              <Select
+                defaultValue="none"
+                {...register(`indexes.${index}.constraint`)}
+              >
+                <option disabled selected>
+                  Constraint
+                </option>
+
+                <option value="none">None</option>
+                <option value="unique">Unique</option>
+                <option value="sparse">Sparse</option>
+              </Select>
+            </div>
+            <Button
+              className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm h-[2.15rem]"
+              onClick={() => removeIndex(index)}
+              title={'Remove'}
+              type="button"
+            >
+              close
+            </Button>
+          </div>
+        ))}
+
+        {indexes.length === 0 && (
+          <p className="text-secondary">No indexes added.</p>
+        )}
+
+        <Button className="mt-3" onClick={addIndexEntry} type="button">
+          Add index
+        </Button>
+      </fieldset>
+
+      <footer>
         <div>
           <Button
             className="me-2"
