@@ -1,4 +1,5 @@
 import { Definition, DefinitionType } from './schema'
+import Collection from './collection'
 
 type SortOrder = -1 | 1
 
@@ -26,7 +27,7 @@ type Data = Record<string, any>
 interface Index {
   // when sort is not specified, it defaults to ascending (1)
   fields: [string, SortOrder][] | string[]
-  options: {
+  options?: {
     unique?: boolean
     sparse?: boolean
   }
@@ -46,6 +47,7 @@ interface RemoveField {
 }
 
 interface AddField {
+  collection: string
   type: 'add-field'
   name: string
   definition: Definition
@@ -57,8 +59,43 @@ interface RenameCollection {
   to: string
 }
 
+interface CreateCollection {
+  type: 'create-collection'
+  name: string
+  collection: Collection
+}
+
+interface AddIndex {
+  type: 'add-index'
+  collection: string
+  index: Index
+}
+
+interface RemoveIndex {
+  type: 'remove-index'
+  collection: string
+  index: Index
+}
+
+interface UpdateConstraints {
+  type: 'update-constraints'
+  collection: string
+  field: string
+  constraints: {
+    unique?: boolean
+  }
+}
+
 // When adding support for RDBMS, we need to add `CreateCollection`, `DropCollection`, etc.
-type MigrationStep = RenameField | RemoveField | AddField | RenameCollection
+type MigrationStep =
+  | CreateCollection
+  | RenameField
+  | RemoveField
+  | AddField
+  | RenameCollection
+  | AddIndex
+  | RemoveIndex
+  | UpdateConstraints
 
 interface Migration {
   /**
@@ -90,10 +127,8 @@ interface Database {
   ): Cursor<T | T[]>
   remove(collection: string, id: string | string[]): Promise<void>
   migrate(migration: Migration): Promise<void>
-  /**
-   * This method removes and adds the indexes as necessary
-   */
-  syncIndex(collection: string, indexes: Index[]): Promise<void>
+  addIndexes(collection: string, indexes: Index[]): Promise<void>
+  removeIndexes(collection: string, indexes: Index[]): Promise<void>
 
   // [ ] Properly standardize this API
   aggregate(

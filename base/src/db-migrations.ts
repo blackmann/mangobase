@@ -20,7 +20,7 @@ async function dbMigrations(app: App) {
       schema: migrationSchema,
     })
 
-    await app.database.syncIndex(collectionName, indexes)
+    await app.database.addIndexes(collectionName, indexes)
   }
 
   const migrationsCollection = getCollection(

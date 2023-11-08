@@ -247,12 +247,19 @@ const collectionsService: Service & WithSchema = {
         const validData = this.schema.validate(ctx.data, true)
         Schema.validateSchema(validData.schema)
 
+        // no migrations expected on create,
+        // migrationSteps is not persisted
         const { migrationSteps, ...data } = validData
 
         const collection = (await app.manifest.collection(data.name, data))!
-        await handleMigration(migrationSteps, app)
 
-        await app.database.syncIndex(collection.name, collection.indexes)
+        const createCollectionStep: MigrationStep = {
+          collection: validData,
+          name: data.name,
+          type: 'create-collection',
+        }
+
+        await handleMigration([createCollectionStep], app)
 
         app.use(collection.name, new CollectionService(app, collection.name))
 
@@ -315,8 +322,6 @@ const collectionsService: Service & WithSchema = {
         ))!
 
         await handleMigration(migrationSteps, app)
-
-        await app.database.syncIndex(collection.name, collection.indexes)
 
         await app.installCollection(collection)
 

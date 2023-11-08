@@ -10,10 +10,11 @@ import {
   Db,
   FindCursor,
   FindOptions,
-  IndexDescription,
+  MongoBulkWriteError,
   MongoClient,
   ObjectId,
 } from 'mongodb'
+import { errors } from 'mangobase'
 
 interface Filters {
   limit?: number
@@ -206,11 +207,21 @@ class MongoDb implements Database {
 
     const cursor = new MongoCursor(this, async (options) => {
       data = isMany ? data : [data]
-      const inserted = await col.insertMany(data)
-      return col.find(
-        { _id: { $in: Object.values(inserted.insertedIds) } },
-        options
-      )
+      try {
+        const inserted = await col.insertMany(data)
+        return col.find(
+          { _id: { $in: Object.values(inserted.insertedIds) } },
+          options
+        )
+      } catch (error) {
+        if (error instanceof MongoBulkWriteError) {
+          if (error.code === 11000) {
+            throw new errors.Conflict(error.message)
+          }
+        }
+
+        throw error
+      }
     })
 
     return isMany ? cursor : cursor.single
@@ -247,6 +258,36 @@ class MongoDb implements Database {
 
     for (const step of migration.steps) {
       switch (step.type) {
+        case 'add-field': {
+          // we'll only care about unique fields for now
+          if (step.definition.unique) {
+            await this.addIndexes(step.collection, [
+              {
+                fields: [[step.name, 1]],
+                options: { unique: true },
+              },
+            ])
+          }
+          break
+        }
+
+        case 'create-collection': {
+          const uniqueIndexes: Index[] = []
+          for (const [fieldName, definition] of Object.entries(
+            step.collection.schema
+          )) {
+            if (definition.unique) {
+              uniqueIndexes.push({
+                fields: [[fieldName, 1]],
+                options: { unique: true },
+              })
+            }
+          }
+
+          await this.addIndexes(step.name, uniqueIndexes)
+          break
+        }
+
         case 'rename-collection': {
           await this.db.collection(step.collection).rename(step.to)
 
@@ -270,39 +311,54 @@ class MongoDb implements Database {
           break
         }
 
-        default: {
-          // no-op
+        case 'update-constraints': {
+          if (step.constraints.unique) {
+            await this.addIndexes(step.collection, [
+              { fields: [step.field], options: { unique: true } },
+            ])
+          } else {
+            await this.removeIndexes(step.collection, [
+              { fields: [step.field] },
+            ])
+          }
+
+          break
+        }
+
+        case 'add-index': {
+          await this.addIndexes(step.collection, [step.index])
+          break
+        }
+
+        case 'remove-index': {
+          await this.removeIndexes(step.collection, [step.index])
+          break
         }
       }
     }
   }
 
-  async syncIndex(collection: string, indexes: Index[]): Promise<void> {
+  private async checkCollectionExists(collection: string) {
     const exists = await this.db.listCollections({ name: collection }).toArray()
     if (!exists.length) {
       await this.db.createCollection(collection)
     }
+  }
 
-    const existingIndexes: IndexDescription[] = await this.db
-      .collection(collection)
-      .listIndexes()
-      .toArray()
+  async addIndexes(collection: string, indexes: Index[]): Promise<void> {
+    await this.checkCollectionExists(collection)
 
-    const indexNames = new Set<string>()
     for (const index of indexes) {
-      const name = await this.db.createIndex(
-        collection,
-        index.fields,
-        index.options
-      )
-      indexNames.add(name)
+      await this.db.createIndex(collection, index.fields, index.options)
     }
+  }
 
-    for (const index of existingIndexes) {
-      if (index.name !== '_id_' && !indexNames.has(index.name!)) {
-        await this.db.collection(collection).dropIndex(index.name!)
-      }
-    }
+  async removeIndexes(collection: string, indexes: Index[]): Promise<void> {
+    await this.checkCollectionExists(collection)
+
+    await this.db
+      .collection(collection)
+      .dropIndexes(Object.fromEntries(indexes.map((i) => i.fields)))
   }
 
   // [ ] Properly type these args/design this API

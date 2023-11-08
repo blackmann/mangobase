@@ -1,11 +1,11 @@
 import { ControlledChipsInput, Value } from './chips-input'
+import type { Definition, Index, MigrationStep, SortOrder } from 'mangobase'
 import {
   FieldValues,
   RegisterOptions,
   useFieldArray,
   useForm,
 } from 'react-hook-form'
-import type { Index, SortOrder } from 'mangobase'
 import Button from './button'
 import Collection from '../client/collection'
 import Field from './field'
@@ -15,11 +15,12 @@ import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import Select from './select'
 import app from '../mangobase-app'
+import { appendIndexFields } from '../lib/append-index-fields'
 import appendSchemaFields from '../lib/append-schema-fields'
 import getNewFieldName from '../lib/get-new-field-name'
-import indexed from '../lib/indexed'
 import { loadCollections } from '../data/collections'
-import { appendIndexFields } from '../lib/append-index-fields'
+
+type ValidatedIndex = Index & { existing?: boolean }
 
 interface Props {
   onHide?: (collection?: Collection) => void
@@ -33,6 +34,9 @@ interface FieldProps {
   removed?: boolean
   type: FieldType
   unique?: boolean
+
+  // some additional props for specific field types
+  [key: string]: any
 }
 
 const SLUG_REGEX = /^[A-Za-z0-9_]+(?:-[A-Za-z0-9]+)*$/
@@ -50,7 +54,12 @@ function CollectionForm({ collection, onHide }: Props) {
     setError,
     watch,
   } = useForm()
-  const { fields, append, remove } = useFieldArray({
+
+  const {
+    fields,
+    append,
+    remove: removeFields,
+  } = useFieldArray({
     control,
     name: 'fields',
   })
@@ -58,7 +67,7 @@ function CollectionForm({ collection, onHide }: Props) {
   const {
     fields: indexes,
     append: appendIndex,
-    remove: removeIndex,
+    remove: removeIndexes,
     update: updateIndexes,
   } = useFieldArray({
     control,
@@ -74,7 +83,7 @@ function CollectionForm({ collection, onHide }: Props) {
       return
     }
 
-    remove(index)
+    removeFields(index)
   }
 
   function handleRestore(index: number) {
@@ -105,13 +114,14 @@ function CollectionForm({ collection, onHide }: Props) {
     const indexes = getValues('indexes') as {
       fields: (Value & { sort?: SortOrder })[]
       constraint: string
+      existing?: boolean
     }[]
 
     const fieldsNames = Object.fromEntries(fieldsNamesEntries)
 
-    const validatedIndexes: Index[] = []
+    const validatedIndexes: ValidatedIndex[] = []
 
-    for (const [{ fields, constraint }, i] of indexed(indexes)) {
+    for (const [i, { fields, constraint, existing }] of indexes.entries()) {
       const validFields: [string, SortOrder][] = []
       for (const { text, sort } of fields) {
         if (!fieldsNames[text]) {
@@ -138,7 +148,7 @@ function CollectionForm({ collection, onHide }: Props) {
         options[constraint] = true
       }
 
-      validatedIndexes.push({ fields: validFields, options })
+      validatedIndexes.push({ existing, fields: validFields, options })
     }
 
     return validatedIndexes
@@ -162,47 +172,14 @@ function CollectionForm({ collection, onHide }: Props) {
   async function save(form: FieldValues, indexes: Index[]) {
     const { name, options, fields } = form
 
-    const migrationSteps = []
-
-    if (collection) {
-      if (name !== collection.name) {
-        migrationSteps.push({
-          collection: collection.name,
-          to: name,
-          type: 'rename-collection',
-        })
-      }
-
-      const oldFields = Object.entries(collection.schema)
-      for (const [field, i] of indexed(fields as FieldProps[])) {
-        if (i >= oldFields.length) {
-          break
-        }
-
-        const [oldName] = oldFields[i]
-        if (field.removed) {
-          migrationSteps.push({
-            collection: collection.name,
-            name: oldName,
-            type: 'remove-field',
-          })
-          continue
-        }
-
-        if (oldName !== field.name) {
-          migrationSteps.push({
-            collection: collection.name,
-            from: oldName,
-            to: field.name,
-            type: 'rename-field',
-          })
-        }
-      }
-    }
+    const migrationSteps = prepareMigrations(collection, name, {
+      fields,
+      indexes,
+    })
 
     const data = {
       exposed: options.includes('expose'),
-      indexes: [...indexesFromForm(fields), ...indexes],
+      indexes,
       migrationSteps,
       name,
       schema: schemaFromForm(fields),
@@ -227,7 +204,7 @@ function CollectionForm({ collection, onHide }: Props) {
 
   function handleOnHide(collection?: Collection) {
     reset()
-    remove()
+    removeFields()
     onHide?.(collection)
   }
 
@@ -249,11 +226,12 @@ function CollectionForm({ collection, onHide }: Props) {
 
     // for some reason, when developing, updating this component causes
     // the fields to repeat themselves. remove() clears old insertions
-    remove()
-
+    removeFields()
     appendSchemaFields(append, collection.schema)
-    appendIndexFields(appendIndex, collection.indexes)
-  }, [append, collection, remove, setValue])
+
+    removeIndexes()
+    appendIndexFields(appendIndex, collection.indexes || [])
+  }, [append, appendIndex, collection, removeFields, removeIndexes, setValue])
 
   React.useEffect(() => {
     if (collection || fields.length) {
@@ -264,6 +242,8 @@ function CollectionForm({ collection, onHide }: Props) {
   }, [addNewField, collection, fields])
 
   const submitLabel = collection ? 'Update' : 'Create'
+
+  console.log('indexes-form', indexes)
 
   return (
     <form className="w-[500px] pb-4" onSubmit={handleSubmit(submitForm)}>
@@ -406,7 +386,7 @@ function CollectionForm({ collection, onHide }: Props) {
             </div>
             <Button
               className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm h-[2.15rem]"
-              onClick={() => removeIndex(index)}
+              onClick={() => removeIndexes(index)}
               title={'Remove'}
               type="button"
             >
@@ -442,31 +422,113 @@ function CollectionForm({ collection, onHide }: Props) {
   )
 }
 
-function schemaFromForm(fields: FieldProps[]) {
-  const schema: Record<string, any> = {}
-  // `existing` doesn't go to backend
-  for (const { name, removed, existing, ...options } of fields) {
-    if (removed) {
+interface Options {
+  fields: Record<string, any>[]
+  indexes: ValidatedIndex[]
+}
+
+function prepareMigrations(
+  collection: Collection | undefined,
+  collectionName: string,
+  { fields, indexes }: Options
+) {
+  const migrationSteps: MigrationStep[] = []
+
+  if (!collection) {
+    return migrationSteps
+  }
+
+  if (collectionName !== collection.name) {
+    migrationSteps.push({
+      collection: collection.name,
+      to: collectionName,
+      type: 'rename-collection',
+    })
+  }
+
+  const oldFields = Object.entries(collection.schema)
+  let i = 0
+  // this is fine because we're not actually removing fields in the form
+  // so the first n fields will always be the same between `oldFields` and `fields`
+  for (; i < oldFields.length; i++) {
+    const field = (fields as FieldProps[])[i]
+
+    const [oldName, oldDefinition] = oldFields[i]
+    if (field.removed) {
+      migrationSteps.push({
+        collection: collectionName,
+        field: oldName,
+        type: 'remove-field',
+      })
       continue
     }
 
-    schema[name] = options
+    if (oldName !== field.name) {
+      migrationSteps.push({
+        collection: collectionName,
+        from: oldName,
+        to: field.name,
+        type: 'rename-field',
+      })
+    }
+
+    if (Boolean(oldDefinition.unique) !== Boolean(field.unique)) {
+      migrationSteps.push({
+        collection: collectionName,
+        constraints: {
+          unique: field.unique,
+        },
+        field: field.name,
+        type: 'update-constraints',
+      })
+    }
+  }
+
+  for (; i < fields.length; i++) {
+    const field = (fields as FieldProps[])[i]
+    const [name, definition] = definitionFromField(field)
+    migrationSteps.push({
+      collection: collectionName,
+      definition: definition as Definition,
+      name,
+      type: 'add-field',
+    })
+  }
+
+  for (const index of indexes) {
+    if (index.existing) {
+      // [ ]: we may need to disable editing index fields and just maintain options
+      continue
+    }
+
+    migrationSteps.push({
+      collection: collectionName,
+      index,
+      type: 'add-index',
+    })
+  }
+
+  return migrationSteps
+}
+
+function schemaFromForm(fields: FieldProps[]) {
+  const schema: Record<string, any> = {}
+  for (const field of fields) {
+    if (field.removed) {
+      continue
+    }
+
+    const [name, definition] = definitionFromField(field)
+
+    schema[name] = definition
   }
 
   return schema
 }
 
-function indexesFromForm(fields: FieldProps[]) {
-  const indexes = []
-  for (const { name, removed, unique } of fields) {
-    if (removed || !unique) {
-      continue
-    }
-
-    indexes.push({ fields: [[name, 1]], options: { unique: true } })
-  }
-
-  return indexes
+function definitionFromField(field: FieldProps) {
+  const { name, existing, removed, ...definition } = field
+  return [name, definition] as const
 }
 
 export default CollectionForm

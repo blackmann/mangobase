@@ -123,7 +123,7 @@ async function baseAuthentication(app: App) {
       schema: authCredentialsSchema,
     })
 
-    await app.database.syncIndex(name, index)
+    await app.database.addIndexes(name, index)
   }
 
   app.hooksRegistry.register(

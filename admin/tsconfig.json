@@ -19,8 +19,9 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["preact/compat"]
   },
-  "include": ["src", "./*.js"],
+  "include": ["src", "./*.js", "./*.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

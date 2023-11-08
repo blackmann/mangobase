@@ -8,11 +8,12 @@ function appendIndexFields(
 ) {
   for (const index of indexes) {
     append({
-      constraint: index.options.unique
+      constraint: index.options!.unique
         ? 'unique'
-        : index.options.sparse
+        : index.options!.sparse
         ? 'sparse'
         : 'none',
+      existing: true,
       fields: index.fields.map((field) => {
         if (typeof field === 'string') {
           return {
