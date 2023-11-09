@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.5.0 (2023-11-09)
+
+### Bug Fixes
+
+- types issue ([30bf0be](https://github.com/blackmann/mangobase/commit/30bf0be49732f7df0aa8b9a076bdbfc4492296db))
+
 ## 0.4.1 (2023-10-29)
 
 ### Features
