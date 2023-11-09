@@ -7,6 +7,7 @@ import {
   useForm,
 } from 'react-hook-form'
 import Button from './button'
+import Chip from './chip'
 import Collection from '../client/collection'
 import Field from './field'
 import { FieldType } from '../lib/field-types'
@@ -20,7 +21,7 @@ import appendSchemaFields from '../lib/append-schema-fields'
 import getNewFieldName from '../lib/get-new-field-name'
 import { loadCollections } from '../data/collections'
 
-type ValidatedIndex = Index & { existing?: boolean }
+type ValidatedIndex = Index & { existing?: boolean; removed?: boolean }
 
 interface Props {
   onHide?: (collection?: Collection) => void
@@ -86,13 +87,38 @@ function CollectionForm({ collection, onHide }: Props) {
     removeFields(index)
   }
 
-  function handleRestore(index: number) {
+  function handleIndexRemove(i: number) {
+    const indexConfig = getValues(`indexes.${i}`)
+
+    if (indexConfig.existing) {
+      updateIndexes(i, {
+        ...indexConfig,
+        removed: true,
+      })
+
+      return
+    }
+
+    removeIndexes(i)
+  }
+
+  function handleIndexRestore(i: number) {
+    const indexConfig = getValues(`indexes.${i}`)
+
+    updateIndexes(i, {
+      ...indexConfig,
+      removed: false,
+    })
+  }
+
+  function handleFieldRestore(index: number) {
     setValue(`fields.${index}.removed`, false)
   }
 
-  function handleUpdateIndexFieldSort(index: number, subfieldIndex: number) {
-    const indexConfig = getValues(`indexes.${index}`)
-    updateIndexes(index, {
+  // using `i` so that it doesn't conflict with "index"
+  function handleUpdateIndexFieldSort(i: number, subfieldIndex: number) {
+    const indexConfig = getValues(`indexes.${i}`)
+    updateIndexes(i, {
       ...indexConfig,
       fields: indexConfig.fields.map((f: Value, i: number) =>
         i !== subfieldIndex ? f : { ...f, sort: f.sort === -1 ? 1 : -1 }
@@ -115,13 +141,17 @@ function CollectionForm({ collection, onHide }: Props) {
       fields: (Value & { sort?: SortOrder })[]
       constraint: string
       existing?: boolean
+      removed?: boolean
     }[]
 
     const fieldsNames = Object.fromEntries(fieldsNamesEntries)
 
     const validatedIndexes: ValidatedIndex[] = []
 
-    for (const [i, { fields, constraint, existing }] of indexes.entries()) {
+    for (const [
+      i,
+      { fields, constraint, existing, removed },
+    ] of indexes.entries()) {
       const validFields: [string, SortOrder][] = []
       for (const { text, sort } of fields) {
         if (!fieldsNames[text]) {
@@ -148,7 +178,7 @@ function CollectionForm({ collection, onHide }: Props) {
         options[constraint] = true
       }
 
-      validatedIndexes.push({ existing, fields: validFields, options })
+      validatedIndexes.push({ existing, fields: validFields, options, removed })
     }
 
     return validatedIndexes
@@ -169,7 +199,7 @@ function CollectionForm({ collection, onHide }: Props) {
     }
   }
 
-  async function save(form: FieldValues, indexes: Index[]) {
+  async function save(form: FieldValues, indexes: ValidatedIndex[]) {
     const { name, options, fields } = form
 
     const migrationSteps = prepareMigrations(collection, name, {
@@ -179,20 +209,22 @@ function CollectionForm({ collection, onHide }: Props) {
 
     const data = {
       exposed: options.includes('expose'),
-      indexes,
+      indexes: indexes
+        .filter((it) => !it.removed)
+        .map(({ existing, removed, ...index }) => index), // existing and removed don't go to backend
       migrationSteps,
       name,
       schema: schemaFromForm(fields),
       template: options.includes('is-template'),
     }
 
-    const newCollection = collection
+    const savedCollection = collection
       ? await app.editCollection(collection.name, data)
       : await app.addCollection(data)
 
     await loadCollections()
 
-    handleOnHide(newCollection)
+    handleOnHide(savedCollection)
   }
 
   const addNewField = React.useCallback(() => {
@@ -242,8 +274,6 @@ function CollectionForm({ collection, onHide }: Props) {
   }, [addNewField, collection, fields])
 
   const submitLabel = collection ? 'Update' : 'Create'
-
-  console.log('indexes-form', indexes)
 
   return (
     <form className="w-[500px] pb-4" onSubmit={handleSubmit(submitForm)}>
@@ -327,7 +357,7 @@ function CollectionForm({ collection, onHide }: Props) {
           <Field
             key={field.id}
             onRemove={() => handleRemove(i)}
-            onRestore={() => handleRestore(i)}
+            onRestore={() => handleFieldRestore(i)}
             register={(f: string, o?: RegisterOptions) =>
               register(`fields.${i}.${f}`, o)
             }
@@ -348,52 +378,72 @@ function CollectionForm({ collection, onHide }: Props) {
       <fieldset className="my-4">
         <legend className="font-medium w-full mb-2">Indexes (Optional)</legend>
 
-        {indexes.map((indexConfig, index) => (
-          <div className="flex gap-2 [&+&]:mt-2" key={indexConfig.id}>
-            <div className="flex-1">
-              <ControlledChipsInput
-                control={control}
-                name={`indexes.${index}.fields`}
-                placeholder="Enter field names"
-                getAction={(it: Value, subfieldIndex) => (
-                  <button
-                    className="material-symbols-rounded text-lg text-secondary"
-                    title="sort: asc"
-                    type="button"
+        {indexes.map((index, i) => {
+          const indexConfig = index as Record<'id', string> & {
+            removed?: boolean
+          }
+
+          return (
+            <div className="flex gap-2 [&+&]:mt-2" key={indexConfig.id}>
+              <div className="flex-1">
+                <ControlledChipsInput
+                  control={control}
+                  name={`indexes.${i}.fields`}
+                  placeholder="Enter field names"
+                  getAction={(it: Value, subfieldIndex) => (
+                    <button
+                      className="material-symbols-rounded text-lg text-secondary"
+                      title={it.sort === -1 ? 'sort: desc' : 'sort: asc'}
+                      type="button"
+                      onClick={() =>
+                        handleUpdateIndexFieldSort(i, subfieldIndex)
+                      }
+                    >
+                      {it.sort === -1 ? 'expand_less' : 'expand_more'}
+                    </button>
+                  )}
+                />
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex gap-2">
+                  <div>
+                    <Select
+                      defaultValue="none"
+                      {...register(`indexes.${i}.constraint`)}
+                    >
+                      <option disabled selected>
+                        Constraint
+                      </option>
+
+                      <option value="none">None</option>
+                      <option value="unique">Unique</option>
+                      <option value="sparse">Sparse</option>
+                    </Select>
+                  </div>
+                  <Button
+                    className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm h-[2.15rem]"
                     onClick={() =>
-                      handleUpdateIndexFieldSort(index, subfieldIndex)
+                      indexConfig.removed
+                        ? handleIndexRestore(i)
+                        : handleIndexRemove(i)
                     }
+                    title={indexConfig.removed ? 'Restore' : 'Remove'}
+                    type="button"
                   >
-                    {it.sort === -1 ? 'expand_less' : 'expand_more'}
-                  </button>
+                    {indexConfig.removed ? 'undo' : 'close'}
+                  </Button>
+                </div>
+
+                {indexConfig.removed && (
+                  <Chip className="!bg-orange-500 !text-white !rounded-lg !py-0 text-sm">
+                    Removed
+                  </Chip>
                 )}
-              />
+              </div>
             </div>
-
-            <div>
-              <Select
-                defaultValue="none"
-                {...register(`indexes.${index}.constraint`)}
-              >
-                <option disabled selected>
-                  Constraint
-                </option>
-
-                <option value="none">None</option>
-                <option value="unique">Unique</option>
-                <option value="sparse">Sparse</option>
-              </Select>
-            </div>
-            <Button
-              className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm h-[2.15rem]"
-              onClick={() => removeIndexes(index)}
-              title={'Remove'}
-              type="button"
-            >
-              close
-            </Button>
-          </div>
-        ))}
+          )
+        })}
 
         {indexes.length === 0 && (
           <p className="text-secondary">No indexes added.</p>
@@ -495,9 +545,36 @@ function prepareMigrations(
     })
   }
 
-  for (const index of indexes) {
-    if (index.existing) {
+  for (const [i, { existing, removed, ...index }] of indexes.entries()) {
+    if (existing) {
+      if (removed) {
+        migrationSteps.push({
+          collection: collectionName,
+          index,
+          type: 'remove-index',
+        })
+
+        continue
+      }
+
       // [ ]: we may need to disable editing index fields and just maintain options
+      const oldIndex = collection.indexes[i]
+      const changed = JSON.stringify(oldIndex) !== JSON.stringify(index)
+
+      if (changed) {
+        migrationSteps.push({
+          collection: collectionName,
+          index: oldIndex,
+          type: 'remove-index',
+        })
+
+        migrationSteps.push({
+          collection: collectionName,
+          index,
+          type: 'add-index',
+        })
+      }
+
       continue
     }
 

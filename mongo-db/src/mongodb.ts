@@ -356,9 +356,17 @@ class MongoDb implements Database {
   async removeIndexes(collection: string, indexes: Index[]): Promise<void> {
     await this.checkCollectionExists(collection)
 
-    await this.db
-      .collection(collection)
-      .dropIndexes(Object.fromEntries(indexes.map((i) => i.fields)))
+    const indexDoc = Object.fromEntries(
+      indexes
+        .map(({ fields }) =>
+          fields.map((field) =>
+            typeof field === 'string' ? [field, 1] : field
+          )
+        )
+        .flat()
+    )
+
+    await this.db.collection(collection).dropIndex(indexDoc)
   }
 
   // [ ] Properly type these args/design this API
