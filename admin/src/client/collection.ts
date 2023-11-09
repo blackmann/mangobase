@@ -1,6 +1,6 @@
+import type { Index, SchemaDefinitions } from 'mangobase'
 import type App from './app'
 import { ReactFlowJsonObject } from 'reactflow'
-import type { Index, SchemaDefinitions } from 'mangobase'
 import qs from 'qs'
 
 type Editor = ReactFlowJsonObject

@@ -1,12 +1,15 @@
+import { Outlet, useNavigate } from 'react-router-dom'
+import Collection from '../../client/collection'
 import CollectionForm from '../../components/collection-form'
 import Input from '../../components/input'
 import NavContentLayout from '../../layouts/NavContentLayout'
 import NavLinks from '../../components/nav-links'
-import { Outlet } from 'react-router-dom'
 import React from 'preact/compat'
 import collections from '../../data/collections'
 
 function CollectionsPage() {
+  const navigate = useNavigate()
+
   const formDialog = React.useRef<HTMLDialogElement>(null)
   const [showingForm, setShowingForm] = React.useState(false)
 
@@ -32,9 +35,13 @@ function CollectionsPage() {
     setShowingForm(true)
   }
 
-  function hideFormDialog() {
+  function handleOnFormHide(collection?: Collection) {
     formDialog.current?.close()
     setShowingForm(false)
+
+    if (collection) {
+      navigate(`/collections/${collection.name}`)
+    }
   }
 
   return (
@@ -66,7 +73,7 @@ function CollectionsPage() {
           >
             <h2 className="text-2xl font-bold mb-4">New collection</h2>
             {showingForm && (
-              <CollectionForm key="new" onHide={() => hideFormDialog()} />
+              <CollectionForm key="new" onHide={handleOnFormHide} />
             )}
           </dialog>
 

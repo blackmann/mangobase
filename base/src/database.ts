@@ -1,5 +1,4 @@
-import { Definition, DefinitionType } from './schema'
-import Collection from './collection'
+import { Definition, DefinitionType, SchemaDefinitions } from './schema'
 
 type SortOrder = -1 | 1
 
@@ -62,7 +61,7 @@ interface RenameCollection {
 interface CreateCollection {
   type: 'create-collection'
   name: string
-  collection: Collection
+  collection: { name: string; schema: SchemaDefinitions; indexes: Index[] }
 }
 
 interface AddIndex {

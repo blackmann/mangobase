@@ -254,8 +254,6 @@ class MongoDb implements Database {
   }
 
   async migrate(migration: Migration): Promise<void> {
-    //
-
     for (const step of migration.steps) {
       switch (step.type) {
         case 'add-field': {
@@ -285,6 +283,7 @@ class MongoDb implements Database {
           }
 
           await this.addIndexes(step.name, uniqueIndexes)
+          await this.addIndexes(step.name, step.collection.indexes)
           break
         }
 
