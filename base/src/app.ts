@@ -247,12 +247,19 @@ const collectionsService: Service & WithSchema = {
         const validData = this.schema.validate(ctx.data, true)
         Schema.validateSchema(validData.schema)
 
+        // no migrations expected on create,
+        // migrationSteps is not persisted
         const { migrationSteps, ...data } = validData
 
         const collection = (await app.manifest.collection(data.name, data))!
-        await handleMigration(migrationSteps, app)
 
-        await app.database.syncIndex(collection.name, collection.indexes)
+        const createCollectionStep: MigrationStep = {
+          collection: validData,
+          name: data.name,
+          type: 'create-collection',
+        }
+
+        await handleMigration([createCollectionStep], app)
 
         app.use(collection.name, new CollectionService(app, collection.name))
 
@@ -316,8 +323,6 @@ const collectionsService: Service & WithSchema = {
 
         await handleMigration(migrationSteps, app)
 
-        await app.database.syncIndex(collection.name, collection.indexes)
-
         await app.installCollection(collection)
 
         ctx.result = collection
@@ -341,29 +346,37 @@ const collectionsService: Service & WithSchema = {
     exposed: { defaultValue: true, type: 'boolean' },
     indexes: {
       defaultValue: [],
-      schema: {
-        item: {
-          schema: {
-            fields: { schema: { item: { type: 'string' } }, type: 'array' },
-            options: {
-              schema: { unique: { type: 'boolean' } },
-              type: 'object',
+      items: {
+        schema: {
+          fields: {
+            items: {
+              items: [
+                { description: 'field', type: 'string' },
+                { description: 'sort', type: 'number' },
+              ],
+              type: 'array',
             },
+            type: 'array',
           },
-          type: 'object',
+          options: {
+            schema: {
+              sparse: { type: 'boolean' },
+              unique: { type: 'boolean' },
+            },
+            type: 'object',
+          },
         },
+        type: 'object',
       },
       type: 'array',
     },
     migrationSteps: {
       defaultValue: [],
-      schema: {
-        item: {
-          schema: {
-            // [ ] Provide schema definitions
-          },
-          type: 'object',
+      items: {
+        schema: {
+          // [ ] Provide schema definitions
         },
+        type: 'object',
       },
       type: 'array',
     },

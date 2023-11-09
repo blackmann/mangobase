@@ -51,9 +51,9 @@ interface ObjectDefinition {
 
 interface ArrayDefinition {
   type: 'array'
-  // Nested into `item` because we can expect primitives (non-objects)
-  schema: { item: Definition }
+  items: Definition | Definition[]
   defaultValue?: Array<any>
+  length?: number
 }
 
 interface DateDefinition {
@@ -345,18 +345,26 @@ class Schema {
     return res
   }
 
-  private getDefinitionAtPath(path: string): Definition | undefined {
-    const [segment, ...rest] = path.split('.')
+  private getDefinitionAtPath(path: string | string[]): Definition | undefined {
+    const [segment, ...rest] = typeof path === 'string' ? path.split('.') : path
     const definition = this.schema[segment]
 
     if (!definition || !rest.length) {
       return definition
     }
 
-    if (definition.type === 'object' || definition.type === 'array') {
+    if (definition.type === 'object') {
       return new Schema(
         getSchemaDefinition(definition, this.getRef)
-      ).getDefinitionAtPath(rest.join('.'))
+      ).getDefinitionAtPath(rest)
+    }
+
+    if (definition.type === 'array') {
+      // a.b a.b.0 a.b.
+      if (Array.isArray(definition.items)) {
+        //
+      }
+      // [ ]: !!! Handle query casting for array items
     }
 
     // Returning undefined because there's more segments to resolve (from ...rest)
@@ -487,7 +495,10 @@ class Schema {
     }
 
     if (typeof data.value !== 'object' || Array.isArray(data.value)) {
-      throw new ValidationError(data.name, 'value is not of type `object`')
+      throw new ValidationError(
+        data.name,
+        `value is not of type \`object\`: .\n${JSON.stringify(definition)}`
+      )
     }
 
     const schemaDefinitions = getSchemaDefinition(definition, this.getRef)
@@ -527,9 +538,25 @@ class Schema {
       throw new ValidationError(data.name, 'value is not of type `array`')
     }
 
-    const schema = new Schema(getSchemaDefinition(definition, this.getRef), {
-      parser: this.parser,
-    })
+    if (Array.isArray(definition.items)) {
+      for (const [i, itemDefinition] of definition.items.entries()) {
+        const schema = new Schema(
+          { item: itemDefinition },
+          { parser: this.parser }
+        )
+
+        data.value[i] = schema.validate({ item: data.value[i] }).item
+      }
+
+      return data.value
+    }
+
+    const schema = new Schema(
+      { item: definition.items },
+      {
+        parser: this.parser,
+      }
+    )
 
     return data.value.map((item) => {
       return schema.validate({ item }).item
@@ -765,12 +792,13 @@ function getDate(value: any) {
   return date
 }
 
+/**
+ * Resolves the schema definition when it's a string
+ */
 function getSchemaDefinition(
-  definition: Extract<Definition, { type: 'object' } | { type: 'array' }>,
+  definition: Extract<Definition, { type: 'object' }>,
   getRef?: GetRef
 ) {
-  let schemaDefinitions: SchemaDefinitions
-
   if (typeof definition.schema === 'string') {
     if (!getRef) {
       throw new Error('`getRef` is required when schema is a string.')
@@ -781,12 +809,10 @@ function getSchemaDefinition(
       throw new Error(`Schema ref with name \`${definition.schema}\` not found`)
     }
 
-    schemaDefinitions = definitions
-  } else {
-    schemaDefinitions = definition.schema
+    return definitions
   }
 
-  return schemaDefinitions
+  return definition.schema
 }
 
 /**
@@ -799,16 +825,27 @@ function findRelations(
   name: string,
   getRef?: GetRef
 ) {
-  function find(s = schema, path: string[] = []) {
-    const res: string[][] = []
+  function find(s = schema, path: (string | number)[] = []) {
+    const res: (string | number)[][] = []
 
     for (const [field, definition] of Object.entries(s)) {
-      if (
-        (definition.type === 'object' || definition.type === 'array') &&
-        definition.schema
-      ) {
+      if (definition.type === 'object') {
         const nested = find(getSchemaDefinition(definition, getRef), path)
         res.push(...nested)
+      }
+
+      if (definition.type === 'array') {
+        if (Array.isArray(definition.items)) {
+          definition.items.forEach((item, index) => {
+            const arraySchema = { item }
+            const nested = find(arraySchema, [...path, index])
+            res.push(...nested)
+          })
+        } else {
+          const arraySchema = { item: definition.items }
+          const nested = find(arraySchema, path)
+          res.push(...nested)
+        }
       }
 
       if (definition.type !== 'id') {

@@ -28,7 +28,7 @@ async function users(app: App) {
       schema: usersSchema,
     })
 
-    await app.database.syncIndex('users', indexes)
+    await app.database.addIndexes('users', indexes)
   }
 }
 

@@ -95,7 +95,7 @@ function SchemaDetail() {
   // we don't allow edits on template collections
   const fromCollection = ref.name.startsWith('collections/')
 
-  const collectionEdit = fromCollection ? `${ref.name}/edit` : ''
+  const collectionEdit = fromCollection ? `/${ref.name}/edit` : ''
 
   const usages = ref.$usages as string[] | undefined
 

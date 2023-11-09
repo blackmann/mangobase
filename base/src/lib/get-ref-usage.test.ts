@@ -5,11 +5,9 @@ import getRefUsage from './get-ref-usage'
 describe('getRefUsage', () => {
   const schema: SchemaDefinitions = {
     arr1: {
-      schema: {
-        item: {
-          schema: 'ref1',
-          type: 'object',
-        },
+      items: {
+        schema: 'ref1',
+        type: 'object',
       },
       type: 'array',
     },

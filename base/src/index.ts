@@ -12,14 +12,8 @@ export { default as getRefUsage } from './lib/get-ref-usage'
 export type { Handle, Service } from './app'
 export type { Filter, FilterOperators, Query } from './collection'
 export type { Context } from './context'
-export type {
-  Cursor,
-  Database,
-  DatabaseFilter,
-  Index,
-  Migration,
-  MigrationStep,
-} from './database'
+export * from './database'
+export * as errors from './errors'
 export type { Hook, HookFn, Hooks, HookConfig } from './hook'
 export type { CollectionConfig, Ref } from './manifest'
 export type { default as Method } from './method'

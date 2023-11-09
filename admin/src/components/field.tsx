@@ -61,9 +61,9 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             </Button>
           </div>
         </div>
-        <div className="mt-1 d-flex justify-content-between">
-          <div>
-            <label className="me-3">
+        <div className="mt-1 flex items-center gap-3 justify-between">
+          <div className="flex gap-4">
+            <label className="inline-flex items-center">
               <Input
                 disabled={removed}
                 type="checkbox"
@@ -74,7 +74,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             </label>
 
             {!['boolean', 'object', 'array'].includes(type) && (
-              <label>
+              <label className="inline-flex items-center">
                 <Input
                   disabled={removed}
                   type="checkbox"
@@ -86,9 +86,9 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             )}
           </div>
 
-          <div className="mt-3">
+          <div>
             {removed && (
-              <Chip className="!bg-yellow-500 !text-white  !rounded-lg !py-0">
+              <Chip className="!bg-orange-500 !text-white !rounded-lg !py-0 text-sm">
                 Removed
               </Chip>
             )}

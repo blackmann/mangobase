@@ -6,6 +6,7 @@ import { slugify } from '../lib/slugify'
 interface Value {
   id: string | number
   text: string
+  [key: string]: any
 }
 
 interface Props {
@@ -13,10 +14,22 @@ interface Props {
   onChange: (value: Value[]) => void
   placeholder?: string
   value: Value[]
+  helperText?: React.ReactNode
+  getAction?: (value: Value, index: number) => React.ReactNode
 }
 
 const ChipsInput = React.forwardRef<HTMLDivElement, Props>(
-  ({ className, onChange, placeholder = 'Enter text here', value }, ref) => {
+  (
+    {
+      className,
+      getAction,
+      helperText,
+      onChange,
+      placeholder = 'Enter text here',
+      value,
+    },
+    ref
+  ) => {
     const [text, setText] = React.useState('')
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -69,27 +82,30 @@ const ChipsInput = React.forwardRef<HTMLDivElement, Props>(
     React.useEffect(splitAndAdd, [onChange, text, value])
 
     return (
-      <div>
+      <div className="group">
         <div
           className={clsx(
-            'bg-zinc-200 bg-opacity-75 dark:bg-neutral-800 p-2 rounded-lg flex gap-2 flex-wrap focus:border-zinc-200',
+            'bg-zinc-200 bg-opacity-75 dark:bg-neutral-700 dark:bg-opacity-60 p-1.5 rounded-lg flex gap-2 flex-wrap border border-transparent focus-within:border-zinc-300 dark:focus-within:border-neutral-600 min-h-[2.20rem]',
             className
           )}
           tabIndex={0}
           ref={ref}
         >
-          {value.map((it) => (
+          {value.map((it, index) => (
             <div
-              className="inline-flex items-center bg-zinc-300 dark:bg-neutral-700 px-2 rounded-lg"
+              className="inline-flex items-center bg-zinc-300 dark:bg-neutral-700 px-2 rounded-lg gap-2"
               key={it.id}
             >
               {it.text}
+
+              {getAction?.(it, index)}
+
               <button
-                className="ms-2 mt-1 material-symbols-rounded text-lg text-secondary"
+                className="material-symbols-rounded text-lg text-secondary leading-none"
                 type="button"
-                onClick={() =>
+                onClick={() => {
                   onChange(value.filter((it2) => it2.id !== it.id))
-                }
+                }}
               >
                 close
               </button>
@@ -104,9 +120,9 @@ const ChipsInput = React.forwardRef<HTMLDivElement, Props>(
             value={text}
           />
         </div>
-        <small className="text-secondary ms-2 block">
-          Use comma to separate values
-        </small>
+        <div className="text-secondary ms-2 block text-sm opacity-0 group-focus-within:opacity-100 transition-opacity duration-300">
+          Use comma to separate values. {helperText}
+        </div>
       </div>
     )
   }
@@ -116,9 +132,7 @@ ChipsInput.displayName = 'ChipsInput'
 
 interface ControlledChipsInputProps
   extends Omit<Props, 'onChange' | 'value'>,
-    Pick<ControllerProps, 'control' | 'name'> {
-  defaultValue?: Value[]
-}
+    Pick<ControllerProps, 'control' | 'name'> {}
 
 const ControlledChipsInput = React.forwardRef<
   HTMLDivElement,
@@ -127,7 +141,9 @@ const ControlledChipsInput = React.forwardRef<
   <Controller
     control={control}
     name={name}
-    rules={{ validate: (value) => value?.length !== 0 }}
+    rules={{
+      validate: (v) => !!v?.length,
+    }}
     render={({ field: { onChange, value, ref } }) => (
       <ChipsInput
         onChange={onChange}
