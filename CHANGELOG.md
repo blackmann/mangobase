@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.5.1 (2023-11-10)
+
+### Features
+
+- row deletion ([5bad372](https://github.com/blackmann/mangobase/commit/5bad372d9635a119c2713fe4c4e2bf580d591821))
+
 # 0.5.0 (2023-11-09)
 
 ### Bug Fixes
