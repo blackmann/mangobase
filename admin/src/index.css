@@ -39,7 +39,7 @@
 }
 
 input[type="checkbox"] {
-  @apply rounded-md bg-zinc-200 dark:bg-neutral-700 w-5 h-4 focus:ring-white focus:ring-1 focus:ring-offset-0;
+  @apply rounded-md bg-zinc-200 dark:bg-neutral-700 w-5 h-4 focus:ring-zinc-100 dark:focus:ring-neutral-500 focus:ring-1 focus:ring-offset-0;
 }
 
 .react-flow__controls-button {
@@ -56,4 +56,8 @@ input[type="checkbox"] {
 
 code {
   @apply bg-zinc-200 dark:bg-neutral-600 text-zinc-600 dark:text-neutral-200 font-['Zed_Mono'] rounded px-1;
+}
+
+.material-symbols-rounded {
+  @apply inline-flex items-center align-middle;
 }

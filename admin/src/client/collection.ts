@@ -49,6 +49,11 @@ class Collection {
     return data
   }
 
+  async delete(id: string) {
+    const endpoint = `/${this.base}/${id}`
+    await this.app.req.delete(endpoint)
+  }
+
   async hooks(): Promise<HooksConfig> {
     const { data } = await this.app.req.get(`/_dev/hooks/${this.name}`)
     return data
