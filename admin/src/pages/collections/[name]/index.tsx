@@ -97,7 +97,7 @@ function CollectionDetail() {
         </div>
       </header>
 
-      <div className="mt-3 flex-1 h-0 overflow-y-auto">
+      <div className="mt-3 flex-1 h-0 flex flex-col">
         <Outlet />
       </div>
     </div>
@@ -157,7 +157,7 @@ function CollectionRecords() {
     selectionCount < currentPageItems.length
 
   return (
-    <>
+    <div className="h-0 flex-1 flex flex-col gap-2">
       <Input
         className="w-full block mt-2"
         type="text"
@@ -165,65 +165,68 @@ function CollectionRecords() {
         id="search"
         placeholder="Filter record. See docs for examples."
       />
-      <table cellSpacing={0} className="w-full mt-3">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                className="ms-1"
-                indeterminate={indeterminate}
-                onChange={handleAllToggle}
-              />
-            </th>
 
-            <th>id</th>
-
-            {fields.map((field) => (
-              <th key={field}>{field}</th>
-            ))}
-
-            <th>created_at</th>
-
-            <th>updated_at</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {currentPageItems?.map((row: any) => (
-            <tr
-              className="transition-background duration-200 hover:bg-zinc-200 hover:bg-opacity-50 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50"
-              key={row._id}
-            >
-              <td className="w-[2rem] rounded-s-lg">
+      <div className="h-0 flex-1 overflow-y-auto">
+        <table cellSpacing={0} className="w-full">
+          <thead className="sticky top-0 bg-zinc-100">
+            <tr>
+              <th>
                 <input
                   type="checkbox"
-                  value={row._id}
                   className="ms-1"
-                  {...register('select')}
+                  indeterminate={indeterminate}
+                  onChange={handleAllToggle}
                 />
-              </td>
-              <td>
-                <IdTag id={row._id} />
-              </td>
+              </th>
+
+              <th>id</th>
+
               {fields.map((field) => (
-                <td key={field}>
-                  <Value
-                    type={collection.schema[field].type}
-                    value={row[field]}
+                <th key={field}>{field}</th>
+              ))}
+
+              <th>created_at</th>
+
+              <th>updated_at</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {currentPageItems?.map((row: any) => (
+              <tr
+                className="transition-background duration-200 hover:bg-zinc-200 hover:bg-opacity-50 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50"
+                key={row._id}
+              >
+                <td className="w-[2rem] rounded-s-lg">
+                  <input
+                    type="checkbox"
+                    value={row._id}
+                    className="ms-1"
+                    {...register('select')}
                   />
                 </td>
-              ))}
-              <td>
-                <CleanDate date={row.created_at} />
-              </td>
-              <td className="rounded-e-lg">
-                <CleanDate date={row.updated_at} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <td>
+                  <IdTag id={row._id} />
+                </td>
+                {fields.map((field) => (
+                  <td key={field}>
+                    <Value
+                      type={collection.schema[field].type}
+                      value={row[field]}
+                    />
+                  </td>
+                ))}
+                <td>
+                  <CleanDate date={row.created_at} />
+                </td>
+                <td className="rounded-e-lg">
+                  <CleanDate date={row.updated_at} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {selectionCount > 0 && (
         <SelectionContextActions
@@ -231,7 +234,7 @@ function CollectionRecords() {
           onDelete={handleOnDelete}
         />
       )}
-    </>
+    </div>
   )
 }
 
