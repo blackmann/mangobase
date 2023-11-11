@@ -5,7 +5,7 @@ import CleanDate from '../components/date'
 import Input from '../components/input'
 import React from 'preact/compat'
 
-function Logs() {
+function Component() {
   React.useEffect(() => {
     loadLogs()
     loadLogStats()
@@ -71,4 +71,4 @@ function Logs() {
   )
 }
 
-export default Logs
+export { Component }

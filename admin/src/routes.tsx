@@ -1,17 +1,12 @@
-import CollectionDetail, { CollectionRecords } from './pages/collections/[name]'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 import schemaRefs, { loadSchemaRefs } from './data/schema-refs'
 import AdminLayout from './layouts/AdminLayout'
 import AppError from './lib/app-error'
 import Collection from './client/collection'
 import CollectionEmptyState from './components/collections-empty-state'
-import CollectionHooks from './pages/collections/[name]/hooks'
-import CollectionsPage from './pages/collections'
 import Devs from './pages/settings/devs'
-import Edit from './pages/collections/[name]/edit'
 import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
-import Logs from './pages/logs'
 import NotFound from './pages/notfound'
 import Profile from './pages/settings/profile'
 import type { Ref } from 'mangobase'
@@ -62,28 +57,20 @@ const routes = createBrowserRouter(
             {
               children: [
                 {
-                  element: <CollectionRecords />,
+                  lazy: () => import('./pages/collections/[name]/index.tsx'),
                   path: '',
                 },
                 {
-                  element: <CollectionHooks />,
+                  lazy: () => import('./pages/collections/[name]/hooks'),
                   path: 'hooks',
                 },
                 {
-                  element: <Edit />,
+                  element: () => import('./pages/collections/[name]/edit'),
                   path: 'edit',
                 },
               ],
-              element: <CollectionDetail />,
               id: 'collection',
-              loader: async ({ params }) => {
-                try {
-                  const collection = await app.collection(params.name!)
-                  return { collection }
-                } catch (err) {
-                  throw new AppError((err as any).message || '', err)
-                }
-              },
+              lazy: () => import('./pages/collections/[name]/_layout.tsx'),
               path: ':name',
             },
             {
@@ -91,20 +78,11 @@ const routes = createBrowserRouter(
               path: '',
             },
           ],
-          element: <CollectionsPage />,
-          loader: async () => {
-            try {
-              await loadSchemaRefs()
-              await loadCollections()
-              return null
-            } catch (err) {
-              throw new AppError((err as any).message, err)
-            }
-          },
+          lazy: () => import('./pages/collections'),
           path: 'collections',
         },
         {
-          element: <Logs />,
+          lazy: () => import('./pages/logs'),
           path: 'logs',
         },
         {

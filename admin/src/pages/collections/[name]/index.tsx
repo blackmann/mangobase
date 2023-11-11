@@ -1,110 +1,16 @@
-import {
-  NavLink,
-  Outlet,
-  useLoaderData,
-  useRouteLoaderData,
-} from 'react-router-dom'
 import Button from '../../../components/button'
-import Chip from '../../../components/chip'
 import CleanDate from '../../../components/date'
 import type Collection from '../../../client/collection'
-import Copy from '../../../components/copy'
 import IdTag from '../../../components/id-tag'
 import Input from '../../../components/input'
 import React from 'preact/compat'
 import Value from '../../../components/value'
-import clsx from 'clsx'
 import { useForm } from 'react-hook-form'
+import { useRouteLoaderData } from 'react-router-dom'
 
-type RouteData = { collection: Collection }
+export type RouteData = { collection: Collection }
 
-function CollectionDetail() {
-  const { collection } = useLoaderData() as RouteData
-
-  const links = [
-    {
-      href: '',
-      title: 'Records',
-    },
-    {
-      href: 'hooks',
-      title: 'Hooks',
-    },
-    {
-      href: `/logs/?label[$startswith]=/api/${collection.name}`,
-      title: 'Logs',
-    },
-    {
-      href: 'edit',
-      title: 'Edit',
-    },
-  ]
-
-  const path = `/api${collection.exposed ? '/' : '/_x/'}${collection.name}`
-  const endpoint = `${window.location.protocol}//${window.location.host}${path}`
-
-  return (
-    <div className="h-screen flex flex-col">
-      <header className="mt-2">
-        <h1 className="m-0 text-xl font-bold">{collection.name}</h1>
-
-        <div className="flex items-center">
-          <Chip
-            className="!px-1 !py-0 me-2"
-            title="Only devs can access hidden collections"
-          >
-            {collection.exposed ? 'exposed' : 'hidden'}
-          </Chip>
-
-          <Chip className="!px-1 !py-0">
-            <Copy className="text-sm" value={endpoint} />
-            {path}
-          </Chip>
-        </div>
-
-        <div className="mt-2 flex justify-between">
-          <div>
-            {links.map((link) => (
-              <NavLink
-                className={({ isActive }: { isActive: boolean }) =>
-                  clsx('text-secondary me-2 hover:underline', {
-                    'text-zinc-800 dark:!text-neutral-200 underline': isActive,
-                  })
-                }
-                end
-                key={link.href}
-                to={link.href}
-              >
-                {link.title}
-              </NavLink>
-            ))}
-          </div>
-
-          <div className="flex items-center">
-            <span className="material-symbols-rounded text-base me-2 text-secondary">
-              code
-            </span>
-
-            <a
-              className="underline"
-              target="_blank"
-              rel="noreferrer"
-              href="https://degreat.co.uk/mangobase/guide/faqs.html#how-do-i-make-requests-to-my-api"
-            >
-              How to make requests?
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <div className="mt-3 flex-1 h-0 flex flex-col">
-        <Outlet />
-      </div>
-    </div>
-  )
-}
-
-function CollectionRecords() {
+function Component() {
   const { collection } = useRouteLoaderData('collection') as RouteData
   const [pages, setPages] = React.useState<any[]>([])
 
@@ -166,7 +72,7 @@ function CollectionRecords() {
         placeholder="Filter record. See docs for examples."
       />
 
-      <div className="h-0 flex-1 overflow-y-auto">
+      <div className="h-0 flex-1 overflow-y-auto pe-[1px]">
         <table cellSpacing={0} className="w-full">
           <thead className="sticky top-0 bg-zinc-100">
             <tr>
@@ -300,5 +206,4 @@ function SelectionContextActions({ count, onDelete }: ActionsProps) {
   )
 }
 
-export default CollectionDetail
-export { CollectionRecords }
+export { Component }

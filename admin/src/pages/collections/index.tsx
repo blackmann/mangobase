@@ -1,13 +1,15 @@
 import { Outlet, useNavigate } from 'react-router-dom'
+import collections, { loadCollections } from '../../data/collections'
+import AppError from '../../lib/app-error'
 import Collection from '../../client/collection'
 import CollectionForm from '../../components/collection-form'
 import Input from '../../components/input'
 import NavContentLayout from '../../layouts/NavContentLayout'
 import NavLinks from '../../components/nav-links'
 import React from 'preact/compat'
-import collections from '../../data/collections'
+import { loadSchemaRefs } from '../../data/schema-refs'
 
-function CollectionsPage() {
+function Component() {
   const navigate = useNavigate()
 
   const formDialog = React.useRef<HTMLDialogElement>(null)
@@ -86,4 +88,15 @@ function CollectionsPage() {
   )
 }
 
-export default CollectionsPage
+const loader = async () => {
+  try {
+    // [ ]: move away from using signals for state management
+    await loadSchemaRefs()
+    await loadCollections()
+    return null
+  } catch (err) {
+    throw new AppError((err as any).message, err)
+  }
+}
+
+export { Component, loader }

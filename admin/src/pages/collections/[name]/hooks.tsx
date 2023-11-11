@@ -110,7 +110,7 @@ class Tree {
   }
 }
 
-function CollectionHooks() {
+function Component() {
   const { collection } = useRouteLoaderData('collection') as CollectionRouteData
 
   const saveDebounce = React.useRef<ReturnType<typeof setTimeout>>()
@@ -470,4 +470,4 @@ function compareHooks(
   return JSON.stringify(currentHooks) === JSON.stringify(existingHooks)
 }
 
-export default CollectionHooks
+export { Component }
