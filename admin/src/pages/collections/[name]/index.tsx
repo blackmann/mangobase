@@ -74,7 +74,7 @@ function Component() {
 
       <div className="h-0 flex-1 overflow-y-auto pe-[1px]">
         <table cellSpacing={0} className="w-full">
-          <thead className="sticky top-0 bg-zinc-100">
+          <thead className="sticky top-0 bg-zinc-100 dark:bg-neutral-800">
             <tr>
               <th>
                 <input
@@ -161,12 +161,14 @@ function SelectionContextActions({ count, onDelete }: ActionsProps) {
   if (showDeleteConfirm) {
     return (
       <div className="absolute bottom-8 left-[50%] translate-x-[-50%] border border-red-500 bg-red-500 rounded-xl px-2 py-1 text-white flex items-center gap-4">
-        <span className="flex items-center gap-2">
-          <span className="material-symbols-rounded text-lg items-center inline-flex">
-            warning
-          </span>{' '}
+        <div className="flex items-center gap-2">
+          <div>
+            <span className="material-symbols-rounded text-lg items-center inline-flex">
+              warning
+            </span>{' '}
+          </div>
           Are you sure you want to delete {count} items?
-        </span>
+        </div>
 
         <div className="flex items-center gap-2">
           <Button

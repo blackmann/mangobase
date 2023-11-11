@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`export-schema > typescript > should return typescript definition [include object schema] 1`] = `
+"interface Test {
+  address: Address
+  age?: number
+  alive: boolean
+  connection?: string
+  created_at: Date
+  name: string
+}
+
+interface Address {
+  line1: string
+}"
+`;
+
+exports[`export-schema > typescript > should return typescript definition [inline object] 1`] = `
+"interface Test {
+  address: {
+    line1: string
+  }
+  age?: number
+  alive: boolean
+  connection?: string
+  created_at: Date
+  name: string
+}
+
+"
+`;

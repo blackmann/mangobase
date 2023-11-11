@@ -58,6 +58,10 @@ code {
   @apply bg-zinc-200 dark:bg-neutral-600 text-zinc-600 dark:text-neutral-200 font-['Zed_Mono'] rounded px-1;
 }
 
+label {
+  display: block
+}
+
 .material-symbols-rounded {
   @apply inline-flex items-center align-middle;
 }

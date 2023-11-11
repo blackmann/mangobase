@@ -7,6 +7,7 @@ import {
 import AppError from '@/lib/app-error'
 import Chip from '@/components/chip'
 import Copy from '@/components/copy'
+import { DevDialog } from '@/components/dev-dialog'
 import { Popover } from '@/components/popover'
 import { RouteData } from '.'
 import app from '../../../mangobase-app'
@@ -77,22 +78,16 @@ function Component() {
           <div className="flex items-center">
             <Popover
               trigger={
-                <button className="material-symbols-rounded text-lg me-2 text-secondary hover:bg-zinc-200 rounded-md px-0.5">
+                <button
+                  className="material-symbols-rounded text-lg me-2 text-secondary hover:bg-zinc-200 dark:hover:bg-neutral-700 rounded-md px-0.5"
+                  title="Dev Experience"
+                >
                   data_object
                 </button>
               }
             >
-              <div>Hello world</div>
+              <DevDialog collection={collection} />
             </Popover>
-
-            <a
-              className="underline"
-              target="_blank"
-              rel="noreferrer"
-              href="https://degreat.co.uk/mangobase/guide/query.html"
-            >
-              Docs
-            </a>
           </div>
         </div>
       </header>
