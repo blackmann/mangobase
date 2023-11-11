@@ -594,14 +594,12 @@ class Schema {
     return date
   }
 
-  static validateSchema(schema: any, parentField?: string) {
+  static validateSchema(schema: SchemaDefinitions, parentField?: string) {
     if (typeof schema !== 'object' || Array.isArray(schema)) {
       throw new Error('schema has to be an object')
     }
 
-    for (const [name, definition] of Object.entries(
-      schema as Record<string, any>
-    )) {
+    for (const [name, definition] of Object.entries(schema)) {
       const fieldPath = parentField ? `${parentField}.${name}` : name
       const type = definition?.type
       if (!types.includes(type)) {
@@ -610,27 +608,20 @@ class Schema {
 
       switch (type) {
         case 'array': {
-          if (
-            typeof definition.schema !== 'string' &&
-            (typeof definition.schema !== 'object' ||
-              Array.isArray(definition.schema))
-          ) {
+          if (!definition.items) {
             throw new ValidationError(
               fieldPath,
-              '`schema` is required when type is `array`'
+              '`items` is required when type is `array`'
             )
           }
 
-          const isRef = typeof definition.schema === 'string'
-
-          if (!isRef && !definition.schema.item) {
-            throw new ValidationError(
-              fieldPath,
-              '`schema` should be in the format `{ item: { type: "string" | ... } }'
-            )
+          if (Array.isArray(definition.items)) {
+            for (const [i, def] of definition.items.entries()) {
+              Schema.validateSchema({ [`${i}`]: def }, fieldPath)
+            }
+          } else {
+            Schema.validateSchema({ item: definition.items }, fieldPath)
           }
-
-          !isRef && Schema.validateSchema(definition.schema, fieldPath)
 
           // validate the default values
           if (definition.defaultValue) {
@@ -641,11 +632,11 @@ class Schema {
               )
             }
 
-            const itemSchema = new Schema(definition.schema)
+            const itemSchema = new Schema({ item: definition })
             let index = 0
             for (const value of definition.defaultValue) {
               try {
-                itemSchema.validate(value)
+                itemSchema.validate({ item: value })
                 index += 1
               } catch (err) {
                 if (err instanceof ValidationError) {
@@ -678,7 +669,7 @@ class Schema {
         case 'date': {
           if (
             definition.defaultValue &&
-            isNaN(new Date(definition.value).getTime())
+            isNaN(new Date(definition.defaultValue).getTime())
           ) {
             throw new ValidationError(
               fieldPath,
@@ -733,8 +724,11 @@ class Schema {
             )
           }
 
-          const isRef = typeof definition.schema === 'string'
-          if (!isRef && definition.defaultValue) {
+          if (
+            // not a ref
+            typeof definition.schema !== 'string' &&
+            definition.defaultValue
+          ) {
             if (
               typeof definition.defaultValue !== 'object' ||
               Array.isArray(definition.defaultValue)

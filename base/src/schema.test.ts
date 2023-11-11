@@ -1,4 +1,4 @@
-import Schema, { findRelations } from './schema'
+import Schema, { SchemaDefinitions, findRelations } from './schema'
 import { describe, expect, it, test } from 'vitest'
 
 describe('schema', () => {
@@ -852,7 +852,7 @@ describe('schema', () => {
 
   describe('schema validation', () => {
     it('validates', () => {
-      const schema = {
+      const schema: SchemaDefinitions = {
         address: {
           schema: {
             line1: { required: true, type: 'string' },
@@ -868,6 +868,11 @@ describe('schema', () => {
         fullname: { required: true, type: 'string' },
         happy: { type: 'boolean' },
         region: { relation: 'region', type: 'id' },
+        stuff: { items: { defaultValue: '5', type: 'string' }, type: 'array' },
+        tags: {
+          items: [{ type: 'string' }, { type: 'string' }],
+          type: 'array',
+        },
       }
 
       expect(() => Schema.validateSchema(schema)).not.toThrow()

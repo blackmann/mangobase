@@ -1,7 +1,7 @@
 import { Controller, ControllerProps } from 'react-hook-form'
 import React from 'preact/compat'
 import clsx from 'clsx'
-import { slugify } from '../lib/slugify'
+import { slugify } from '@/lib/slugify'
 
 interface Value {
   id: string | number

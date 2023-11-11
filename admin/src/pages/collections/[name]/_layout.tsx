@@ -4,9 +4,10 @@ import {
   Outlet,
   useLoaderData,
 } from 'react-router-dom'
-import AppError from '../../../lib/app-error'
-import Chip from '../../../components/chip'
-import Copy from '../../../components/copy'
+import AppError from '@/lib/app-error'
+import Chip from '@/components/chip'
+import Copy from '@/components/copy'
+import { Popover } from '@/components/popover'
 import { RouteData } from '.'
 import app from '../../../mangobase-app'
 import clsx from 'clsx'
@@ -74,9 +75,15 @@ function Component() {
           </div>
 
           <div className="flex items-center">
-            <button className="material-symbols-rounded text-lg me-2 text-secondary hover:bg-zinc-200 rounded-md px-0.5">
-              data_object
-            </button>
+            <Popover
+              trigger={
+                <button className="material-symbols-rounded text-lg me-2 text-secondary hover:bg-zinc-200 rounded-md px-0.5">
+                  data_object
+                </button>
+              }
+            >
+              <div>Hello world</div>
+            </Popover>
 
             <a
               className="underline"

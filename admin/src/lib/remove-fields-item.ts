@@ -3,7 +3,7 @@ import {
   UseFieldArrayRemove,
   UseFormSetValue,
 } from 'react-hook-form'
-import { FieldProps } from '../components/collection-form'
+import { FieldProps } from '@/components/collection-form'
 
 interface Options {
   index: number

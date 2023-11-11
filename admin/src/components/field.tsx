@@ -1,11 +1,11 @@
 import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
-import fieldTypes, { FieldType } from '../lib/field-types'
-import schemaRefs, { loadSchemaRefs } from '../data/schema-refs'
+import fieldTypes, { FieldType } from '@/lib/field-types'
+import schemaRefs, { loadSchemaRefs } from '@/data/schema-refs'
 import Button from './button'
 import Chip from './chip'
 import Input from './input'
 import Select from './select'
-import collections from '../data/collections'
+import collections from '@/data/collections'
 
 interface Props {
   onRestore?: VoidFunction
@@ -132,7 +132,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
     }
 
     case 'array': {
-      const type = watch('schema.item.type')
+      const type = watch('items.type')
 
       return (
         <div className="flex">
@@ -140,7 +140,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
             Item
             <Select
               className="ms-2"
-              {...register('schema.item.type', { required: true })}
+              {...register('items.type', { required: true })}
             >
               {fieldTypes.map((field) => {
                 if (field.value === 'array') {
@@ -158,7 +158,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
           </label>
 
           {type === 'object' && (
-            <SchemaSelect name="schema.item.schema" register={register} />
+            <SchemaSelect name="items.schema" register={register} />
           )}
 
           {type === 'id' && (
@@ -166,7 +166,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
               Relation
               <Select
                 className="ms-2"
-                {...register('schema.item.relation', { required: true })}
+                {...register('items.relation', { required: true })}
               >
                 {collections.value.map((collection) => (
                   <option key={collection.name} value={collection.name}>

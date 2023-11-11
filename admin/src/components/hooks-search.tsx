@@ -1,4 +1,4 @@
-import hooksRegistry, { loadHooksRegistry } from '../data/hooks-registry'
+import hooksRegistry, { loadHooksRegistry } from '@/data/hooks-registry'
 import Input from './input'
 import React from 'preact/compat'
 import clsx from 'clsx'

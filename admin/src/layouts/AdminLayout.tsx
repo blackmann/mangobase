@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import AVATAR_COLORS from '../lib/avatar-colors'
+import AVATAR_COLORS from '@/lib/avatar-colors'
 import Avatar from 'boring-avatars'
 import React from 'preact/compat'
 import app from '../mangobase-app'

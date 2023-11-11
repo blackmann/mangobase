@@ -6,6 +6,11 @@ import preact from '@preact/preset-vite'
 export default defineConfig({
   base: '/_',
   plugins: [preact()],
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
   test: {
     environment: 'jsdom',
   },

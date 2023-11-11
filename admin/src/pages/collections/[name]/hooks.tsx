@@ -20,14 +20,14 @@ import {
   updateEdge,
 } from 'reactflow'
 import { Hook, HooksConfig, METHODS } from '../../../client/collection'
-import Button from '../../../components/button'
+import Button from '@/components/button'
 import { CollectionRouteData } from '../../../routes'
-import { HOOK_NODE_TYPE } from '../../../components/hook-node'
-import HooksSearch from '../../../components/hooks-search'
+import { HOOK_NODE_TYPE } from '@/components/hook-node'
+import HooksSearch from '@/components/hooks-search'
 import React from 'preact/compat'
-import { SERVICE_NODE_TYPE } from '../../../components/service-node'
-import nodeTypes from '../../../lib/node-types'
-import randomStr from '../../../lib/random-str'
+import { SERVICE_NODE_TYPE } from '@/components/service-node'
+import nodeTypes from '@/lib/node-types'
+import randomStr from '@/lib/random-str'
 import { useRouteLoaderData } from 'react-router-dom'
 
 const initialNodes = [

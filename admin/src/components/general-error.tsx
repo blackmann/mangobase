@@ -1,4 +1,4 @@
-import AppError from '../lib/app-error'
+import AppError from '@/lib/app-error'
 import { Link } from 'react-router-dom'
 import { useRouteError } from 'react-router-dom'
 

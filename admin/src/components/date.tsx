@@ -1,4 +1,4 @@
-import { cleanDate, cleanTime } from '../lib/clean-date'
+import { cleanDate, cleanTime } from '@/lib/clean-date'
 
 interface Props {
   date: Date

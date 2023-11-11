@@ -1,7 +1,7 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 import schemaRefs, { loadSchemaRefs } from './data/schema-refs'
-import AdminLayout from './layouts/AdminLayout'
-import AppError from './lib/app-error'
+import AdminLayout from '@/layouts/AdminLayout'
+import AppError from '@/lib/app-error'
 import Collection from './client/collection'
 import CollectionEmptyState from './components/collections-empty-state'
 import Devs from './pages/settings/devs'
@@ -65,7 +65,7 @@ const routes = createBrowserRouter(
                   path: 'hooks',
                 },
                 {
-                  element: () => import('./pages/collections/[name]/edit'),
+                  lazy: () => import('./pages/collections/[name]/edit'),
                   path: 'edit',
                 },
               ],
