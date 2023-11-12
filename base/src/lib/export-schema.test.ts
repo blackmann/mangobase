@@ -1,6 +1,10 @@
+import { type ExportResult, exportSchema } from './export-schema.js'
 import { describe, expect, it } from 'vitest'
 import { SchemaDefinitions } from '../schema.js'
-import { exportSchema } from './export-schema.js'
+
+function render({ definition, includes }: ExportResult) {
+  return [definition, Object.values(includes).join('\n\n')].join('\n\n')
+}
 
 describe('export-schema', () => {
   describe('typescript', () => {
@@ -41,26 +45,30 @@ describe('export-schema', () => {
 
     it('should return typescript definition [include object schema]', async () => {
       expect(
-        await exportSchema({
-          getRef: async () => ({}),
-          includeObjectSchema: true,
-          language: 'typescript',
-          name: 'test',
-          schema,
-        })
+        render(
+          await exportSchema({
+            getRef: async () => ({}),
+            includeObjectSchema: true,
+            language: 'typescript',
+            name: 'test',
+            schema,
+          })
+        )
       ).toMatchSnapshot()
     })
 
     it('should return typescript definition [inline object]', async () => {
       expect(
-        await exportSchema({
-          getRef: async () => ({}),
-          includeObjectSchema: true,
-          inlineObjectSchema: true,
-          language: 'typescript',
-          name: 'test',
-          schema,
-        })
+        render(
+          await exportSchema({
+            getRef: async () => ({}),
+            includeObjectSchema: true,
+            inlineObjectSchema: true,
+            language: 'typescript',
+            name: 'test',
+            schema,
+          })
+        )
       ).toMatchSnapshot()
     })
   })

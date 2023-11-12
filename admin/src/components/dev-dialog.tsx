@@ -1,10 +1,15 @@
+import {
+  type ExportOptions,
+  type ExportResult,
+  exportSchema,
+} from 'mangobase/lib'
 import Button from './button'
 import Collection from '@/client/collection'
 import Input from './input'
 import React from 'preact/compat'
 import Select from './select'
 import clsx from 'clsx'
-import { exportSchema } from 'mangobase'
+import { getSchema } from '@/lib/get-schema'
 import { useForm } from 'react-hook-form'
 
 const tabs = [
@@ -65,48 +70,68 @@ function DevDialog({ collection }: Props) {
       </div>
 
       <div>{activeTab === 'code' && <CodeTab collection={collection} />}</div>
+      <div>{activeTab === 'request' && <RequestsTab />}</div>
     </div>
   )
 }
 
 type Status = 'idle' | 'loading' | 'error' | 'success'
 
+type ExportOptionsValues = Omit<ExportOptions, 'name' | 'schema' | 'getRef'>
+
 function CodeTab({ collection }: Props) {
-  const { register, setValue, watch } = useForm()
+  const { handleSubmit, register, setValue, watch } =
+    useForm<ExportOptionsValues>()
   const [status, setStatus] = React.useState<Status>('idle')
 
-  const $includeObjectFieldSchema = watch('includeObjectFieldSchema')
+  const $includeObjectFieldSchema = watch('includeObjectSchema')
 
-  async function getCode() {
+  async function getCode(options: ExportOptionsValues) {
     setStatus('loading')
 
-    // const {} = await exportSchema({
-    //   async getRef() {
-    //     return {}
-    //   },
-    //   language: 'typescript',
-    //   name: collection.name,
-    //   schema: collection.schema,
-    // })
+    const { definition, includes } = (await exportSchema({
+      async getRef(ref) {
+        return (await getSchema(ref)).schema
+      },
+      name: collection.name,
+      schema: collection.schema,
+      ...options,
+    })) as ExportResult
 
-    console.log('getref', exportSchema, collection)
+    const declarations = [
+      definition,
+      Object.values(includes).join('\n\n'),
+    ].join('\n\n')
+
+    // [ ]: Include export statements
+
+    try {
+      await navigator.clipboard?.writeText(declarations)
+      setStatus('success')
+    } catch (err) {
+      setStatus('error')
+    }
+
+    setTimeout(() => {
+      setStatus('idle')
+    }, 2000)
   }
 
   React.useEffect(() => {
     if (!$includeObjectFieldSchema) {
-      setValue('inlineObjectFieldSchema', false)
+      setValue('inlineObjectSchema', false)
     }
   }, [$includeObjectFieldSchema, setValue])
 
   return (
-    <div className="px-1">
+    <form className="px-1" onSubmit={handleSubmit(getCode)}>
       <p className="text-secondary mb-2">
         Export this collection's schema into a preferred language.
       </p>
 
       <label className="flex gap-4 items-center mb-4">
         Language
-        <Select>
+        <Select {...register('language', { required: true })}>
           <option value="typescript">Typescript</option>
         </Select>
       </label>
@@ -115,14 +140,14 @@ function CodeTab({ collection }: Props) {
         <Input
           className="me-2"
           type="checkbox"
-          {...register('includeExportStatements')}
+          // {...register('includeExportStatements')}
         />
         <code>export</code> statements
       </label>
 
       <label className="flex gap-2 mb-3">
         <div>
-          <Input type="checkbox" {...register('includeObjectFieldSchema')} />
+          <Input type="checkbox" {...register('includeObjectSchema')} />
         </div>
         <div>
           <p>Object field schema</p>
@@ -137,17 +162,13 @@ function CodeTab({ collection }: Props) {
           className="me-2"
           type="checkbox"
           disabled={!$includeObjectFieldSchema}
-          {...register('inlineObjectFieldSchema')}
+          {...register('inlineObjectSchema')}
         />
         Inline object field schema
       </label>
 
       <footer className="mt-4">
-        <Button
-          onClick={getCode}
-          variant="secondary"
-          disabled={status === 'loading'}
-        >
+        <Button variant="secondary" disabled={status === 'loading'}>
           {status === 'loading'
             ? 'Exporting...'
             : status === 'success'
@@ -155,8 +176,12 @@ function CodeTab({ collection }: Props) {
             : 'Copy code'}
         </Button>
       </footer>
-    </div>
+    </form>
   )
+}
+
+function RequestsTab() {
+  return <div>[-]: Provide request templates</div>
 }
 
 export { DevDialog }

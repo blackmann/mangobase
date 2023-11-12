@@ -8,21 +8,23 @@ interface TypescriptOptions {
   inlineObjectSchema?: boolean
 }
 
+interface Result {
+  name: string
+  definition: string
+  includes: Record<string, string>
+}
+
 type Options = {
   name: string
   schema: SchemaDefinitions
   getRef: (ref: string) => Promise<SchemaDefinitions>
-  render?: boolean
 } & TypescriptOptions
 
 async function exportSchema(options: Options) {
-  const { language, render = true } = options
+  const { language } = options
   switch (language) {
     case 'typescript': {
-      const [definition, includes] = await exportToTypescript(options)
-      return render
-        ? [definition, Object.values(includes).join('\n\n')].join('\n\n')
-        : { definition, includes }
+      return await exportToTypescript(options)
     }
 
     default:
@@ -41,9 +43,9 @@ type TypescriptExportState = {
 const defaultState = { includeName: true, tabs: 2 }
 
 async function exportToTypescript(
-  options: Omit<Extract<Options, { language: 'typescript' }>, 'language'>,
+  options: Extract<Options, { language: 'typescript' }>,
   state: TypescriptExportState = defaultState
-): Promise<[string, Record<TypeName, Structure>]> {
+): Promise<Result> {
   const { name, schema, getRef, inlineObjectSchema, includeObjectSchema } =
     options
 
@@ -63,8 +65,9 @@ async function exportToTypescript(
     return spacing + result
   }
 
+  const typeName = toPascalCase(name)
   if (includeName) {
-    lines.push(`interface ${toPascalCase(name)} {`)
+    lines.push(`interface ${typeName} {`)
   } else {
     lines.push('{')
   }
@@ -111,7 +114,7 @@ async function exportToTypescript(
                 : items.schema
 
             if (inlineObjectSchema) {
-              const [objectDefinition] = await exportToTypescript(
+              const { definition: objectDefinition } = await exportToTypescript(
                 {
                   ...options,
                   name: typeName,
@@ -124,12 +127,13 @@ async function exportToTypescript(
 
               break
             } else {
-              const [definition, innerIncludes] = await exportToTypescript({
-                ...options,
-                getRef,
-                name: typeName,
-                schema,
-              })
+              const { definition, includes: innerIncludes } =
+                await exportToTypescript({
+                  ...options,
+                  getRef,
+                  name: typeName,
+                  schema,
+                })
 
               includes[typeName] = definition
               Object.assign(includes, innerIncludes)
@@ -170,7 +174,7 @@ async function exportToTypescript(
             : definition.schema
 
         if (inlineObjectSchema) {
-          const [objectDefinition] = await exportToTypescript(
+          const { definition: objectDefinition } = await exportToTypescript(
             {
               ...options,
               name: typeName,
@@ -183,12 +187,13 @@ async function exportToTypescript(
 
           break
         } else {
-          const [definition, innerIncludes] = await exportToTypescript({
-            ...options,
-            getRef,
-            name: typeName,
-            schema,
-          })
+          const { definition, includes: innerIncludes } =
+            await exportToTypescript({
+              ...options,
+              getRef,
+              name: typeName,
+              schema,
+            })
 
           includes[typeName] = definition
           Object.assign(includes, innerIncludes)
@@ -206,8 +211,8 @@ async function exportToTypescript(
 
   lines.push(`${leading}}`)
 
-  const definitionRender = lines.join('\n')
-  return [definitionRender, includes]
+  const definition = lines.join('\n')
+  return { definition, includes, name: typeName }
 }
 
 function getObjectTypeName(
@@ -238,3 +243,4 @@ function getSchemaName(name: string) {
 }
 
 export { exportSchema }
+export type { Options as ExportOptions, Result as ExportResult }

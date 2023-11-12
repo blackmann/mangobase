@@ -1,1 +1,5 @@
-export { exportSchema } from './export-schema.js'
+export {
+  exportSchema,
+  type ExportOptions,
+  type ExportResult,
+} from './export-schema.js'
