@@ -1,9 +1,23 @@
 import esbuild from 'esbuild'
 
-esbuild.build({
+const commonConfig = {
   bundle: true,
-  entryPoints: ['src/index.ts'],
   external: [],
-  outdir: 'dist/',
+  format: 'esm',
   platform: 'node',
+  target: 'esnext',
+}
+
+// package
+await esbuild.build({
+  ...commonConfig,
+  entryPoints: ['src/index.ts'],
+  outdir: 'dist/',
+})
+
+// utitlities
+await esbuild.build({
+  ...commonConfig,
+  entryPoints: ['src/lib/index.ts'],
+  outdir: 'dist/lib',
 })

@@ -1,9 +1,9 @@
-import { Cursor, Database } from './database'
-import Manifest, { CollectionConfig } from './manifest'
+import { CollectionConfig, Manifest } from './manifest.js'
+import { Cursor, Database } from './database.js'
 import { describe, expect, it, vi } from 'vitest'
-import Collection from './collection'
+import { Collection } from './collection.js'
 import { MockedObject } from 'vitest'
-import Schema from './schema'
+import { Schema } from './schema.js'
 
 function getCursor() {
   const mockCursor: MockedObject<Cursor> = {

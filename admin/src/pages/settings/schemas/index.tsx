@@ -1,4 +1,4 @@
-import Button from '../../../components/button'
+import Button from '@/components/button'
 import { useNavigate } from 'react-router-dom'
 
 function Schemas() {

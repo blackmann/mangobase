@@ -1,11 +1,11 @@
-import logs, { loadLogStats, loadLogs, logStats } from '../data/logs'
-import BarChart from '../components/chart'
-import Chip from '../components/chip'
-import CleanDate from '../components/date'
-import Input from '../components/input'
+import logs, { loadLogStats, loadLogs, logStats } from '@/data/logs'
+import BarChart from '@/components/chart'
+import Chip from '@/components/chip'
+import CleanDate from '@/components/date'
+import Input from '@/components/input'
 import React from 'preact/compat'
 
-function Logs() {
+function Component() {
   React.useEffect(() => {
     loadLogs()
     loadLogStats()
@@ -71,4 +71,4 @@ function Logs() {
   )
 }
 
-export default Logs
+export { Component }

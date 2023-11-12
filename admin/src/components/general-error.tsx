@@ -1,4 +1,4 @@
-import AppError from '../lib/app-error'
+import AppError from '@/lib/app-error'
 import { Link } from 'react-router-dom'
 import { useRouteError } from 'react-router-dom'
 
@@ -112,6 +112,8 @@ function UnknownErrorContent() {
         <a
           href="https://github.com/blackmann/mangobase/issues"
           className="underline"
+          target="_blank"
+          rel="noreferrer"
         >
           our issues
         </a>{' '}

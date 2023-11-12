@@ -1,8 +1,8 @@
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
-import App from './app'
+import { App } from './app.js'
 import { MongoDb } from '@mangobase/mongodb'
-import MongoMemoryServer from 'mongodb-memory-server-core'
-import { context } from './context'
+import { MongoMemoryServer } from 'mongodb-memory-server-core'
+import { context } from './context.js'
 import fs from 'fs'
 
 let app: App

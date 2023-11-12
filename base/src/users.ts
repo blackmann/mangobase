@@ -1,5 +1,5 @@
-import App from './app'
-import { SchemaDefinitions } from './schema'
+import { App } from './app.js'
+import { SchemaDefinitions } from './schema.js'
 
 const usersSchema: SchemaDefinitions = {
   avatar: { type: 'string' },

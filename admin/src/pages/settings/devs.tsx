@@ -1,5 +1,5 @@
 import appDevelopers, { loadAppDevelopers } from '../../data/app-developers'
-import AVATAR_COLORS from '../../lib/avatar-colors'
+import AVATAR_COLORS from '@/lib/avatar-colors'
 import Avatar from 'boring-avatars'
 import React from 'preact/compat'
 

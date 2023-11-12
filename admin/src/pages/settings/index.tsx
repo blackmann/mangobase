@@ -1,6 +1,6 @@
 import schemaRefs, { loadSchemaRefs } from '../../data/schema-refs'
 import NavContentLayout from '../../layouts/NavContentLayout'
-import NavLinks from '../../components/nav-links'
+import NavLinks from '@/components/nav-links'
 import { Outlet } from 'react-router-dom'
 import React from 'preact/compat'
 

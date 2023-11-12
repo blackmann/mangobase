@@ -1,4 +1,4 @@
-import type { SchemaDefinitions } from '../schema'
+import type { SchemaDefinitions } from '../schema.js'
 
 function getRefUsage(refName: string, schema: SchemaDefinitions) {
   const usage: string[][] = []
@@ -53,4 +53,4 @@ function getRefUsage(refName: string, schema: SchemaDefinitions) {
   return usage
 }
 
-export default getRefUsage
+export { getRefUsage }

@@ -4,21 +4,28 @@ import {
   useFieldArray,
   useForm,
 } from 'react-hook-form'
-import { Link, useLoaderData, useNavigate, useParams } from 'react-router-dom'
+import {
+  Link,
+  LoaderFunction,
+  useLoaderData,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import { Ref, SchemaDefinitions } from 'mangobase'
-import Button from '../../../components/button'
-import Chip from '../../../components/chip'
-import Field from '../../../components/field'
-import { FieldProps } from '../../../components/collection-form'
-import Input from '../../../components/input'
+import Button from '@/components/button'
+import Chip from '@/components/chip'
+import Field from '@/components/field'
+import { FieldProps } from '@/components/collection-form'
+import Input from '@/components/input'
 import React from 'preact/compat'
 import app from '../../../mangobase-app'
-import appendSchemaFields from '../../../lib/append-schema-fields'
-import getNewFieldName from '../../../lib/get-new-field-name'
+import appendSchemaFields from '@/lib/append-schema-fields'
+import getNewFieldName from '@/lib/get-new-field-name'
+import { getSchema } from '@/lib/get-schema'
 import { loadSchemaRefs } from '../../../data/schema-refs'
-import removeFieldsItem from '../../../lib/remove-fields-item'
+import removeFieldsItem from '@/lib/remove-fields-item'
 
-function SchemaDetail() {
+function Component() {
   const { control, handleSubmit, register, reset, setValue, watch } = useForm()
   const { append, fields, remove } = useFieldArray({ control, name: 'fields' })
   const ref = useLoaderData() as Ref & { $usages: string[] }
@@ -199,4 +206,11 @@ function SchemaDetail() {
   )
 }
 
-export default SchemaDetail
+const loader: LoaderFunction = async ({ request, params }) => {
+  const isCollectionSchema = request.url.includes('collections/')
+  return isCollectionSchema
+    ? await getSchema(`collections/${params.name}`)
+    : await getSchema(params.name!)
+}
+
+export { Component, loader }

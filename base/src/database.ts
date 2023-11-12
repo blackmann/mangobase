@@ -1,4 +1,4 @@
-import { Definition, DefinitionType, SchemaDefinitions } from './schema'
+import type { Definition, DefinitionType, SchemaDefinitions } from './schema.js'
 
 type SortOrder = -1 | 1
 
