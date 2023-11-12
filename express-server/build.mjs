@@ -7,5 +7,4 @@ esbuild.build({
   format: 'esm',
   outdir: 'dist/',
   platform: 'node',
-  target: 'es2020',
 })
