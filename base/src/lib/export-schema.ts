@@ -1,4 +1,4 @@
-import { SchemaDefinitions } from '../schema'
+import { Definition, SchemaDefinitions } from '../schema'
 
 interface TypescriptOptions {
   language: 'typescript'
@@ -12,14 +12,17 @@ type Options = {
   name: string
   schema: SchemaDefinitions
   getRef: (ref: string) => Promise<SchemaDefinitions>
+  render?: boolean
 } & TypescriptOptions
 
 async function exportSchema(options: Options) {
-  const { language } = options
+  const { language, render = true } = options
   switch (language) {
     case 'typescript': {
       const [definition, includes] = await exportToTypescript(options)
-      return [definition, Object.values(includes).join('\n')].join('\n\n')
+      return render
+        ? [definition, Object.values(includes).join('\n\n')].join('\n\n')
+        : { definition, includes }
     }
 
     default:
@@ -35,19 +38,14 @@ type TypescriptExportState = {
   includeName: boolean
 }
 
-const defaultState = { includeName: true, includes: {}, tabs: 2 }
+const defaultState = { includeName: true, tabs: 2 }
 
 async function exportToTypescript(
   options: Omit<Extract<Options, { language: 'typescript' }>, 'language'>,
   state: TypescriptExportState = defaultState
 ): Promise<[string, Record<TypeName, Structure>]> {
-  const {
-    name,
-    schema,
-    getRef,
-    inlineObjectSchema,
-    includeObjectSchema: objectSchema,
-  } = options
+  const { name, schema, getRef, inlineObjectSchema, includeObjectSchema } =
+    options
 
   const { tabs, includeName } = state
 
@@ -78,6 +76,73 @@ async function exportToTypescript(
 
     switch (type) {
       case 'array': {
+        // [ ]: Handle tuples
+        if (Array.isArray(definition.items)) {
+          continue
+        }
+
+        const items = definition.items as Definition
+        switch (items.type) {
+          case 'array': {
+            // [ ]: Handle nested array
+            break
+          }
+
+          case 'date': {
+            lines.push(i`${field}: Date[]`)
+            break
+          }
+
+          case 'id': {
+            lines.push(i`${field}: string[]`)
+            break
+          }
+
+          case 'object': {
+            const typeName = getObjectTypeName(items, field)
+            if (!includeObjectSchema) {
+              lines.push(i`${field}: ${typeName}[]`)
+              break
+            }
+
+            const schema =
+              typeof items.schema === 'string'
+                ? await getRef(items.schema)
+                : items.schema
+
+            if (inlineObjectSchema) {
+              const [objectDefinition] = await exportToTypescript(
+                {
+                  ...options,
+                  name: typeName,
+                  schema,
+                },
+                { includeName: false, tabs: tabs + 2 }
+              )
+
+              lines.push(i`${field}: ${objectDefinition}[]`)
+
+              break
+            } else {
+              const [definition, innerIncludes] = await exportToTypescript({
+                ...options,
+                getRef,
+                name: typeName,
+                schema,
+              })
+
+              includes[typeName] = definition
+              Object.assign(includes, innerIncludes)
+
+              lines.push(i`${field}: ${typeName}[]`)
+              break
+            }
+          }
+
+          default: {
+            lines.push(i`${field}: ${items.type}[]`)
+          }
+        }
         break
       }
 
@@ -92,14 +157,9 @@ async function exportToTypescript(
       }
 
       case 'object': {
-        const objectName =
-          typeof definition.schema === 'string'
-            ? getSchemaName(definition.schema)
-            : field
+        const typeName = getObjectTypeName(definition, field)
 
-        const typeName = toPascalCase(objectName)
-
-        if (!objectSchema) {
+        if (!includeObjectSchema) {
           lines.push(i`${field}: ${typeName}`)
           break
         }
@@ -110,9 +170,9 @@ async function exportToTypescript(
             : definition.schema
 
         if (inlineObjectSchema) {
-          const [objectDefinition, innerIncludes] = await exportToTypescript(
+          const [objectDefinition] = await exportToTypescript(
             {
-              getRef,
+              ...options,
               name: typeName,
               schema,
             },
@@ -120,11 +180,11 @@ async function exportToTypescript(
           )
 
           lines.push(i`${field}: ${objectDefinition}`)
-          Object.assign(includes, innerIncludes)
 
           break
         } else {
           const [definition, innerIncludes] = await exportToTypescript({
+            ...options,
             getRef,
             name: typeName,
             schema,
@@ -150,9 +210,22 @@ async function exportToTypescript(
   return [definitionRender, includes]
 }
 
+function getObjectTypeName(
+  definition: Extract<Definition, { type: 'object' }>,
+  field: string
+) {
+  const objectName =
+    typeof definition.schema === 'string'
+      ? getSchemaName(definition.schema)
+      : field
+
+  const typeName = toPascalCase(objectName)
+  return typeName
+}
+
 function toPascalCase(name: string) {
   return name
-    .split('-')
+    .split('_')
     .map((word) => word[0].toUpperCase() + word.slice(1))
     .join('')
 }
