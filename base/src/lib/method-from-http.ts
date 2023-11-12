@@ -1,4 +1,4 @@
-import Method from '../method.js'
+import { Method } from '../method.js'
 
 const lookup: Record<string, Method> = {
   DELETE: Method.remove,
@@ -11,4 +11,4 @@ function methodFromHttp(method: string) {
   return lookup[method] || Method.find
 }
 
-export default methodFromHttp
+export { methodFromHttp }

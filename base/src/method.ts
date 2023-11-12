@@ -6,4 +6,4 @@ enum Method {
   remove = 'remove',
 }
 
-export default Method
+export { Method }

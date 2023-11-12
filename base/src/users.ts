@@ -1,4 +1,4 @@
-import App from './app.js'
+import { App } from './app.js'
 import { SchemaDefinitions } from './schema.js'
 
 const usersSchema: SchemaDefinitions = {

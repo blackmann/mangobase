@@ -857,8 +857,5 @@ function findRelations(
   return find()
 }
 
-export default Schema
-
-export { ValidationError, findRelations }
-
+export { Schema, ValidationError, findRelations }
 export type { SchemaDefinitions, Definition, DefinitionType }

@@ -7,17 +7,17 @@ import {
   NotFound,
   ServiceError,
 } from './errors.js'
+import { type CollectionConfig, Manifest } from './manifest.js'
 import { Database, Migration, MigrationStep } from './database.js'
 import type { HookConfig, HookFn, Hooks } from './hook.js'
-import Manifest, { type CollectionConfig } from './manifest.js'
-import Schema, { ValidationError } from './schema.js'
+import { Schema, ValidationError } from './schema.js'
 import dbMigrations, { saveMigration } from './db-migrations.js'
 import logger, { logEnd, logStart } from './logger.js'
 import { onDev, unexposed } from './lib/api-paths.js'
-import CollectionService from './collection-service.js'
+import { CollectionService } from './collection-service.js'
 import type { Context } from './context.js'
-import HooksRegistry from './hooks-registry.js'
-import Method from './method.js'
+import { HooksRegistry } from './hooks-registry.js'
+import { Method } from './method.js'
 import { baseAuthentication } from './authentication.js'
 import { createRouter } from 'radix3'
 import randomStr from './lib/random-str.js'
@@ -817,6 +817,5 @@ function uniqueId(version: number) {
   return `${version.toString().padStart(4, '0')}_${randomStr(8)}`
 }
 
-export default App
-export { Pipeline, INTERNAL_PATHS }
+export { App, Pipeline, INTERNAL_PATHS }
 export type { Handle, Service }

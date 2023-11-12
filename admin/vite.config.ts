@@ -11,6 +11,11 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['node:buffer', 'node:crypto', 'node:util'],
+    },
+  },
   test: {
     environment: 'jsdom',
   },

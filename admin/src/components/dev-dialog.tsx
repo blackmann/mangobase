@@ -4,7 +4,7 @@ import Input from './input'
 import React from 'preact/compat'
 import Select from './select'
 import clsx from 'clsx'
-// import { exportSchema } from 'mangobase'
+import { exportSchema } from 'mangobase'
 import { useForm } from 'react-hook-form'
 
 const tabs = [
@@ -89,7 +89,7 @@ function CodeTab({ collection }: Props) {
     //   schema: collection.schema,
     // })
 
-    console.log('getref', collection)
+    console.log('getref', exportSchema, collection)
   }
 
   React.useEffect(() => {

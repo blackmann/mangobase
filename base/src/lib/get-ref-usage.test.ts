@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SchemaDefinitions } from '../schema'
-import getRefUsage from './get-ref-usage'
+import { SchemaDefinitions } from '../schema.js'
+import { getRefUsage } from './get-ref-usage.js'
 
 describe('getRefUsage', () => {
   const schema: SchemaDefinitions = {

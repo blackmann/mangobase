@@ -2,12 +2,15 @@
   "name": "mangobase",
   "version": "0.5.1",
   "description": "Low-code backend framework",
-  "main": "dist/index.js",
   "module": "dist/index.js",
   "type": "module",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./lib": "./dist/lib/index.js"
+  },
   "scripts": {
     "build": "yarn clean && node ./build.mjs && tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
@@ -15,7 +18,7 @@
     "prepare": "yarn build && yarn copy-admin",
     "test": "vitest"
   },
-  "author": "",
+  "author": "De-Great Yartey <mail@degreat.co.uk>",
   "license": "MIT",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

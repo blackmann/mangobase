@@ -1,5 +1,5 @@
 import type { Cursor, Database } from './database.js'
-import Schema from './schema.js'
+import { Schema } from './schema.js'
 
 interface Pagination {
   default: number
@@ -176,6 +176,6 @@ class Collection {
   }
 }
 
-export default Collection
+export { Collection }
 
 export type { Filter, FilterOperators, Query }

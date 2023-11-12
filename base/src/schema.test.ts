@@ -1,4 +1,4 @@
-import Schema, { SchemaDefinitions, findRelations } from './schema'
+import { Schema, SchemaDefinitions, findRelations } from './schema.js'
 import { describe, expect, it, test } from 'vitest'
 
 describe('schema', () => {

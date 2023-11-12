@@ -1,7 +1,7 @@
-import App from './app.js'
+import { App } from './app.js'
 import type { Context } from './context.js'
 import { type Definition } from './schema.js'
-import type Method from './method.js'
+import { type Method } from './method.js'
 
 type Config = Record<string, any>
 

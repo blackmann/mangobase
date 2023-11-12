@@ -2,9 +2,9 @@ import { Index, Migration } from './database.js'
 import { SchemaDefinitions, findRelations } from './schema.js'
 import { Conflict } from './errors.js'
 import { HookConfig } from './hook.js'
-import Method from './method.js'
+import { Method } from './method.js'
 import fs from 'fs/promises'
-import getRefUsage from './lib/get-ref-usage.js'
+import { getRefUsage } from './lib/get-ref-usage.js'
 import setWithPath from './lib/set-with-path.js'
 
 const COLLECTIONS_FILE = 'collections.json'
@@ -389,6 +389,6 @@ const HOOKS_STUB: Hooks = {
   before: { create: [], find: [], get: [], patch: [], remove: [] },
 }
 
-export default Manifest
+export { Manifest }
 export { HOOKS_STUB }
 export type { CollectionConfig, Hooks as CollectionHooks, Ref }

@@ -1,5 +1,5 @@
 import type { Hook } from './hook.js'
-import Schema from './schema.js'
+import { Schema } from './schema.js'
 import allHooks from './hooks.js'
 
 class HooksRegistry {
@@ -38,4 +38,4 @@ class HooksRegistry {
   }
 }
 
-export default HooksRegistry
+export { HooksRegistry }

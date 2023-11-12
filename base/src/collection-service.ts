@@ -1,7 +1,7 @@
-import App, { type Service } from './app.js'
+import { App, type Service } from './app.js'
 import { BadRequest, MethodNotAllowed } from './errors.js'
-import Collection, { type Filter } from './collection.js'
-import Schema, { type Definition, ValidationError } from './schema.js'
+import { Collection, type Filter } from './collection.js'
+import { type Definition, Schema, ValidationError } from './schema.js'
 import type { Context } from './context.js'
 
 const ALLOWED_FILTERS = [
@@ -231,4 +231,4 @@ class CollectionService implements Service {
   }
 }
 
-export default CollectionService
+export { CollectionService }

@@ -1,8 +1,8 @@
-import type App from './app.js'
-import CollectionService from './collection-service.js'
+import { type App } from './app.js'
+import { CollectionService } from './collection-service.js'
 import { HookFn } from './hook.js'
 import { MethodNotAllowed } from './errors.js'
-import Schema from './schema.js'
+import { Schema } from './schema.js'
 import { onDev } from './lib/api-paths.js'
 
 const getPath = () => onDev('logs')

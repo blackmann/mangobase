@@ -53,4 +53,4 @@ function getRefUsage(refName: string, schema: SchemaDefinitions) {
   return usage
 }
 
-export default getRefUsage
+export { getRefUsage }

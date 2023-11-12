@@ -1,4 +1,4 @@
-import type App from './app.js'
+import { type App } from './app.js'
 import type { Migration } from './database.js'
 import { type SchemaDefinitions } from './schema.js'
 import getCollection from './lib/get-collection.js'

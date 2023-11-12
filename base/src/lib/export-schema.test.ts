@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SchemaDefinitions } from '../schema'
-import { exportSchema } from './export-schema'
+import { SchemaDefinitions } from '../schema.js'
+import { exportSchema } from './export-schema.js'
 
 describe('export-schema', () => {
   describe('typescript', () => {
