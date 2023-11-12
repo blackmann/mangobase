@@ -1,7 +1,5 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom'
-import schemaRefs, { loadSchemaRefs } from './data/schema-refs'
 import AdminLayout from '@/layouts/AdminLayout'
-import AppError from '@/lib/app-error'
 import Collection from './client/collection'
 import CollectionEmptyState from './components/collections-empty-state'
 import Devs from './pages/settings/devs'
@@ -9,43 +7,11 @@ import { LoaderErrorBoundary } from './components/general-error'
 import Login from './pages/login'
 import NotFound from './pages/notfound'
 import Profile from './pages/settings/profile'
-import type { Ref } from 'mangobase'
-import SchemaDetail from './pages/settings/schemas/[name]'
 import Schemas from './pages/settings/schemas'
 import Settings from './pages/settings'
-import app from './mangobase-app'
-import { loadCollections } from './data/collections'
 
 interface CollectionRouteData {
   collection: Collection
-}
-
-async function getSchema(name: string): Promise<Ref> {
-  if (!schemaRefs.value?.length) {
-    await loadCollections()
-    await loadSchemaRefs()
-  }
-
-  if (name === 'new') {
-    return {
-      name: 'Add new schema',
-      schema: {},
-    }
-  }
-
-  const nameParts = name.split('/')
-  const refName = nameParts.pop()!
-  const [scope] = nameParts
-
-  try {
-    const { data: schema } = await app.req.get(
-      `_dev/schema-refs/${refName}?$scope=${scope || ''}`
-    )
-
-    return schema
-  } catch (err) {
-    throw new AppError((err as any).message, err)
-  }
 }
 
 const routes = createBrowserRouter(
@@ -92,17 +58,11 @@ const routes = createBrowserRouter(
               path: 'schemas',
             },
             {
-              element: <SchemaDetail />,
-              loader: async ({ params }) => {
-                return await getSchema(params.name!)
-              },
+              lazy: () => import('./pages/settings/schemas/[name].tsx'),
               path: 'schemas/:name',
             },
             {
-              element: <SchemaDetail />,
-              loader: async ({ params }) => {
-                return await getSchema(`collections/${params.name}`)
-              },
+              lazy: () => import('./pages/settings/schemas/[name].tsx'),
               path: 'schemas/collections/:name',
             },
             {

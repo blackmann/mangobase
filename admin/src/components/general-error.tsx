@@ -112,6 +112,8 @@ function UnknownErrorContent() {
         <a
           href="https://github.com/blackmann/mangobase/issues"
           className="underline"
+          target="_blank"
+          rel="noreferrer"
         >
           our issues
         </a>{' '}

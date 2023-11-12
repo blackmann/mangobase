@@ -4,6 +4,7 @@ import Input from './input'
 import React from 'preact/compat'
 import Select from './select'
 import clsx from 'clsx'
+// import { exportSchema } from 'mangobase'
 import { useForm } from 'react-hook-form'
 
 const tabs = [
@@ -68,13 +69,27 @@ function DevDialog({ collection }: Props) {
   )
 }
 
+type Status = 'idle' | 'loading' | 'error' | 'success'
+
 function CodeTab({ collection }: Props) {
   const { register, setValue, watch } = useForm()
+  const [status, setStatus] = React.useState<Status>('idle')
 
   const $includeObjectFieldSchema = watch('includeObjectFieldSchema')
 
-  function getCode() {
-    //
+  async function getCode() {
+    setStatus('loading')
+
+    // const {} = await exportSchema({
+    //   async getRef() {
+    //     return {}
+    //   },
+    //   language: 'typescript',
+    //   name: collection.name,
+    //   schema: collection.schema,
+    // })
+
+    console.log('getref', collection)
   }
 
   React.useEffect(() => {
@@ -128,8 +143,16 @@ function CodeTab({ collection }: Props) {
       </label>
 
       <footer className="mt-4">
-        <Button onClick={getCode} variant="secondary">
-          Copy code
+        <Button
+          onClick={getCode}
+          variant="secondary"
+          disabled={status === 'loading'}
+        >
+          {status === 'loading'
+            ? 'Exporting...'
+            : status === 'success'
+            ? 'Copied'
+            : 'Copy code'}
         </Button>
       </footer>
     </div>

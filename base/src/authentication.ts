@@ -3,16 +3,16 @@ import {
   MethodNotAllowed,
   ServiceError,
   Unauthorized,
-} from './errors'
-import { CollectionHooks, HOOKS_STUB } from './manifest'
-import { Hook, HookFn } from './hook'
-import { onDev, unexposed } from './lib/api-paths'
-import type App from './app'
-import CollectionService from './collection-service'
-import { SchemaDefinitions } from './schema'
+} from './errors.js'
+import { CollectionHooks, HOOKS_STUB } from './manifest.js'
+import { Hook, HookFn } from './hook.js'
+import { SignJWT, jwtVerify } from 'jose'
+import { onDev, unexposed } from './lib/api-paths.js'
+import type App from './app.js'
+import CollectionService from './collection-service.js'
+import { SchemaDefinitions } from './schema.js'
 import bcrypt from 'bcryptjs'
-import { context } from './context'
-import jsonwebtoken from 'jsonwebtoken'
+import { context } from './context.js'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
 
@@ -114,6 +114,8 @@ const CreatePasswordAuthCredential: Hook = {
 /** This is the primary authentication mechanism */
 async function baseAuthentication(app: App) {
   const name = 'auth-credentials'
+  const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
+
   if (!(await app.manifest.collection(name))) {
     const index = [{ fields: ['user'], options: { unique: true } }]
     await app.manifest.collection(name, {
@@ -177,9 +179,11 @@ async function baseAuthentication(app: App) {
 
     // [ ] Sign with distinction for dev access
     // [ ] Use `expiresIn` settings from dashboard
-    const jwt = jsonwebtoken.sign({ user: user._id }, process.env.SECRET_KEY!, {
-      expiresIn: '7d',
-    })
+    const sign = new SignJWT({ user: user._id })
+    const jwt: string = await sign
+      .setExpirationTime('7d')
+      .setProtectedHeader({ alg: 'HS256' })
+      .sign(secretKey)
 
     ctx.result = {
       auth: { token: jwt, type: 'Bearer' },
@@ -249,6 +253,7 @@ async function upsertHooks(app: App) {
 }
 
 function checkAuth(): HookFn {
+  const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
   return async (ctx, _, app) => {
     checkSecretKeyEnv()
 
@@ -260,10 +265,9 @@ function checkAuth(): HookFn {
           user: string
         }
 
-        const { user: userId } = jsonwebtoken.verify(
-          token,
-          process.env.SECRET_KEY!
-        ) as JWTStructure
+        const {
+          payload: { user: userId },
+        } = await jwtVerify<JWTStructure>(token, secretKey)
 
         const usersCollection = (app.service('users') as CollectionService)
           .collection

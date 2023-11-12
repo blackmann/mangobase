@@ -1,5 +1,5 @@
-import { Hook, HookFn } from './hook'
-import { MethodNotAllowed } from './errors'
+import type { Hook, HookFn } from './hook.js'
+import { MethodNotAllowed } from './errors.js'
 
 const LogData: Hook = {
   description: 'Logs data. Check logs console.',

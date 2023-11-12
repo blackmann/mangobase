@@ -1,4 +1,4 @@
-import Method from '../method'
+import Method from '../method.js'
 
 const lookup: Record<string, Method> = {
   DELETE: Method.remove,

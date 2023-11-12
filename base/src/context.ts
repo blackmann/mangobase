@@ -1,4 +1,4 @@
-import Method from './method'
+import type Method from './method.js'
 
 interface Context {
   data?: any

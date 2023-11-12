@@ -4,6 +4,7 @@ esbuild.build({
   bundle: true,
   entryPoints: ['src/index.ts'],
   external: ['express', 'mangobase'],
+  format: 'esm',
   outdir: 'dist/',
   platform: 'node',
   target: 'es2020',

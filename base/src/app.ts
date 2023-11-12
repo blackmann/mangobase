@@ -1,4 +1,4 @@
-import * as errors from './errors'
+import * as errors from './errors.js'
 import {
   BadRequest,
   Conflict,
@@ -6,22 +6,23 @@ import {
   MethodNotAllowed,
   NotFound,
   ServiceError,
-} from './errors'
-import { Database, Migration, MigrationStep } from './database'
-import type { HookConfig, HookFn, Hooks } from './hook'
-import Manifest, { CollectionConfig } from './manifest'
-import Schema, { ValidationError } from './schema'
-import dbMigrations, { saveMigration } from './db-migrations'
-import logger, { logEnd, logStart } from './logger'
-import { onDev, unexposed } from './lib/api-paths'
-import CollectionService from './collection-service'
-import type { Context } from './context'
-import HooksRegistry from './hooks-registry'
-import Method from './method'
-import { baseAuthentication } from './authentication'
+} from './errors.js'
+import { Database, Migration, MigrationStep } from './database.js'
+import type { HookConfig, HookFn, Hooks } from './hook.js'
+import Manifest, { type CollectionConfig } from './manifest.js'
+import Schema, { ValidationError } from './schema.js'
+import dbMigrations, { saveMigration } from './db-migrations.js'
+import logger, { logEnd, logStart } from './logger.js'
+import { onDev, unexposed } from './lib/api-paths.js'
+import CollectionService from './collection-service.js'
+import type { Context } from './context.js'
+import HooksRegistry from './hooks-registry.js'
+import Method from './method.js'
+import { baseAuthentication } from './authentication.js'
 import { createRouter } from 'radix3'
-import randomStr from './lib/random-str'
-import users from './users'
+import randomStr from './lib/random-str.js'
+import url from 'url'
+import users from './users.js'
 
 const INTERNAL_PATHS = [
   'collections',
@@ -33,6 +34,8 @@ const INTERNAL_PATHS = [
 const STATIC_PATHS = ['/assets/', '/zed-mono/']
 
 const DEV = process.env.NODE_ENV !== 'production'
+
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 type Handle = (ctx: Context, app: App) => Promise<Context>
 

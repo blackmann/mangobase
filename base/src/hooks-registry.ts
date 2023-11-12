@@ -1,6 +1,6 @@
-import { Hook } from './hook'
-import Schema from './schema'
-import allHooks from './hooks'
+import type { Hook } from './hook.js'
+import Schema from './schema.js'
+import allHooks from './hooks.js'
 
 class HooksRegistry {
   private registry: Record<string, Hook> = {}

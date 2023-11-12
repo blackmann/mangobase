@@ -1,8 +1,8 @@
-import App, { Service } from './app'
-import { BadRequest, MethodNotAllowed } from './errors'
-import Collection, { Filter } from './collection'
-import Schema, { Definition, ValidationError } from './schema'
-import type { Context } from './context'
+import App, { type Service } from './app.js'
+import { BadRequest, MethodNotAllowed } from './errors.js'
+import Collection, { type Filter } from './collection.js'
+import Schema, { type Definition, ValidationError } from './schema.js'
+import type { Context } from './context.js'
 
 const ALLOWED_FILTERS = [
   '$limit',
