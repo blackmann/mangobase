@@ -167,7 +167,7 @@ async function createProject(options: Options) {
 						'install',
 						'--save-dev',
 						'typescript',
-						'ts-node',
+						'tsx',
 					])
 				}
 			},

@@ -1,9 +1,9 @@
 import { App } from 'mangobase'
 import { MongoDb } from '@mangobase/mongodb'
 import { expressServer } from '@mangobase/express'
-import { loadEnvConfig } from '@next/env'
+import env from '@next/env'
 
-loadEnvConfig('.', process.env.NODE_ENV !== 'production')
+env.loadEnvConfig('.', process.env.NODE_ENV !== 'production')
 
 const app = new App({
 	db: new MongoDb(process.env.DATABASE_URL!),
