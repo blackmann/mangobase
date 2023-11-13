@@ -17,7 +17,7 @@ $ npm create mango@latest
 ```
 
 ```sh [yarn]
-$ yarn create mango@latest
+$ yarn create mango
 ```
 
 :::
