@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.6.0 (2023-11-13)
+
+### Features
+
+- target esnext, update cli templates ([#8](https://github.com/blackmann/mangobase/issues/8)) ([8bad7c4](https://github.com/blackmann/mangobase/commit/8bad7c4cd3276ae872779bb3301f20d957cd3b7a))
+
 ## 0.0.18 (2023-09-16)
 
 **Note:** Version bump only for package create-mango
