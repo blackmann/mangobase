@@ -542,7 +542,7 @@ class Schema {
       for (const [i, itemDefinition] of definition.items.entries()) {
         const schema = new Schema(
           { item: itemDefinition },
-          { parser: this.parser }
+          { getRef: this.getRef, parser: this.parser }
         )
 
         data.value[i] = schema.validate({ item: data.value[i] }).item
@@ -554,6 +554,7 @@ class Schema {
     const schema = new Schema(
       { item: definition.items },
       {
+        getRef: this.getRef,
         parser: this.parser,
       }
     )

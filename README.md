@@ -40,7 +40,7 @@ You can then use an HTTP client to test endpoints.
 
 Another way to validate your addition is to use the admin/dev dashboard.
 
-### admin
+#### admin
 
 The [dev] admin panel is where the low-code experience happens. It's developed with Vite/Preact.
 
