@@ -118,6 +118,8 @@ interface Data {
   value: any
 }
 
+const ID_QUERY_REGEX = /\.?_id$/
+
 class Schema {
   schema: SchemaDefinitions
   parser: (value: any, type: DefinitionType) => any
@@ -158,6 +160,17 @@ class Schema {
 
     for (const [key, value] of Object.entries(res)) {
       const definition = this.getDefinitionAtPath(key)
+
+      if (ID_QUERY_REGEX.test(key)) {
+        // _ids should be cast
+        if (typeof value === 'object') {
+          this.castOperatorValues(value, 'id', (value) => value)
+        } else {
+          res[key] = this.cast(value, 'id')
+        }
+
+        continue
+      }
 
       switch (definition?.type) {
         case 'boolean': {

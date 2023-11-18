@@ -38,9 +38,10 @@ type Structure = string
 type TypescriptExportState = {
   tabs: number
   includeName: boolean
+  top: boolean
 }
 
-const defaultState = { includeName: true, tabs: 2 }
+const defaultState = { includeName: true, tabs: 2, top: true }
 
 async function exportToTypescript(
   options: Extract<Options, { language: 'typescript' }>,
@@ -70,6 +71,11 @@ async function exportToTypescript(
     lines.push(`interface ${typeName} {`)
   } else {
     lines.push('{')
+  }
+
+  console.log(name, state.top)
+  if (state.top) {
+    lines.push(i`_id: string`)
   }
 
   for (const [fieldName, definition] of Object.entries(schema)) {
@@ -120,7 +126,7 @@ async function exportToTypescript(
                   name: typeName,
                   schema,
                 },
-                { includeName: false, tabs: tabs + 2 }
+                { includeName: false, tabs: tabs + 2, top: false }
               )
 
               lines.push(i`${field}: ${objectDefinition}[]`)
@@ -128,12 +134,15 @@ async function exportToTypescript(
               break
             } else {
               const { definition, includes: innerIncludes } =
-                await exportToTypescript({
-                  ...options,
-                  getRef,
-                  name: typeName,
-                  schema,
-                })
+                await exportToTypescript(
+                  {
+                    ...options,
+                    getRef,
+                    name: typeName,
+                    schema,
+                  },
+                  { ...defaultState, top: false }
+                )
 
               includes[typeName] = definition
               Object.assign(includes, innerIncludes)
@@ -180,7 +189,7 @@ async function exportToTypescript(
               name: typeName,
               schema,
             },
-            { includeName: false, tabs: tabs + 2 }
+            { includeName: false, tabs: tabs + 2, top: false }
           )
 
           lines.push(i`${field}: ${objectDefinition}`)
@@ -188,12 +197,15 @@ async function exportToTypescript(
           break
         } else {
           const { definition, includes: innerIncludes } =
-            await exportToTypescript({
-              ...options,
-              getRef,
-              name: typeName,
-              schema,
-            })
+            await exportToTypescript(
+              {
+                ...options,
+                getRef,
+                name: typeName,
+                schema,
+              },
+              { ...defaultState, top: false }
+            )
 
           includes[typeName] = definition
           Object.assign(includes, innerIncludes)

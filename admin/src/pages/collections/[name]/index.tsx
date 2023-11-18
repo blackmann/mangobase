@@ -115,7 +115,7 @@ function Component() {
                   <IdTag id={row._id} />
                 </td>
                 {fields.map((field) => (
-                  <td key={field}>
+                  <td key={`${collection.name}.${field}`}>
                     <Value
                       type={collection.schema[field].type}
                       value={row[field]}

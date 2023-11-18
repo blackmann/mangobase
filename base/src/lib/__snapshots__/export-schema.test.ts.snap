@@ -2,6 +2,7 @@
 
 exports[`export-schema > typescript > should return typescript definition [include object schema] 1`] = `
 "interface Test {
+  _id: string
   address: Address
   age?: number
   alive: boolean
@@ -30,6 +31,7 @@ interface FriendsContacts {
 
 exports[`export-schema > typescript > should return typescript definition [inline object] 1`] = `
 "interface Test {
+  _id: string
   address: {
     country: {
       code?: string

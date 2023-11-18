@@ -839,6 +839,18 @@ describe('schema', () => {
           $gte: 'hello',
         },
       })
+
+      expect(
+        schema.castQuery({
+          _id: { $gte: '8' },
+          'other._id': { $in: ['9', '10'] },
+          'some._id': '10',
+        })
+      ).toStrictEqual({
+        _id: { $gte: 8 },
+        'other._id': { $in: [9, 10] },
+        'some._id': 10,
+      })
     })
   })
 

@@ -16,7 +16,7 @@ function Value({ type, value }: { type: DefinitionType; value: any }) {
 
     case 'object':
     case 'array':
-      return <div>{JSON.stringify(value)}</div>
+      return <div>{ellipsize(JSON.stringify(value), 48)}</div>
 
     case 'boolean':
       return (
@@ -25,13 +25,22 @@ function Value({ type, value }: { type: DefinitionType; value: any }) {
         </span>
       )
 
-    default:
-      if (typeof value === 'object') {
-        return <div>{JSON.stringify(value)}</div>
-      }
-
-      return <span>{value}</span>
+    default: {
+      return <span>{ellipsize(JSON.stringify(value), 48)}</span>
+    }
   }
+}
+
+function ellipsize(text: string | undefined, length: number) {
+  if (!text) {
+    return null
+  }
+
+  if (text.length <= length) {
+    return text
+  }
+
+  return `${text.slice(0, length)}…`
 }
 
 export default Value
