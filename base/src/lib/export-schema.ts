@@ -73,7 +73,6 @@ async function exportToTypescript(
     lines.push('{')
   }
 
-  console.log(name, state.top)
   if (state.top) {
     lines.push(i`_id: string`)
   }
