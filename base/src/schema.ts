@@ -197,7 +197,7 @@ class Schema {
           if (typeof value === 'object') {
             // handle only query operators
             this.castOperatorValues(value, 'number', getNumber)
-            break
+            continue
           }
 
           const num = getNumber(value)
@@ -245,18 +245,14 @@ class Schema {
         if (Array.isArray(v)) {
           v.forEach((item, index) => {
             const parsed = parse(item)
-            if (!isNaN(parsed)) {
-              v[index] = this.cast(parsed, type)
-            }
+            v[index] = this.cast(parsed, type)
           })
 
           continue
         }
 
         const parsed = parse(v)
-        if (!isNaN(parsed)) {
-          value[k] = this.cast(parsed, type)
-        }
+        value[k] = this.cast(parsed, type)
       }
     }
   }
@@ -780,7 +776,12 @@ class Schema {
 }
 
 function getNumber(value: any) {
-  return Number(value)
+  const number = Number(value)
+  if (isNaN(number)) {
+    return value
+  }
+
+  return number
 }
 
 function getDate(value: any) {
