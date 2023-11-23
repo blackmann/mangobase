@@ -17,7 +17,9 @@ function Value({ type, value }: { type: DefinitionType; value: any }) {
     case 'object':
     case 'array':
       return (
-        <div className="nowrap">{ellipsize(JSON.stringify(value), 48)}</div>
+        <div className="whitespace-nowrap">
+          {ellipsize(JSON.stringify(value), 48)}
+        </div>
       )
 
     case 'boolean':
@@ -28,8 +30,14 @@ function Value({ type, value }: { type: DefinitionType; value: any }) {
       )
 
     default: {
+      if (typeof value === 'string') {
+        return <span className="whitespace-nowrap">{ellipsize(value, 48)}</span>
+      }
+
       return (
-        <span className="nowrap">{ellipsize(JSON.stringify(value), 48)}</span>
+        <span className="whitespace-nowrap">
+          {ellipsize(JSON.stringify(value), 48)}
+        </span>
       )
     }
   }
