@@ -153,12 +153,13 @@ async function createProject(options: Options) {
 			title: 'Install dependencies',
 			async task() {
 				const packages = [
-					'mangobase',
 					'@mangobase/express',
-					'express',
 					'@mangobase/mongodb',
-					'mongodb',
 					'@next/env',
+					'bcrypt',
+					'express',
+					'mangobase',
+					'mongodb',
 				]
 				await execaInDirectory('npm', ['install', ...packages])
 

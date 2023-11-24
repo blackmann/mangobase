@@ -11,11 +11,10 @@ import { onDev, unexposed } from './lib/api-paths.js'
 import type { App } from './app.js'
 import { CollectionService } from './collection-service.js'
 import { SchemaDefinitions } from './schema.js'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import { context } from './context.js'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
-const SALT = bcrypt.genSaltSync(ROUNDS)
 
 const authCredentialsSchema: SchemaDefinitions = {
   password: { required: true, type: 'string' },
@@ -87,7 +86,7 @@ const CreatePasswordAuthCredential: Hook = {
 
     const credentialsPipeline = app.pipeline(unexposed('auth-credentials'))!
 
-    const hashedPassword = await bcrypt.hash(password, SALT)
+    const hashedPassword = await bcrypt.hash(password, ROUNDS)
 
     // we're using the pipeline so that if any hooks are attached to the auth credentials
     // service, they get executed
