@@ -43,10 +43,12 @@ const copyWithTemplate = async (
 }
 
 type Language = 'typescript' | 'javascript'
+type PackageManager = 'npm' | 'yarn'
 
 interface Options {
 	language: Language
 	projectName: string
+	packageManager: PackageManager
 }
 
 async function createProject(options: Options) {
@@ -161,12 +163,15 @@ async function createProject(options: Options) {
 					'mangobase',
 					'mongodb',
 				]
-				await execaInDirectory('npm', ['install', ...packages])
+				await execaInDirectory(options.packageManager, [
+					getAddCommand(options.packageManager),
+					...packages,
+				])
 
 				if (typescript) {
-					await execaInDirectory('npm', [
-						'install',
-						'--save-dev',
+					await execaInDirectory(options.packageManager, [
+						getAddCommand(options.packageManager),
+						getDevOption(options.packageManager),
 						'typescript',
 						'tsx',
 					])
@@ -184,4 +189,21 @@ async function createProject(options: Options) {
 	return await tasks.run()
 }
 
-export { createProject, Options as CreateProjectOptions, Language }
+function getAddCommand(pm: PackageManager) {
+	if (pm === 'npm') {
+		return 'install'
+	}
+
+	return 'add'
+}
+
+function getDevOption(pm: PackageManager) {
+	return pm === 'npm' ? '--save-dev' : '-D'
+}
+
+export {
+	createProject,
+	Options as CreateProjectOptions,
+	Language,
+	PackageManager,
+}
