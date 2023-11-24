@@ -1,6 +1,6 @@
 {
   "name": "create-mango",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "license": "MIT",
   "bin": "dist/cli.js",
   "type": "module",
