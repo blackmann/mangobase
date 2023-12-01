@@ -21,13 +21,13 @@
     "@vitest/ui": "^0.31.0",
     "eslint-config-base": "*",
     "mangobase": "^0.7.0",
-    "mongodb": "^5.5.0",
+    "mongodb": "^6.3.0",
     "mongodb-memory-server-core": "^8.12.2",
     "typescript": "^5.0.4",
     "vitest": "^0.31.1"
   },
   "peerDependencies": {
     "mangobase": "*",
-    "mongodb": "^5.5.0"
+    "mongodb": "^6.3.0"
   }
 }

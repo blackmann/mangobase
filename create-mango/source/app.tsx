@@ -62,7 +62,6 @@ function Wizard() {
 
 	function handleLanguageSelect({ value }: { value: string }) {
 		languageSelection.current = value
-		console.log('next', PACKAGE_MANAGER_SELECT)
 		setStage(PACKAGE_MANAGER_SELECT)
 	}
 
