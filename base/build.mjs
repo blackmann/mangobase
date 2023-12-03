@@ -2,7 +2,7 @@ import esbuild from 'esbuild'
 
 const commonConfig = {
   bundle: true,
-  external: ['bcrypt'],
+  external: ['bcrypt', 'jose'],
   format: 'esm',
   platform: 'node',
   target: 'esnext',
