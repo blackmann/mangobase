@@ -158,7 +158,6 @@ async function createProject(options: Options) {
 					'@mangobase/express',
 					'@mangobase/mongodb',
 					'@next/env',
-					'bcrypt',
 					'express',
 					'mangobase',
 					'mongodb',

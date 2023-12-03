@@ -28,11 +28,11 @@
     "eslint-config-base": "*",
     "mongodb-memory-server-core": "8.15.1",
     "typescript": "^5.0.4",
-    "vitest": "^0.34.4"
+    "vitest": "^0.34.4",
+    "radix3": "^1.0.1"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "jose": "^5.1.0",
-    "radix3": "^1.0.1"
+    "jose": "^5.1.0"
   }
 }
