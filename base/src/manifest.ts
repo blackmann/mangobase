@@ -55,7 +55,6 @@ class Manifest {
   private hooksIndex: Record<CollectionName, Hooks> = {}
   private editorsIndex: Record<CollectionName, Editor> = {}
   private refs: Refs = {}
-  private collectionRefs: Refs = {}
 
   private initialize: Promise<void>
 
@@ -94,7 +93,7 @@ class Manifest {
     for (const collection of collections) {
       if (collection.template) {
         const name = `collections/${collection.name}`
-        this.collectionRefs[name] = { name, schema: collection.schema }
+        this.refs[name] = { name, schema: collection.schema }
       }
     }
 
@@ -181,7 +180,7 @@ class Manifest {
 
   async schemaRefs() {
     await this.init()
-    return [...Object.values(this.refs), ...Object.values(this.collectionRefs)]
+    return Object.values(this.refs)
   }
 
   async getHooks(collection: string) {
@@ -220,7 +219,11 @@ class Manifest {
 
     for (const name in this.collectionsIndex) {
       const schema = this.collectionsIndex[name].schema
-      const usages = findRelations(schema, from)
+      const usages = findRelations(
+        schema,
+        from,
+        (name) => this.getSchemaRef(name).schema
+      )
       for (const usage of usages) {
         setWithPath(schema, [...usage, 'relation'], to)
       }
@@ -307,7 +310,7 @@ class Manifest {
   async schemaRef(name: string, ref?: Ref): Promise<Ref | undefined> {
     await this.init()
     if (!ref) {
-      return this.refs[name] || this.collectionRefs[name]
+      return this.refs[name]
     }
 
     this.refs[name] = ref
