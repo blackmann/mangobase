@@ -1,6 +1,6 @@
 {
   "name": "mangobase",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
   "type": "module",
@@ -27,9 +27,9 @@
     "esbuild": "^0.17.19",
     "eslint-config-base": "*",
     "mongodb-memory-server-core": "8.15.1",
+    "radix3": "^1.0.1",
     "typescript": "^5.0.4",
-    "vitest": "^0.34.4",
-    "radix3": "^1.0.1"
+    "vitest": "^0.34.4"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
