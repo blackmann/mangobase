@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.4 (2023-12-04)
+
+### Bug Fixes
+
+- failure on collection rename ([#11](https://github.com/blackmann/mangobase/issues/11)) ([a98b2ec](https://github.com/blackmann/mangobase/commit/a98b2ecc2e1e6b180465b3477b020ca2087d702f))
+
 ## 0.7.3 (2023-12-04)
 
 **Note:** Version bump only for package create-mango
