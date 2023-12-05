@@ -7,7 +7,7 @@ function getRefUsage(refName: string, schema: SchemaDefinitions) {
     if (value.type === 'object') {
       if (typeof value.schema === 'string') {
         if (value.schema === refName) {
-          usage.push([key])
+          usage.push([key, 'schema'])
         }
         continue
       }
@@ -24,7 +24,7 @@ function getRefUsage(refName: string, schema: SchemaDefinitions) {
           if (itemDefinition.type === 'object') {
             if (typeof itemDefinition.schema === 'string') {
               if (itemDefinition.schema === refName) {
-                usage.push([key, i.toString()])
+                usage.push([key, i.toString(), 'schema'])
               }
               continue
             }
@@ -38,7 +38,7 @@ function getRefUsage(refName: string, schema: SchemaDefinitions) {
       } else if (value.items.type === 'object') {
         if (typeof value.items.schema === 'string') {
           if (value.items.schema === refName) {
-            usage.push([key])
+            usage.push([key, 'schema'])
           }
         } else {
           const nestedUsage = getRefUsage(refName, value.items.schema)

@@ -2,8 +2,10 @@ import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { App } from './app.js'
 import { MongoDb } from '@mangobase/mongodb'
 import { MongoMemoryServer } from 'mongodb-memory-server-core'
+import { Ref } from './manifest.js'
 import { context } from './context.js'
 import fs from 'fs'
+import { onDev } from './lib/api-paths.js'
 
 let app: App
 let mongod: MongoMemoryServer
@@ -169,6 +171,65 @@ describe('collections', () => {
       })
     })
 
+    it('returns created collection [template=true]', async () => {
+      const res = await app.api(
+        context({
+          data: {
+            name: 'mock-template-collection',
+            schema: {
+              name: { type: 'string' },
+            },
+            template: true,
+          },
+          headers: {
+            authorization: `Bearer ${devAuthToken}`,
+          },
+          method: 'create',
+          path: 'collections',
+        })
+      )
+
+      // template usage
+      await app.api(
+        context({
+          data: {
+            name: 'mock-template-usage-collection',
+            schema: {
+              name: {
+                schema: 'collections/mock-template-collection',
+                type: 'object',
+              },
+            },
+          },
+          headers: {
+            authorization: `Bearer ${devAuthToken}`,
+          },
+          method: 'create',
+          path: 'collections',
+        })
+      )
+
+      expect(res.statusCode).toBe(201)
+
+      const templateRefs = await app.api(
+        context({
+          headers: {
+            authorization: `Bearer ${devAuthToken}`,
+          },
+          method: 'find',
+          path: onDev('schema-refs'),
+        })
+      )
+
+      expect(templateRefs.result).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'collections/mock-template-collection',
+          }),
+        ])
+      )
+    })
+
     it('returns conflict when collection already exists', async () => {
       const res = await app.api(
         context({
@@ -237,6 +298,8 @@ describe('collections', () => {
         'mock-collection',
         'mock-collection-control',
         'mock-collection-control-child',
+        'mock-template-collection',
+        'mock-template-usage-collection',
         'users',
       ]
 
@@ -365,6 +428,71 @@ describe('collections', () => {
 
       expect(relatedCollection.result.schema.parent.relation).toBe(
         'mock-collection-renamed'
+      )
+    })
+
+    it('updates fields using collection as template', async () => {
+      await app.api(
+        context({
+          data: {
+            migrationSteps: [
+              {
+                collection: 'mock-template-collection-control',
+                to: 'mock-template-collection-renamed',
+                type: 'rename-collection',
+              },
+            ],
+            name: 'mock-template-collection-renamed',
+          },
+          headers: { authorization: `Bearer ${devAuthToken}` },
+          method: 'patch',
+          path: 'collections/mock-template-collection',
+        })
+      )
+
+      const updatedUsage = await app.api(
+        context({
+          headers: { authorization: `Bearer ${devAuthToken}` },
+          path: 'collections/mock-template-usage-collection',
+        })
+      )
+
+      expect(updatedUsage.result).toStrictEqual(
+        expect.objectContaining({
+          schema: expect.objectContaining({
+            name: {
+              schema: 'collections/mock-template-collection-renamed',
+              type: 'object',
+            },
+          }),
+        })
+      )
+
+      const updatedRefs = await app.api(
+        context({
+          headers: { authorization: `Bearer ${devAuthToken}` },
+          path: onDev('schema-refs'),
+        })
+      )
+
+      const refs = updatedRefs.result.filter((schema: Ref) =>
+        schema.name.startsWith('collections/')
+      )
+
+      expect(refs).toStrictEqual(
+        expect.not.arrayContaining([
+          expect.objectContaining({
+            name: 'collections/mock-template-collection',
+          }),
+        ])
+      )
+
+      expect(refs).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'collections/mock-template-collection-renamed',
+          }),
+        ])
       )
     })
   })

@@ -895,7 +895,26 @@ describe('schema', () => {
 test('findRelation', () => {
   expect(findRelations({}, 'mock')).toStrictEqual([])
 
-  expect(
-    findRelations({ address: { relation: 'mock', type: 'id' } }, 'mock')
-  ).toStrictEqual([['address']])
+  let schema: SchemaDefinitions = { address: { relation: 'mock', type: 'id' } }
+  expect(findRelations(schema, 'mock')).toStrictEqual([['address', 'relation']])
+
+  schema = {
+    address: { schema: 'mock', type: 'object' },
+  }
+  expect(findRelations(schema, 'mock')).toStrictEqual([])
+
+  schema = {
+    address: {
+      schema: {
+        continent: { relation: 'mock', type: 'id' },
+        country: { schema: 'mock', type: 'object' },
+        line1: { type: 'string' },
+      },
+      type: 'object',
+    },
+  }
+
+  expect(findRelations(schema, 'mock')).toStrictEqual([
+    ['address', 'continent', 'relation'],
+  ])
 })

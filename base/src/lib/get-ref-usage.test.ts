@@ -44,6 +44,9 @@ describe('getRefUsage', () => {
   it('should return an array of paths where refName is used in schema', () => {
     const refName = 'ref1'
     const usage = getRefUsage(refName, schema)
-    expect(usage).toEqual([['arr1'], ['obj1', 'obj2', 'ref1']])
+    expect(usage).toEqual([
+      ['arr1', 'schema'],
+      ['obj1', 'obj2', 'ref1', 'schema'],
+    ])
   })
 })
