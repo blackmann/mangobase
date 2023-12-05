@@ -14,3 +14,5 @@ Visit https://degreat.co.uk/mangobase to get started.
 npm create mango@latest
 yarn create mango
 ```
+
+![Screenshot](https://github.com/blackmann/mangobase/raw/master/assets/ss-light.png)
