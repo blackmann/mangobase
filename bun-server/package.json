@@ -1,7 +1,7 @@
 {
   "name": "@mangobase/bun",
   "module": "src/index.ts",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "repository": "https://github.com/blackmann/mangobase",
   "homepage": "https://degreat.co.uk/mangobase",
   "type": "module",
@@ -17,7 +17,7 @@
   "devDependencies": {
     "bun-types": "latest",
     "esbuild": "^0.19.3",
-    "mangobase": "^0.7.5"
+    "mangobase": "^0.7.6"
   },
   "peerDependencies": {
     "mangobase": "*",
