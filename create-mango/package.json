@@ -3,6 +3,8 @@
   "version": "0.7.5",
   "license": "MIT",
   "bin": "dist/cli.js",
+  "repository": "https://github.com/blackmann/mangobase",
+  "homepage": "https://degreat.co.uk/mangobase",
   "type": "module",
   "engines": {
     "node": ">=16"

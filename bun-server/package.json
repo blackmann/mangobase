@@ -2,6 +2,8 @@
   "name": "@mangobase/bun",
   "module": "src/index.ts",
   "version": "0.7.5",
+  "repository": "https://github.com/blackmann/mangobase",
+  "homepage": "https://degreat.co.uk/mangobase",
   "type": "module",
   "main": "dist/index.js",
   "files": [
