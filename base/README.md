@@ -14,11 +14,3 @@ Visit https://degreat.co.uk/mangobase to get started.
 npm create mango@latest
 yarn create mango
 ```
-
-<p align="center">
-  <picture>
-  <source width="830" media="(prefers-color-scheme: dark)" srcset="../assets/ss-dark.png">
-			<source width="830" media="(prefers-color-scheme: light)" srcset="../assets/ss-light.png">
-			<img width="830" src="../assets/ss-light.png" alt="Mangobase dashboard">
-  </picture>
-</p>
