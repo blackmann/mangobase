@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.5 (2023-12-05)
+
+### Features
+
+- update template collection ref usage ([#12](https://github.com/blackmann/mangobase/issues/12)) ([fdede6f](https://github.com/blackmann/mangobase/commit/fdede6fdfc71d780886e822895a28ce956662457))
+
 ## 0.7.4 (2023-12-04)
 
 ### Bug Fixes
