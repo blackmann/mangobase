@@ -61,6 +61,13 @@ export default defineConfig({
   },
   head: [
     [
+      'meta',
+      {
+        property: 'og:image',
+        content: 'https://github.com/blackmann/mangobase/raw/master/assets/ss-dark.png'
+      }
+    ],
+    [
       'script',
       {
         async: '',
