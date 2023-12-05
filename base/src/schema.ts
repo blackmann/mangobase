@@ -829,18 +829,16 @@ function getSchemaDefinition(
  * @param name the collection name
  * @returns An array of paths to the field. Eg, [['city', 'town']] => 'city.town'
  */
-function findRelations(
-  schema: SchemaDefinitions,
-  name: string,
-  getRef?: GetRef
-) {
+function findRelations(schema: SchemaDefinitions, name: string) {
   function find(s = schema, path: (string | number)[] = []) {
     const res: (string | number)[][] = []
 
     for (const [field, definition] of Object.entries(s)) {
       if (definition.type === 'object') {
-        const nested = find(getSchemaDefinition(definition, getRef), path)
-        res.push(...nested)
+        if (typeof definition.schema !== 'string') {
+          const nested = find(definition.schema, path)
+          res.push(...nested.map((n) => [field, ...n]))
+        }
       }
 
       if (definition.type === 'array') {
@@ -862,7 +860,7 @@ function findRelations(
       }
 
       if (definition.relation === name) {
-        res.push([...path, field])
+        res.push([...path, field, 'relation'])
       }
     }
 

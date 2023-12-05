@@ -217,19 +217,48 @@ class Manifest {
     this.editorsIndex[to] = this.editorsIndex[from]
     delete this.editorsIndex[from]
 
+    // rename relations/schemas that make use of collection as a template
+    // for collections
     for (const name in this.collectionsIndex) {
       const schema = this.collectionsIndex[name].schema
-      const usages = findRelations(
-        schema,
-        from,
-        (name) => this.getSchemaRef(name).schema
-      )
-      for (const usage of usages) {
-        setWithPath(schema, [...usage, 'relation'], to)
+      const relations = findRelations(schema, from)
+      for (const usage of relations) {
+        setWithPath(schema, usage, to)
+      }
+
+      const references = getRefUsage(`collections/${from}`, schema)
+      for (const ref of references) {
+        setWithPath(schema, ref, `collections/${to}`)
       }
     }
 
-    // [ ] Rename refs
+    // for schema refs
+    const previousName = `collections/${from}`
+    if (this.getSchemaRef(previousName)) {
+      const name = `collections/${to}`
+      this.refs[name] = {
+        name,
+        schema: this.refs[previousName].schema,
+      }
+
+      delete this.refs[previousName]
+
+      for (const [name, definition] of Object.entries(this.refs)) {
+        if (name.startsWith('collections/')) {
+          continue
+        }
+
+        const relations = findRelations(definition.schema, previousName)
+        for (const usage of relations) {
+          setWithPath(definition.schema, usage, name)
+        }
+
+        const references = getRefUsage(previousName, definition.schema)
+        for (const ref of references) {
+          setWithPath(definition.schema, ref, name)
+        }
+      }
+    }
 
     await this.save()
   }
@@ -367,7 +396,6 @@ class Manifest {
       [this.collectionsIndex, COLLECTIONS_FILE],
       [this.hooksIndex, HOOKS_FILE],
       [this.editorsIndex, EDITORS_FILE],
-      [this.refs, SCHEMA_REFS_FILE],
     ]
 
     for (const [index, file] of dataOuts) {
@@ -376,6 +404,17 @@ class Manifest {
         encoding: 'utf-8',
       })
     }
+
+    // we don't save the refs with those that come from the collections
+    const noCollectionRefs = Object.entries(this.refs).filter(
+      ([key]) => !key.startsWith('collections/')
+    )
+
+    const refsObject = Object.fromEntries(noCollectionRefs)
+    const data = JSON.stringify(refsObject, undefined, 2)
+    await fs.writeFile([dir, SCHEMA_REFS_FILE].join('/'), data, {
+      encoding: 'utf-8',
+    })
   }
 
   getSchemaRef(name: string) {
