@@ -6,7 +6,7 @@ const LogData: Hook = {
   id: 'log-data',
   name: 'Log data',
   run: async (ctx) => {
-    console.log(ctx.path, ctx.method, ctx.data)
+    console.log(`[${new Date().toISOString()}]`, ctx.path, ctx.method, ctx.data)
     return ctx
   },
 }

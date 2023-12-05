@@ -4,6 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "type": "module",
+  "repository": "https://github.com/blackmann/mangobase",
+  "homepage": "https://degreat.co.uk/mangobase",
   "files": [
     "dist"
   ],
