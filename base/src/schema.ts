@@ -829,9 +829,9 @@ function getSchemaDefinition(
  * @param name the collection name
  * @returns An array of paths to the field. Eg, [['city', 'town']] => 'city.town'
  */
-function findRelations(schema: SchemaDefinitions, name: string) {
-  function find(s = schema, path: (string | number)[] = []) {
-    const res: (string | number)[][] = []
+function findRelations(schema: SchemaDefinitions, name: string): string[][] {
+  function find(s = schema, path: string[] = []): string[][] {
+    const res: string[][] = []
 
     for (const [field, definition] of Object.entries(s)) {
       if (definition.type === 'object') {
@@ -844,15 +844,23 @@ function findRelations(schema: SchemaDefinitions, name: string) {
       if (definition.type === 'array') {
         if (Array.isArray(definition.items)) {
           definition.items.forEach((item, index) => {
-            const arraySchema = { item }
-            const nested = find(arraySchema, [...path, index])
-            res.push(...nested)
+            const arraySchema = { items: item }
+            const nested = findRelations(arraySchema, name)
+
+            for (const n of nested) {
+              n.shift()
+              res.push([...path, field, 'items', `${index}`, ...n])
+            }
           })
         } else {
-          const arraySchema = { item: definition.items }
-          const nested = find(arraySchema, path)
-          res.push(...nested)
+          const arraySchema = { items: definition.items }
+          const nested = findRelations(arraySchema, name)
+
+          for (const n of nested) {
+            res.push([...path, field, ...n])
+          }
         }
+        continue
       }
 
       if (definition.type !== 'id') {
