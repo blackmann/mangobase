@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.7 (2023-12-08)
+
+### Bug Fixes
+
+- relations find for arrays ([#20](https://github.com/blackmann/mangobase/issues/20)) ([461182a](https://github.com/blackmann/mangobase/commit/461182a0838839e300a8bc03ca3376cf488a0ccc))
+
 ## 0.7.6 (2023-12-05)
 
 **Note:** Version bump only for package mangobase-monorepo
