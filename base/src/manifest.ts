@@ -67,24 +67,26 @@ class Manifest {
   }
 
   private async load() {
-    try {
-      await Promise.allSettled([
-        (async () => {
-          await this.loadCollections()
-          // this depends on collections being loaded
-          await this.loadSchemaRefs()
-        })(),
-        this.loadHooks(),
-        this.loadEditors(),
-      ])
-    } catch (err) {
-      if (err instanceof Error && err.message.includes('ENOENT')) {
-        // Ignore, file doesn't exist
-        // [ ] Make resilient, each load, each try
-        return
-      }
+    const settled = await Promise.allSettled([
+      (async () => {
+        await this.loadCollections()
+        // this depends on collections being loaded
+        await this.loadSchemaRefs()
+      })(),
+      this.loadHooks(),
+      this.loadEditors(),
+    ])
 
-      console.error(err)
+    for (const result of settled) {
+      if (result.status === 'rejected') {
+        const err = result.reason
+        if (result.reason instanceof Error && err.message.includes('ENOENT')) {
+          // Ignore, file doesn't exist
+          return
+        }
+
+        console.error('[mangobase-core]', err)
+      }
     }
   }
 
@@ -355,7 +357,19 @@ class Manifest {
       )
     }
 
-    // [ ] Rename refs in collections and also update data fields
+    for (const [, ref] of Object.entries(this.refs)) {
+      const usages = getRefUsage(from, ref.schema)
+      for (const usage of usages) {
+        setWithPath(ref.schema, usage, to)
+      }
+    }
+
+    for (const [, collection] of Object.entries(this.collectionsIndex)) {
+      const usages = getRefUsage(from, collection.schema)
+      for (const usage of usages) {
+        setWithPath(collection.schema, usage, to)
+      }
+    }
 
     this.refs[to] = this.refs[from]
     delete this.refs[from]
