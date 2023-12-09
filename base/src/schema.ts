@@ -825,11 +825,15 @@ function getSchemaDefinition(
 }
 
 /**
- * Returns all field paths where the collection with `name` is used
- * @param name the collection name
+ * Returns all field paths where the collection with `name` is used. This returns
+ * a path that can be used to rename that relation.
  * @returns An array of paths to the field. Eg, [['city', 'town']] => 'city.town'
  */
-function findRelations(schema: SchemaDefinitions, name: string): string[][] {
+function findRelations(
+  schema: SchemaDefinitions,
+  /** Name of collection */
+  name: string
+): string[][] {
   function find(s = schema, path: string[] = []): string[][] {
     const res: string[][] = []
 
@@ -837,7 +841,7 @@ function findRelations(schema: SchemaDefinitions, name: string): string[][] {
       if (definition.type === 'object') {
         if (typeof definition.schema !== 'string') {
           const nested = find(definition.schema, path)
-          res.push(...nested.map((n) => [field, ...n]))
+          res.push(...nested.map((n) => [field, 'schema', ...n]))
         }
       }
 

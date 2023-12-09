@@ -11,6 +11,24 @@ describe('getRefUsage', () => {
       },
       type: 'array',
     },
+    arr2: {
+      items: [
+        {
+          schema: 'ref1',
+          type: 'object',
+        },
+        {
+          schema: {
+            prop1: {
+              schema: 'ref1',
+              type: 'object',
+            },
+          },
+          type: 'object',
+        },
+      ],
+      type: 'array',
+    },
     obj1: {
       schema: {
         obj2: {
@@ -45,8 +63,10 @@ describe('getRefUsage', () => {
     const refName = 'ref1'
     const usage = getRefUsage(refName, schema)
     expect(usage).toEqual([
-      ['arr1', 'schema'],
-      ['obj1', 'obj2', 'ref1', 'schema'],
+      ['arr1', 'items', 'schema'],
+      ['arr2', 'items', '0', 'schema'],
+      ['arr2', 'items', '1', 'schema', 'prop1', 'schema'],
+      ['obj1', 'schema', 'obj2', 'schema', 'ref1', 'schema'],
     ])
   })
 })
