@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.8 (2023-12-09)
+
+### Features
+
+- rename refs on rename ([#22](https://github.com/blackmann/mangobase/issues/22)) ([e3eb041](https://github.com/blackmann/mangobase/commit/e3eb041a5ae5a612b27218b687a31511328664e9))
+
 ## 0.7.7 (2023-12-08)
 
 ### Bug Fixes
