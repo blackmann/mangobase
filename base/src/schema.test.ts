@@ -913,7 +913,16 @@ test('findRelation', () => {
       type: 'object',
     },
     budget: {
-      items: [{ relation: 'mock', type: 'id' }, { type: 'string' }],
+      items: [
+        { relation: 'mock', type: 'id' },
+        { type: 'string' },
+        {
+          schema: {
+            mock: { relation: 'mock', type: 'id' },
+          },
+          type: 'object',
+        },
+      ],
       type: 'array',
     },
     tours: {
@@ -926,8 +935,9 @@ test('findRelation', () => {
   }
 
   expect(findRelations(schema, 'mock')).toStrictEqual([
-    ['address', 'continent', 'relation'],
+    ['address', 'schema', 'continent', 'relation'],
     ['budget', 'items', '0', 'relation'],
+    ['budget', 'items', '2', 'schema', 'mock', 'relation'],
     ['tours', 'items', 'relation'],
   ])
 })

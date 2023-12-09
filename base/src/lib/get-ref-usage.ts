@@ -3,47 +3,47 @@ import type { SchemaDefinitions } from '../schema.js'
 function getRefUsage(refName: string, schema: SchemaDefinitions) {
   const usage: string[][] = []
 
-  for (const [key, value] of Object.entries(schema)) {
-    if (value.type === 'object') {
-      if (typeof value.schema === 'string') {
-        if (value.schema === refName) {
+  for (const [key, definition] of Object.entries(schema)) {
+    if (definition.type === 'object') {
+      if (typeof definition.schema === 'string') {
+        if (definition.schema === refName) {
           usage.push([key, 'schema'])
         }
         continue
       }
 
-      const nestedUsage = getRefUsage(refName, value.schema)
+      const nestedUsage = getRefUsage(refName, definition.schema)
       for (const path of nestedUsage) {
-        usage.push([key, ...path])
+        usage.push([key, 'schema', ...path])
       }
     }
 
-    if (value.type === 'array') {
-      if (Array.isArray(value.items)) {
-        for (const [i, itemDefinition] of value.items.entries()) {
+    if (definition.type === 'array') {
+      if (Array.isArray(definition.items)) {
+        for (const [i, itemDefinition] of definition.items.entries()) {
           if (itemDefinition.type === 'object') {
             if (typeof itemDefinition.schema === 'string') {
               if (itemDefinition.schema === refName) {
-                usage.push([key, i.toString(), 'schema'])
+                usage.push([key, 'items', i.toString(), 'schema'])
               }
               continue
             }
 
             const nestedUsage = getRefUsage(refName, itemDefinition.schema)
             for (const path of nestedUsage) {
-              usage.push([key, i.toString(), ...path])
+              usage.push([key, 'items', i.toString(), 'schema', ...path])
             }
           }
         }
-      } else if (value.items.type === 'object') {
-        if (typeof value.items.schema === 'string') {
-          if (value.items.schema === refName) {
-            usage.push([key, 'schema'])
+      } else if (definition.items.type === 'object') {
+        if (typeof definition.items.schema === 'string') {
+          if (definition.items.schema === refName) {
+            usage.push([key, 'items', 'schema'])
           }
         } else {
-          const nestedUsage = getRefUsage(refName, value.items.schema)
+          const nestedUsage = getRefUsage(refName, definition.items.schema)
           for (const path of nestedUsage) {
-            usage.push([key, ...path])
+            usage.push([key, 'items', ...path])
           }
         }
       }
