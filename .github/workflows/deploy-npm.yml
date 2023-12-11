@@ -30,7 +30,7 @@ jobs:
       - run: git config --global user.email "mail@degreat.co.uk"
       - run: git config --global user.name "De-Great Yartey"
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn boot
       - name: Turbo+Build
         run: yarn build
       - name: Test

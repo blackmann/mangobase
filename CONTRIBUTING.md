@@ -2,7 +2,7 @@
 
 > 💽 You should have [nvm](https://github.com/nvm-sh/nvm) installed; then run `nvm use`. If you can't use nvm, you should use Node 18 for development for consistency sake.
 
-This is a monorepo. Run `yarn install && yarn build` to install all dependencies.
+This is a monorepo. Run `yarn boot` to install all dependencies.
 
 ### Design summary
 

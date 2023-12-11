@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "boot": "yarn install && cd create-mango && yarn install",
     "build:admin": "yarn workspace @mangobase/admin run build",
     "build:base": "yarn workspace mangobase run build",
     "build:bun": "yarn workspace @mangobase/bun run build",
