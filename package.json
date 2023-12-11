@@ -36,7 +36,6 @@
       "admin",
       "base",
       "bun-server",
-      "create-mango",
       "eslint-config-base",
       "examples/*",
       "express-server",
