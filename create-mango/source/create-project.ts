@@ -19,6 +19,16 @@ function randomStr(length = 16) {
 		.join('')
 }
 
+const isGitRepository = async (directory: string) => {
+	try {
+		return await execa('git', ['rev-parse', '--is-inside-work-tree'], {
+			cwd: directory,
+		}).then(() => true)
+	} catch {
+		return false
+	}
+}
+
 const copyWithTemplate = async (
 	from: string,
 	to: string,
@@ -77,6 +87,8 @@ async function createProject(options: Options) {
 		path.join(path.resolve(__dirname, templatePath), file)
 
 	const toPath = (rootPath: string, file: string) => path.join(rootPath, file)
+
+	const initGit = await isGitRepository(projectDirectoryPath)
 
 	const tasks = new Listr([
 		{
@@ -164,10 +176,10 @@ async function createProject(options: Options) {
 					'@next/env',
 					'jose',
 				]
-				await execaInDirectory('npm', ['install', ...packages])
+				await execaInDirectory('bun', ['install', ...packages])
 
 				if (typescript) {
-					await execaInDirectory('npm', [
+					await execaInDirectory('bun', [
 						'install',
 						'--save-dev',
 						'typescript',
@@ -184,32 +196,8 @@ async function createProject(options: Options) {
 		},
 		{
 			title: 'Initialize Git repository',
-			enabled: async () => {
-				try {
-					await execaInDirectory('git', ['rev-parse', '--is-inside-work-tree'])
-					return false
-				} catch (error) {
-					return error.message.includes('not a git repository')
-				}
-			},
-			task: async () => {
-				// The rest of your Git initialization logic
-				await execaInDirectory('git', ['init'], {
-					cwd: projectDirectoryPath,
-				})
-
-				await execaInDirectory('git', ['add', '.'], {
-					cwd: projectDirectoryPath,
-				})
-
-				await execaInDirectory(
-					'git',
-					['commit', '-m', 'Initial commit from Mangobase'],
-					{
-						cwd: projectDirectoryPath,
-					}
-				)
-			},
+			enabled: () => initGit,
+			task: () => execa('git', ['init'], { cwd: projectDirectoryPath }),
 		},
 	])
 
