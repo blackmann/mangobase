@@ -146,6 +146,11 @@ async function createProject(options: Options) {
 								fromPath('tsconfig.json'),
 								toPath(projectDirectoryPath, 'tsconfig.json')
 							)
+
+							await fs.copyFile(
+								fromPath('build.js'),
+								toPath(projectDirectoryPath, 'build.js')
+							)
 						},
 					},
 				])
@@ -162,9 +167,16 @@ async function createProject(options: Options) {
 					'mangobase',
 					'mongodb',
 				]
+
 				await execaInDirectory(options.packageManager, [
 					getAddCommand(options.packageManager),
 					...packages,
+				])
+
+				await execaInDirectory(options.packageManager, [
+					getAddCommand(options.packageManager),
+					getDevOption(options.packageManager),
+					'tsx',
 				])
 
 				if (typescript) {
@@ -172,7 +184,7 @@ async function createProject(options: Options) {
 						getAddCommand(options.packageManager),
 						getDevOption(options.packageManager),
 						'typescript',
-						'tsx',
+						'esbuild',
 					])
 				}
 			},
