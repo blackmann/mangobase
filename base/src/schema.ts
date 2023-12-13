@@ -19,6 +19,7 @@ interface StringDefinition {
   type: 'string'
   treatAs?: 'email' | 'url' | 'code'
   defaultValue?: string
+  enum?: string[]
 }
 
 interface NumberDefinition {
@@ -405,6 +406,13 @@ class Schema {
       throw new ValidationError(data.name, 'value is not of type `string`')
     }
 
+    if (definition.enum && !definition.enum.includes(data.value)) {
+      throw new ValidationError(
+        data.name,
+        `value is not one of the allowed values: ${definition.enum.join(', ')}`
+      )
+    }
+
     return data.value as string
   }
 
@@ -765,6 +773,13 @@ class Schema {
             throw new ValidationError(
               fieldPath,
               '`defaultValue` should be a string'
+            )
+          }
+
+          if (definition.enum && definition.enum.length === 0) {
+            throw new ValidationError(
+              fieldPath,
+              '`enum` should have at least one value'
             )
           }
 

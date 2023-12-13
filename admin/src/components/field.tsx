@@ -1,23 +1,33 @@
-import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
+import {
+  RegisterOptions,
+  UseFormRegisterReturn,
+  useFormContext,
+} from 'react-hook-form'
 import fieldTypes, { FieldType } from '@/lib/field-types'
 import schemaRefs, { loadSchemaRefs } from '@/data/schema-refs'
 import Button from './button'
 import Chip from './chip'
+import { ControlledChipsInput } from './chips-input'
 import Input from './input'
 import Select from './select'
 import collections from '@/data/collections'
 
 interface Props {
+  name: string
   onRestore?: VoidFunction
   onRemove?: VoidFunction
-  watch: (name: string) => any
-  register: (name: string, o?: RegisterOptions) => UseFormRegisterReturn
 }
 
-function Field({ onRemove, onRestore, watch, register }: Props) {
-  const type = watch('type')
-  const existing = watch('existing')
-  const removed = watch('removed')
+function Field({ name, onRemove, onRestore }: Props) {
+  const { register, watch } = useFormContext()
+
+  function _(key: string) {
+    return `${name}.${key}`
+  }
+
+  const type = watch(_('type'))
+  const existing = watch(_('existing'))
+  const removed = watch(_('removed'))
 
   return (
     <div className="flex py-4">
@@ -35,13 +45,13 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
                 disabled={removed}
                 type="text"
                 placeholder="Field name"
-                {...register('name', { required: true })}
+                {...register(_('name'), { required: true })}
               />
             </label>
             <label>
               <Select
                 disabled={existing}
-                {...register('type', { required: true })}
+                {...register(_('type'), { required: true })}
               >
                 {fieldTypes.map((field) => (
                   <option key={field.value} value={field.value}>
@@ -67,7 +77,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
               <Input
                 disabled={removed}
                 type="checkbox"
-                {...register('required')}
+                {...register(_('required'))}
                 className="me-1"
               />
               Required
@@ -96,7 +106,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
         </div>
 
         <fieldset disabled={removed}>
-          <FieldExtra type={type} {...{ register, watch }} />
+          <FieldExtra name={name} type={type} />
         </fieldset>
       </div>
     </div>
@@ -105,10 +115,15 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
 
 interface FieldExtraProps extends Props {
   type: FieldType
-  watch: (key: string) => any
 }
 
-function FieldExtra({ type, register, watch }: FieldExtraProps) {
+function FieldExtra({ type, name }: FieldExtraProps) {
+  const { control, register, watch } = useFormContext()
+
+  function _(key: string) {
+    return `${name}.${key}`
+  }
+
   switch (type) {
     case 'id':
       return (
@@ -116,7 +131,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
           Relation
           <Select
             className="ms-2"
-            {...register('relation', { required: true })}
+            {...register(_('relation'), { required: true })}
           >
             {collections.value.map((collection) => (
               <option key={collection.name} value={collection.name}>
@@ -128,11 +143,11 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
       )
 
     case 'object': {
-      return <SchemaSelect name="schema" register={register} />
+      return <SchemaSelect name={_('schema')} register={register} />
     }
 
     case 'array': {
-      const type = watch('items.type')
+      const type = watch(_('items.type'))
 
       return (
         <div className="flex">
@@ -140,7 +155,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
             Item
             <Select
               className="ms-2"
-              {...register('items.type', { required: true })}
+              {...register(_('items.type'), { required: true })}
             >
               {fieldTypes.map((field) => {
                 if (field.value === 'array') {
@@ -158,7 +173,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
           </label>
 
           {type === 'object' && (
-            <SchemaSelect name="items.schema" register={register} />
+            <SchemaSelect name={_('items.schema')} register={register} />
           )}
 
           {type === 'id' && (
@@ -166,7 +181,7 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
               Relation
               <Select
                 className="ms-2"
-                {...register('items.relation', { required: true })}
+                {...register(_('items.relation'), { required: true })}
               >
                 {collections.value.map((collection) => (
                   <option key={collection.name} value={collection.name}>
@@ -176,6 +191,18 @@ function FieldExtra({ type, register, watch }: FieldExtraProps) {
               </Select>
             </label>
           )}
+        </div>
+      )
+    }
+
+    case 'string': {
+      return (
+        <div className="mt-2">
+          <ControlledChipsInput
+            placeholder="Enum (optional)"
+            control={control}
+            name={_('enum')}
+          />
         </div>
       )
     }

@@ -1,8 +1,8 @@
-import { ControlledChipsInput, Value } from './chips-input'
+import { ChipValue, ControlledChipsInput } from './chips-input'
 import type { Definition, Index, MigrationStep, SortOrder } from 'mangobase'
 import {
   FieldValues,
-  RegisterOptions,
+  FormProvider,
   useFieldArray,
   useForm,
 } from 'react-hook-form'
@@ -35,6 +35,7 @@ interface FieldProps {
   removed?: boolean
   type: FieldType
   unique?: boolean
+  enum?: ChipValue[]
 
   // some additional props for specific field types
   [key: string]: any
@@ -43,6 +44,7 @@ interface FieldProps {
 const SLUG_REGEX = /^[A-Za-z0-9_]+(?:-[A-Za-z0-9]+)*$/
 
 function CollectionForm({ collection, onHide }: Props) {
+  const formMethods = useForm()
   const {
     control,
     formState,
@@ -53,8 +55,7 @@ function CollectionForm({ collection, onHide }: Props) {
     reset,
     setValue,
     setError,
-    watch,
-  } = useForm()
+  } = formMethods
 
   const {
     fields,
@@ -120,7 +121,7 @@ function CollectionForm({ collection, onHide }: Props) {
     const indexConfig = getValues(`indexes.${i}`)
     updateIndexes(i, {
       ...indexConfig,
-      fields: indexConfig.fields.map((f: Value, i: number) =>
+      fields: indexConfig.fields.map((f: ChipValue, i: number) =>
         i !== subfieldIndex ? f : { ...f, sort: f.sort === -1 ? 1 : -1 }
       ),
     })
@@ -138,7 +139,7 @@ function CollectionForm({ collection, onHide }: Props) {
     )
 
     const indexes = getValues('indexes') as {
-      fields: (Value & { sort?: SortOrder })[]
+      fields: (ChipValue & { sort?: SortOrder })[]
       constraint: string
       existing?: boolean
       removed?: boolean
@@ -277,197 +278,200 @@ function CollectionForm({ collection, onHide }: Props) {
 
   return (
     <form className="w-[500px] pb-4" onSubmit={handleSubmit(submitForm)}>
-      <label>
-        <div>Name</div>
-        <Input
-          className="block w-full"
-          type="text"
-          {...register('name', {
-            pattern: SLUG_REGEX,
-            required: true,
-          })}
-        />
-      </label>
-
-      <div className="text-secondary text-sm">
-        This becomes endpoint name.{' '}
-        {getFieldState('name', formState).error && (
-          <span className="text-red-500 dark:text-orange-400 mt-1">
-            Name must be a valid slug.
-          </span>
-        )}
-      </div>
-
-      <div className="mt-3 grid grid-cols-2 gap-4">
-        <div className="col-span-1">
-          <label>
-            <Input
-              checked={true}
-              type="checkbox"
-              value="expose"
-              {...register('options')}
-              className="me-2"
-            />
-            Expose
-          </label>
-
-          <p className="text-secondary ms-7 text-sm">
-            Check this if this collection should have a public endpoint. See{' '}
-            <Link to="/docs" className="underline">
-              docs
-            </Link>
-            .
-          </p>
-        </div>
-
-        <div className="col-span-1">
-          <label>
-            <Input
-              type="checkbox"
-              value="is-template"
-              {...register('options')}
-              className="me-2"
-            />
-            Use as template
-          </label>
-
-          <p className="text-secondary mt-0 ms-7 text-sm">
-            Allow this collection to be used to validate fields of other
-            collections
-          </p>
-        </div>
-      </div>
-
-      {collection?.readOnlySchema && (
-        <div className="bg-zinc-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
-          <span className="material-symbols-rounded text-blue-500 dark:text-blue-300 me-2 text-base">
-            error
-          </span>
-          <p>
-            This collection's schema is read-only and controlled by the plugin
-            that installed it.
-          </p>
-        </div>
-      )}
-
-      <fieldset className="mt-8">
-        <legend className="font-medium">Fields</legend>
-
-        {fields.map((field, i) => (
-          <Field
-            key={field.id}
-            onRemove={() => handleRemove(i)}
-            onRestore={() => handleFieldRestore(i)}
-            register={(f: string, o?: RegisterOptions) =>
-              register(`fields.${i}.${f}`, o)
-            }
-            watch={(f) => watch(`fields.${i}.${f}`)}
+      <FormProvider {...formMethods}>
+        <label>
+          <div>Name</div>
+          <Input
+            className="block w-full"
+            type="text"
+            {...register('name', {
+              pattern: SLUG_REGEX,
+              required: true,
+            })}
           />
-        ))}
+        </label>
 
-        <Button className="mt-3" onClick={addNewField} type="button">
-          Add new field
-        </Button>
+        <div className="text-secondary text-sm">
+          This becomes endpoint name.{' '}
+          {getFieldState('name', formState).error && (
+            <span className="text-red-500 dark:text-orange-400 mt-1">
+              Name must be a valid slug.
+            </span>
+          )}
+        </div>
 
-        <p className="my-4">
-          <code className="py-0">created_at</code> and{' '}
-          <code className="py-0">updated_at</code> fields are automatically set
-        </p>
-      </fieldset>
+        <div className="mt-3 grid grid-cols-2 gap-4">
+          <div className="col-span-1">
+            <label>
+              <Input
+                checked={true}
+                type="checkbox"
+                value="expose"
+                {...register('options')}
+                className="me-2"
+              />
+              Expose
+            </label>
 
-      <fieldset className="my-4">
-        <legend className="font-medium w-full mb-2">Indexes (Optional)</legend>
+            <p className="text-secondary ms-7 text-sm">
+              Check this if this collection should have a public endpoint. See{' '}
+              <Link to="/docs" className="underline">
+                docs
+              </Link>
+              .
+            </p>
+          </div>
 
-        {indexes.map((index, i) => {
-          const indexConfig = index as Record<'id', string> & {
-            removed?: boolean
-          }
+          <div className="col-span-1">
+            <label>
+              <Input
+                type="checkbox"
+                value="is-template"
+                {...register('options')}
+                className="me-2"
+              />
+              Use as template
+            </label>
 
-          return (
-            <div className="flex gap-2 [&+&]:mt-2" key={indexConfig.id}>
-              <div className="flex-1">
-                <ControlledChipsInput
-                  control={control}
-                  name={`indexes.${i}.fields`}
-                  placeholder="Enter field names"
-                  getAction={(it: Value, subfieldIndex) => (
-                    <button
-                      className="material-symbols-rounded text-lg text-secondary"
-                      title={it.sort === -1 ? 'sort: desc' : 'sort: asc'}
-                      type="button"
-                      onClick={() =>
-                        handleUpdateIndexFieldSort(i, subfieldIndex)
-                      }
-                    >
-                      {it.sort === -1 ? 'expand_less' : 'expand_more'}
-                    </button>
-                  )}
-                />
-              </div>
+            <p className="text-secondary mt-0 ms-7 text-sm">
+              Allow this collection to be used to validate fields of other
+              collections
+            </p>
+          </div>
+        </div>
 
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex gap-2">
-                  <div>
-                    <Select
-                      defaultValue="none"
-                      {...register(`indexes.${i}.constraint`)}
-                    >
-                      <option disabled selected>
-                        Constraint
-                      </option>
+        {collection?.readOnlySchema && (
+          <div className="bg-zinc-200 dark:bg-neutral-700 my-5 rounded-md p-2 flex">
+            <span className="material-symbols-rounded text-blue-500 dark:text-blue-300 me-2 text-base">
+              error
+            </span>
+            <p>
+              This collection's schema is read-only and controlled by the plugin
+              that installed it.
+            </p>
+          </div>
+        )}
 
-                      <option value="none">None</option>
-                      <option value="unique">Unique</option>
-                      <option value="sparse">Sparse</option>
-                    </Select>
-                  </div>
-                  <Button
-                    className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm h-[2.15rem]"
-                    onClick={() =>
-                      indexConfig.removed
-                        ? handleIndexRestore(i)
-                        : handleIndexRemove(i)
-                    }
-                    title={indexConfig.removed ? 'Restore' : 'Remove'}
-                    type="button"
-                  >
-                    {indexConfig.removed ? 'undo' : 'close'}
-                  </Button>
+        <fieldset className="mt-8">
+          <legend className="font-medium">Fields</legend>
+
+          {fields.map((field, i) => (
+            <Field
+              name={`fields.${i}`}
+              key={field.id}
+              onRemove={() => handleRemove(i)}
+              onRestore={() => handleFieldRestore(i)}
+            />
+          ))}
+
+          <Button className="mt-3" onClick={addNewField} type="button">
+            Add new field
+          </Button>
+
+          <p className="my-4">
+            <code className="py-0">created_at</code> and{' '}
+            <code className="py-0">updated_at</code> fields are automatically
+            set
+          </p>
+        </fieldset>
+
+        <fieldset className="my-4">
+          <legend className="font-medium w-full mb-2">
+            Indexes (Optional)
+          </legend>
+
+          {indexes.map((index, i) => {
+            const indexConfig = index as Record<'id', string> & {
+              removed?: boolean
+            }
+
+            return (
+              <div className="flex gap-2 [&+&]:mt-2" key={indexConfig.id}>
+                <div className="flex-1">
+                  <ControlledChipsInput
+                    control={control}
+                    name={`indexes.${i}.fields`}
+                    placeholder="Enter field names"
+                    getAction={(it: ChipValue, subfieldIndex) => (
+                      <button
+                        className="material-symbols-rounded text-lg text-secondary"
+                        title={it.sort === -1 ? 'sort: desc' : 'sort: asc'}
+                        type="button"
+                        onClick={() =>
+                          handleUpdateIndexFieldSort(i, subfieldIndex)
+                        }
+                      >
+                        {it.sort === -1 ? 'expand_less' : 'expand_more'}
+                      </button>
+                    )}
+                    required
+                  />
                 </div>
 
-                {indexConfig.removed && (
-                  <Chip className="!bg-orange-500 !text-white !rounded-lg !py-0 text-sm">
-                    Removed
-                  </Chip>
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex gap-2">
+                    <div>
+                      <Select
+                        defaultValue="none"
+                        {...register(`indexes.${i}.constraint`)}
+                      >
+                        <option disabled selected>
+                          Constraint
+                        </option>
+
+                        <option value="none">None</option>
+                        <option value="unique">Unique</option>
+                        <option value="sparse">Sparse</option>
+                      </Select>
+                    </div>
+                    <Button
+                      className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm h-[2.15rem]"
+                      onClick={() =>
+                        indexConfig.removed
+                          ? handleIndexRestore(i)
+                          : handleIndexRemove(i)
+                      }
+                      title={indexConfig.removed ? 'Restore' : 'Remove'}
+                      type="button"
+                    >
+                      {indexConfig.removed ? 'undo' : 'close'}
+                    </Button>
+                  </div>
+
+                  {indexConfig.removed && (
+                    <Chip className="!bg-orange-500 !text-white !rounded-lg !py-0 text-sm">
+                      Removed
+                    </Chip>
+                  )}
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
 
-        {indexes.length === 0 && (
-          <p className="text-secondary">No indexes added.</p>
-        )}
+          {indexes.length === 0 && (
+            <p className="text-secondary">No indexes added.</p>
+          )}
 
-        <Button className="mt-3" onClick={addIndexEntry} type="button">
-          Add index
-        </Button>
-      </fieldset>
-
-      <footer>
-        <div>
-          <Button
-            className="me-2"
-            disabled={submitting || collection?.readOnlySchema}
-            variant="primary"
-          >
-            {submitLabel}
+          <Button className="mt-3" onClick={addIndexEntry} type="button">
+            Add index
           </Button>
-          <Button onClick={() => handleOnHide()} type="reset">
-            Cancel
-          </Button>
-        </div>
-      </footer>
+        </fieldset>
+
+        <footer>
+          <div>
+            <Button
+              className="me-2"
+              disabled={submitting || collection?.readOnlySchema}
+              variant="primary"
+            >
+              {submitLabel}
+            </Button>
+            <Button onClick={() => handleOnHide()} type="reset">
+              Cancel
+            </Button>
+          </div>
+        </footer>
+      </FormProvider>
     </form>
   )
 }
@@ -596,6 +600,19 @@ function schemaFromForm(fields: FieldProps[]) {
     }
 
     const [name, definition] = definitionFromField(field)
+
+    if (definition.type === 'string') {
+      if (definition.enum) {
+        if (definition.enum.length === 0) {
+          // remove empty enum list
+          definition.enum = undefined
+        } else {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          definition.enum = definition.enum.map((it) => it.text)
+        }
+      }
+    }
 
     schema[name] = definition
   }
