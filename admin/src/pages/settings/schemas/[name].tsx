@@ -1,6 +1,6 @@
 import {
   FieldValues,
-  RegisterOptions,
+  FormProvider,
   useFieldArray,
   useForm,
 } from 'react-hook-form'
@@ -26,7 +26,8 @@ import { loadSchemaRefs } from '../../../data/schema-refs'
 import removeFieldsItem from '@/lib/remove-fields-item'
 
 function Component() {
-  const { control, handleSubmit, register, reset, setValue, watch } = useForm()
+  const formMethods = useForm()
+  const { control, handleSubmit, register, reset, setValue } = formMethods
   const { append, fields, remove } = useFieldArray({ control, name: 'fields' })
   const ref = useLoaderData() as Ref & { $usages: string[] }
 
@@ -113,66 +114,65 @@ function Component() {
 
       <div className="grid grid-cols-3 mt-3 gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
         <form className="col-span-2" onSubmit={handleSubmit(submit)}>
-          <label className="mb-2 block">
-            <div>Name</div>
-            <Input
-              className="block w-full"
-              placeholder="eg. address"
-              {...register('name', { required: true })}
-            />
-          </label>
-
-          <h2 className="font-bold text-md text-zinc-500 dark:text-neutral-500">
-            Schema
-          </h2>
-
-          {fromCollection && (
-            <div className="p-2 rounded-md bg-zinc-200 dark:bg-neutral-600 flex">
-              <div className="leading-none">
-                <span className="material-symbols-rounded text-base text-blue-600 dark:text-blue-300 me-2">
-                  info
-                </span>
-              </div>
-
-              <p>
-                This is a collection template. You cannot edit this schema from
-                here. Go here instead:{' '}
-                <Link
-                  className="underline text-zinc-500 dark:text-neutral-300"
-                  to={collectionEdit}
-                >
-                  {collectionEdit}
-                </Link>
-              </p>
-            </div>
-          )}
-
-          <fieldset disabled={fromCollection}>
-            {fields.map((field, i) => (
-              <Field
-                key={field.id}
-                onRemove={() => handleRemove(i)}
-                register={(f: string, o?: RegisterOptions) =>
-                  register(`fields.${i}.${f}`, o)
-                }
-                watch={(f) => watch(`fields.${i}.${f}`)}
+          <FormProvider {...formMethods}>
+            <label className="mb-2 block">
+              <div>Name</div>
+              <Input
+                className="block w-full"
+                placeholder="eg. address"
+                {...register('name', { required: true })}
               />
-            ))}
-          </fieldset>
+            </label>
 
-          <div className="mb-2">
-            <Button
-              disabled={fromCollection}
-              onClick={addNewField}
-              type="button"
-            >
-              Add new field
+            <h2 className="font-bold text-md text-zinc-500 dark:text-neutral-500">
+              Schema
+            </h2>
+
+            {fromCollection && (
+              <div className="p-2 rounded-md bg-zinc-200 dark:bg-neutral-600 flex">
+                <div className="leading-none">
+                  <span className="material-symbols-rounded text-base text-blue-600 dark:text-blue-300 me-2">
+                    info
+                  </span>
+                </div>
+
+                <p>
+                  This is a collection template. You cannot edit this schema
+                  from here. Go here instead:{' '}
+                  <Link
+                    className="underline text-zinc-500 dark:text-neutral-300"
+                    to={collectionEdit}
+                  >
+                    {collectionEdit}
+                  </Link>
+                </p>
+              </div>
+            )}
+
+            <fieldset disabled={fromCollection}>
+              {fields.map((field, i) => (
+                <Field
+                  name={`fields.${i}`}
+                  key={field.id}
+                  onRemove={() => handleRemove(i)}
+                />
+              ))}
+            </fieldset>
+
+            <div className="mb-2">
+              <Button
+                disabled={fromCollection}
+                onClick={addNewField}
+                type="button"
+              >
+                Add new field
+              </Button>
+            </div>
+
+            <Button disabled={fromCollection} variant="primary">
+              {isNew ? 'Create' : 'Update'}
             </Button>
-          </div>
-
-          <Button disabled={fromCollection} variant="primary">
-            {isNew ? 'Create' : 'Update'}
-          </Button>
+          </FormProvider>
         </form>
 
         <div className="col-span-1">
