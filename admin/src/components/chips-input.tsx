@@ -132,17 +132,21 @@ ChipsInput.displayName = 'ChipsInput'
 
 interface ControlledChipsInputProps
   extends Omit<Props, 'onChange' | 'value'>,
-    Pick<ControllerProps, 'control' | 'name'> {}
+    Pick<ControllerProps, 'control' | 'name'> {
+  required?: boolean
+}
 
 const ControlledChipsInput = React.forwardRef<
   HTMLDivElement,
   ControlledChipsInputProps
->(({ name, control, ...props }) => (
+>(({ name, control, required, ...props }) => (
   <Controller
     control={control}
     name={name}
     rules={{
-      validate: (v) => !!v?.length,
+      validate: (v) => {
+        return required === true ? !!v?.length : true
+      },
     }}
     render={({ field: { onChange, value, ref } }) => (
       <ChipsInput
@@ -158,4 +162,4 @@ const ControlledChipsInput = React.forwardRef<
 ControlledChipsInput.displayName = 'ControlledChipsInput'
 
 export { ChipsInput, ControlledChipsInput }
-export type { Value }
+export type { Value as ChipValue }

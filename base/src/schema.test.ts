@@ -82,6 +82,24 @@ describe('schema', () => {
         )
       })
     })
+
+    describe('enum', () => {
+      const schema = new Schema({
+        gender: { enum: ['male', 'female'], type: 'string' },
+      })
+
+      it('returns correctly with passed value', () => {
+        expect(schema.validate({ gender: 'male' })).toStrictEqual({
+          gender: 'male',
+        })
+      })
+
+      it('throws when value is not in enum', () => {
+        expect(() => schema.validate({ gender: 'x' })).toThrow(
+          'gender: value is not one of the allowed values: male, female'
+        )
+      })
+    })
   })
 
   describe('id type', () => {
