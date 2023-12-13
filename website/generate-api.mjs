@@ -13,7 +13,7 @@ async function generateApis() {
     const app = await typedoc.Application.bootstrap({
       entryPoints: [`../${projectDir}/src/index.ts`],
       exclude: ["**/*+(.spec|.test).ts"],
-      tsconfig: `../${projectDir}/tsconfig.json`,
+      tsconfig: `../${projectDir}/tsconfig.build.json`,
       excludePrivate: true,
     })
 

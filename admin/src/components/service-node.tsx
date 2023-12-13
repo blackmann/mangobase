@@ -12,15 +12,15 @@ function ServiceNode() {
   }
 
   return (
-    <div className="bg-slate-50 dark:bg-neutral-700 rounded-md w-[16rem] border border-slate-200 dark:border-neutral-600 overflow-hidden">
-      <header className="flex p-2 border-b border-b-slate-200 dark:border-b-neutral-600">
-        <div className="me-1 text-slate-500 dark:text-neutral-400">
+    <div className="bg-zinc-50 dark:bg-neutral-700 rounded-md w-[16rem] border border-zinc-200 dark:border-neutral-600 overflow-hidden">
+      <header className="flex p-2 border-b border-b-zinc-200 dark:border-b-neutral-600">
+        <div className="me-1 text-secondary">
           <span className="material-symbols-rounded">sync_alt</span>
         </div>
 
         <div>
           <div className="font-bold">Service node</div>
-          <div className="text-slate-500 dark:text-neutral-400">Methods</div>
+          <div className="text-secondary">Methods</div>
         </div>
       </header>
 

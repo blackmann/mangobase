@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "node index.mjs"
+    "dev": "tsx watch index.ts",
+    "build": "npx esbuild index.ts --platform=node --format=esm --target=node18 --outfile=dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mangobase": "*",
     "@mangobase/express": "*",
     "@mangobase/mongodb": "*",
-    "jose": "4.14.6"
+    "mangobase": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.6.2"
   }
 }

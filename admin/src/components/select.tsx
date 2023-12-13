@@ -11,7 +11,7 @@ const Select = React.forwardRef(
     return (
       <select
         className={clsx(
-          'appearance-none bg-slate-200 border dark:bg-neutral-700 border-slate-300 dark:border-neutral-600 px-2 py-1 rounded-md',
+          'bg-zinc-200 border dark:bg-neutral-700 border-zinc-300 dark:border-neutral-600 px-2 py-1 pe-8 rounded-md',
           className
         )}
         {...props}

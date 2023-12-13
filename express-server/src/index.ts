@@ -1,6 +1,5 @@
 import express from 'express'
-import type { App } from 'mangobase'
-import { context, methodFromHttp } from 'mangobase'
+import { type App, context, methodFromHttp } from 'mangobase'
 import cors from 'cors'
 
 /**

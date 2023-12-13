@@ -11,6 +11,10 @@ const types = [
 
 type DefinitionType = `${(typeof types)[number]}`
 
+type RefName = string
+
+type GetRef = (name: string) => SchemaDefinitions | undefined
+
 interface StringDefinition {
   type: 'string'
   treatAs?: 'email' | 'url' | 'code'
@@ -42,14 +46,14 @@ interface BooleanDefinition {
 interface ObjectDefinition {
   type: 'object'
   defaultValue?: object
-  schema: SchemaDefinitions
+  schema: RefName | SchemaDefinitions
 }
 
 interface ArrayDefinition {
   type: 'array'
-  // Nested into `item` because we can expect primitives (non-objects)
-  schema: { item: Definition }
+  items: Definition | Definition[]
   defaultValue?: Array<any>
+  length?: number
 }
 
 interface DateDefinition {
@@ -91,6 +95,11 @@ interface Options {
    *
    */
   parser?: (value: any, type: DefinitionType) => any
+
+  /**
+   * This function is called when the
+   */
+  getRef?: GetRef
 }
 
 class ValidationError extends Error {
@@ -109,12 +118,16 @@ interface Data {
   value: any
 }
 
+const ID_QUERY_REGEX = /\.?_id$/
+
 class Schema {
   schema: SchemaDefinitions
   parser: (value: any, type: DefinitionType) => any
+  getRef?: GetRef
 
   constructor(schema: SchemaDefinitions, options: Options = {}) {
     this.schema = schema
+    this.getRef = options.getRef
     this.parser = options.parser || ((value) => value)
   }
 
@@ -148,6 +161,17 @@ class Schema {
     for (const [key, value] of Object.entries(res)) {
       const definition = this.getDefinitionAtPath(key)
 
+      if (ID_QUERY_REGEX.test(key)) {
+        // _ids should be cast
+        if (typeof value === 'object') {
+          this.castOperatorValues(value, 'id', (value) => value)
+        } else {
+          res[key] = this.cast(value, 'id')
+        }
+
+        continue
+      }
+
       switch (definition?.type) {
         case 'boolean': {
           res[key] = this.cast(['1', 'true', true].includes(value), 'boolean')
@@ -173,7 +197,7 @@ class Schema {
           if (typeof value === 'object') {
             // handle only query operators
             this.castOperatorValues(value, 'number', getNumber)
-            break
+            continue
           }
 
           const num = getNumber(value)
@@ -221,18 +245,14 @@ class Schema {
         if (Array.isArray(v)) {
           v.forEach((item, index) => {
             const parsed = parse(item)
-            if (!isNaN(parsed)) {
-              v[index] = this.cast(parsed, type)
-            }
+            v[index] = this.cast(parsed, type)
           })
 
           continue
         }
 
         const parsed = parse(v)
-        if (!isNaN(parsed)) {
-          value[k] = this.cast(parsed, type)
-        }
+        value[k] = this.cast(parsed, type)
       }
     }
   }
@@ -334,16 +354,26 @@ class Schema {
     return res
   }
 
-  private getDefinitionAtPath(path: string): Definition | undefined {
-    const [segment, ...rest] = path.split('.')
+  private getDefinitionAtPath(path: string | string[]): Definition | undefined {
+    const [segment, ...rest] = typeof path === 'string' ? path.split('.') : path
     const definition = this.schema[segment]
 
     if (!definition || !rest.length) {
       return definition
     }
 
-    if (definition.type === 'object' || definition.type === 'array') {
-      return new Schema(definition.schema!).getDefinitionAtPath(rest.join('.'))
+    if (definition.type === 'object') {
+      return new Schema(
+        getSchemaDefinition(definition, this.getRef)
+      ).getDefinitionAtPath(rest)
+    }
+
+    if (definition.type === 'array') {
+      // a.b a.b.0 a.b.
+      if (Array.isArray(definition.items)) {
+        //
+      }
+      // [ ]: !!! Handle query casting for array items
     }
 
     // Returning undefined because there's more segments to resolve (from ...rest)
@@ -474,10 +504,18 @@ class Schema {
     }
 
     if (typeof data.value !== 'object' || Array.isArray(data.value)) {
-      throw new ValidationError(data.name, 'value is not of type `object`')
+      throw new ValidationError(
+        data.name,
+        `value is not of type \`object\`: .\n${JSON.stringify(definition)}`
+      )
     }
 
-    const schema = new Schema(definition.schema!, { parser: this.parser })
+    const schemaDefinitions = getSchemaDefinition(definition, this.getRef)
+
+    const schema = new Schema(schemaDefinitions, {
+      getRef: this.getRef,
+      parser: this.parser,
+    })
 
     try {
       return schema.validate(data.value, useDefault)
@@ -509,7 +547,27 @@ class Schema {
       throw new ValidationError(data.name, 'value is not of type `array`')
     }
 
-    const schema = new Schema(definition.schema, { parser: this.parser })
+    if (Array.isArray(definition.items)) {
+      for (const [i, itemDefinition] of definition.items.entries()) {
+        const schema = new Schema(
+          { item: itemDefinition },
+          { getRef: this.getRef, parser: this.parser }
+        )
+
+        data.value[i] = schema.validate({ item: data.value[i] }).item
+      }
+
+      return data.value
+    }
+
+    const schema = new Schema(
+      { item: definition.items },
+      {
+        getRef: this.getRef,
+        parser: this.parser,
+      }
+    )
+
     return data.value.map((item) => {
       return schema.validate({ item }).item
     })
@@ -546,14 +604,12 @@ class Schema {
     return date
   }
 
-  static validateSchema(schema: any, parentField?: string) {
+  static validateSchema(schema: SchemaDefinitions, parentField?: string) {
     if (typeof schema !== 'object' || Array.isArray(schema)) {
       throw new Error('schema has to be an object')
     }
 
-    for (const [name, definition] of Object.entries(
-      schema as Record<string, any>
-    )) {
+    for (const [name, definition] of Object.entries(schema)) {
       const fieldPath = parentField ? `${parentField}.${name}` : name
       const type = definition?.type
       if (!types.includes(type)) {
@@ -562,24 +618,20 @@ class Schema {
 
       switch (type) {
         case 'array': {
-          if (
-            typeof definition.schema !== 'object' ||
-            Array.isArray(definition.schema)
-          ) {
+          if (!definition.items) {
             throw new ValidationError(
               fieldPath,
-              '`schema` is required when type is `array`'
+              '`items` is required when type is `array`'
             )
           }
 
-          if (!definition.schema.item) {
-            throw new ValidationError(
-              fieldPath,
-              '`schema` should be in the format `{ item: { type: "string" | ... } }'
-            )
+          if (Array.isArray(definition.items)) {
+            for (const [i, def] of definition.items.entries()) {
+              Schema.validateSchema({ [`${i}`]: def }, fieldPath)
+            }
+          } else {
+            Schema.validateSchema({ item: definition.items }, fieldPath)
           }
-
-          Schema.validateSchema(definition.schema, fieldPath)
 
           // validate the default values
           if (definition.defaultValue) {
@@ -590,11 +642,11 @@ class Schema {
               )
             }
 
-            const itemSchema = new Schema(definition.schema)
+            const itemSchema = new Schema({ item: definition })
             let index = 0
             for (const value of definition.defaultValue) {
               try {
-                itemSchema.validate(value)
+                itemSchema.validate({ item: value })
                 index += 1
               } catch (err) {
                 if (err instanceof ValidationError) {
@@ -627,7 +679,7 @@ class Schema {
         case 'date': {
           if (
             definition.defaultValue &&
-            isNaN(new Date(definition.value).getTime())
+            isNaN(new Date(definition.defaultValue).getTime())
           ) {
             throw new ValidationError(
               fieldPath,
@@ -672,16 +724,21 @@ class Schema {
 
         case 'object': {
           if (
-            typeof definition.schema !== 'object' ||
-            Array.isArray(definition.schema)
+            typeof definition.schema !== 'string' &&
+            (typeof definition.schema !== 'object' ||
+              Array.isArray(definition.schema))
           ) {
             throw new ValidationError(
               fieldPath,
-              '`schema` is required when type is `array`'
+              '`schema` is required when type is `object`'
             )
           }
 
-          if (definition.defaultValue) {
+          if (
+            // not a ref
+            typeof definition.schema !== 'string' &&
+            definition.defaultValue
+          ) {
             if (
               typeof definition.defaultValue !== 'object' ||
               Array.isArray(definition.defaultValue)
@@ -719,7 +776,12 @@ class Schema {
 }
 
 function getNumber(value: any) {
-  return Number(value)
+  const number = Number(value)
+  if (isNaN(number)) {
+    return value
+  }
+
+  return number
 }
 
 function getDate(value: any) {
@@ -740,20 +802,69 @@ function getDate(value: any) {
 }
 
 /**
- * Returns all field paths where the collection with `name` is used
- * @param name the collection name
+ * Resolves the schema definition when it's a string
+ */
+function getSchemaDefinition(
+  definition: Extract<Definition, { type: 'object' }>,
+  getRef?: GetRef
+) {
+  if (typeof definition.schema === 'string') {
+    if (!getRef) {
+      throw new Error('`getRef` is required when schema is a string.')
+    }
+
+    const definitions = getRef(definition.schema)
+    if (!definitions) {
+      throw new Error(`Schema ref with name \`${definition.schema}\` not found`)
+    }
+
+    return definitions
+  }
+
+  return definition.schema
+}
+
+/**
+ * Returns all field paths where the collection with `name` is used. This returns
+ * a path that can be used to rename that relation.
  * @returns An array of paths to the field. Eg, [['city', 'town']] => 'city.town'
  */
-function findRelations(schema: SchemaDefinitions, name: string) {
-  function find(s = schema, path: string[] = []) {
+function findRelations(
+  schema: SchemaDefinitions,
+  /** Name of collection */
+  name: string
+): string[][] {
+  function find(s = schema, path: string[] = []): string[][] {
     const res: string[][] = []
+
     for (const [field, definition] of Object.entries(s)) {
-      if (
-        (definition.type === 'object' || definition.type === 'array') &&
-        definition.schema
-      ) {
-        const nested = find(definition.schema, path)
-        res.push(...nested)
+      if (definition.type === 'object') {
+        if (typeof definition.schema !== 'string') {
+          const nested = find(definition.schema, path)
+          res.push(...nested.map((n) => [field, 'schema', ...n]))
+        }
+      }
+
+      if (definition.type === 'array') {
+        if (Array.isArray(definition.items)) {
+          definition.items.forEach((item, index) => {
+            const arraySchema = { items: item }
+            const nested = findRelations(arraySchema, name)
+
+            for (const n of nested) {
+              n.shift()
+              res.push([...path, field, 'items', `${index}`, ...n])
+            }
+          })
+        } else {
+          const arraySchema = { items: definition.items }
+          const nested = findRelations(arraySchema, name)
+
+          for (const n of nested) {
+            res.push([...path, field, ...n])
+          }
+        }
+        continue
       }
 
       if (definition.type !== 'id') {
@@ -761,7 +872,7 @@ function findRelations(schema: SchemaDefinitions, name: string) {
       }
 
       if (definition.relation === name) {
-        res.push([...path, field])
+        res.push([...path, field, 'relation'])
       }
     }
 
@@ -771,8 +882,5 @@ function findRelations(schema: SchemaDefinitions, name: string) {
   return find()
 }
 
-export default Schema
-
-export { ValidationError, findRelations }
-
+export { Schema, ValidationError, findRelations }
 export type { SchemaDefinitions, Definition, DefinitionType }

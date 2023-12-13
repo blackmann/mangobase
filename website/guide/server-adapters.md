@@ -55,9 +55,9 @@ Usage example:
 
 ```typescript
 import { App } from 'mangobase'
-import bunServer from '@mangobase/bun'
+import { bunServer } from '@mangobase/bun'
 
-const app = new App({ })
+const app = new App({})
 
 app.serve(bunServer(4000))
 ```

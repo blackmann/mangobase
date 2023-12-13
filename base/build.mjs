@@ -1,11 +1,23 @@
 import esbuild from 'esbuild'
 
-esbuild.build({
+const commonConfig = {
   bundle: true,
-  entryPoints: ['src/index.ts'],
-  external: [
-    'jose', // jose is an external dependency because bundling it causes an issue with bun. bun has not implement some 'crypto' API yet.
-  ],
-  outdir: 'dist/',
+  external: ['bcrypt', 'jose'],
+  format: 'esm',
   platform: 'node',
+  target: 'esnext',
+}
+
+// package
+await esbuild.build({
+  ...commonConfig,
+  entryPoints: ['src/index.ts'],
+  outdir: 'dist/',
+})
+
+// utitlities
+await esbuild.build({
+  ...commonConfig,
+  entryPoints: ['src/lib/index.ts'],
+  outdir: 'dist/lib',
 })

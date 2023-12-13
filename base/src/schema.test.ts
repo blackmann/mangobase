@@ -1,4 +1,4 @@
-import Schema, { findRelations } from './schema'
+import { Schema, SchemaDefinitions, findRelations } from './schema.js'
 import { describe, expect, it, test } from 'vitest'
 
 describe('schema', () => {
@@ -495,7 +495,7 @@ describe('schema', () => {
 
   describe('array type', () => {
     const schema = new Schema({
-      tags: { schema: { item: { type: 'string' } }, type: 'array' },
+      tags: { items: { type: 'string' }, type: 'array' },
     })
 
     it('returns correctly with passed value', () => {
@@ -511,8 +511,8 @@ describe('schema', () => {
     describe('when required', () => {
       const schema = new Schema({
         tags: {
+          items: { type: 'string' },
           required: true,
-          schema: { item: { type: 'string' } },
           type: 'array',
         },
       })
@@ -532,7 +532,7 @@ describe('schema', () => {
       const schema = new Schema({
         tags: {
           defaultValue: ['Mock'],
-          schema: { item: { type: 'string' } },
+          items: { type: 'string' },
           type: 'array',
         },
       })
@@ -553,8 +553,8 @@ describe('schema', () => {
         const schema = new Schema({
           tags: {
             defaultValue: ['Mock'],
+            items: { type: 'string' },
             required: true,
-            schema: { item: { type: 'string' } },
             type: 'array',
           },
         })
@@ -567,12 +567,36 @@ describe('schema', () => {
       })
     })
 
+    describe('when tuple is defined', () => {
+      const schema = new Schema({
+        tags: {
+          items: [
+            { type: 'string' },
+            { type: 'number' },
+            { schema: { mock: { type: 'boolean' } }, type: 'object' },
+          ],
+          type: 'array',
+        },
+      })
+
+      it('returns with data when valid', () => {
+        const data = schema.validate({ tags: ['hello', 1, { mock: false }] })
+        expect(data).toStrictEqual({ tags: ['hello', 1, { mock: false }] })
+      })
+
+      it('throws when data is invalid', () => {
+        expect(() => schema.validate({ tags: [1, 'hello'] })).toThrow(
+          'value is not of type `string`'
+        )
+      })
+    })
+
     describe('when item is not of type array', () => {
       const schema = new Schema({
         tags: {
           defaultValue: ['Mock'],
+          items: { type: 'string' },
           required: true,
-          schema: { item: { type: 'string' } },
           type: 'array',
         },
       })
@@ -815,6 +839,18 @@ describe('schema', () => {
           $gte: 'hello',
         },
       })
+
+      expect(
+        schema.castQuery({
+          _id: { $gte: '8' },
+          'other._id': { $in: ['9', '10'] },
+          'some._id': '10',
+        })
+      ).toStrictEqual({
+        _id: { $gte: 8 },
+        'other._id': { $in: [9, 10] },
+        'some._id': 10,
+      })
     })
   })
 
@@ -828,7 +864,7 @@ describe('schema', () => {
 
   describe('schema validation', () => {
     it('validates', () => {
-      const schema = {
+      const schema: SchemaDefinitions = {
         address: {
           schema: {
             line1: { required: true, type: 'string' },
@@ -844,6 +880,11 @@ describe('schema', () => {
         fullname: { required: true, type: 'string' },
         happy: { type: 'boolean' },
         region: { relation: 'region', type: 'id' },
+        stuff: { items: { defaultValue: '5', type: 'string' }, type: 'array' },
+        tags: {
+          items: [{ type: 'string' }, { type: 'string' }],
+          type: 'array',
+        },
       }
 
       expect(() => Schema.validateSchema(schema)).not.toThrow()
@@ -854,7 +895,49 @@ describe('schema', () => {
 test('findRelation', () => {
   expect(findRelations({}, 'mock')).toStrictEqual([])
 
-  expect(
-    findRelations({ address: { relation: 'mock', type: 'id' } }, 'mock')
-  ).toStrictEqual([['address']])
+  let schema: SchemaDefinitions = { address: { relation: 'mock', type: 'id' } }
+  expect(findRelations(schema, 'mock')).toStrictEqual([['address', 'relation']])
+
+  schema = {
+    address: { schema: 'mock', type: 'object' },
+  }
+  expect(findRelations(schema, 'mock')).toStrictEqual([])
+
+  schema = {
+    address: {
+      schema: {
+        continent: { relation: 'mock', type: 'id' },
+        country: { schema: 'mock', type: 'object' },
+        line1: { type: 'string' },
+      },
+      type: 'object',
+    },
+    budget: {
+      items: [
+        { relation: 'mock', type: 'id' },
+        { type: 'string' },
+        {
+          schema: {
+            mock: { relation: 'mock', type: 'id' },
+          },
+          type: 'object',
+        },
+      ],
+      type: 'array',
+    },
+    tours: {
+      items: {
+        relation: 'mock',
+        type: 'id',
+      },
+      type: 'array',
+    },
+  }
+
+  expect(findRelations(schema, 'mock')).toStrictEqual([
+    ['address', 'schema', 'continent', 'relation'],
+    ['budget', 'items', '0', 'relation'],
+    ['budget', 'items', '2', 'schema', 'mock', 'relation'],
+    ['tours', 'items', 'relation'],
+  ])
 })

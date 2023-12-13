@@ -5,6 +5,7 @@
 @font-face {
 	font-family: "Zed Mono";
 	src: url("/zed-mono/zed-mono-regular.woff2");
+  font-weight: 400;
 }
 
 @font-face {
@@ -31,19 +32,14 @@
 
 :root {
   color-scheme: light dark;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-  font-weight: 500;
   accent-color: #0E9544;
+
+  font-size: 14px;
+  font-family: "Zed Mono", sans-serif;
 }
 
-
-body {
-  font-family: "Zed Mono", sans-serif;
-  font-size: 14px;
+input[type="checkbox"] {
+  @apply rounded-md bg-zinc-200 dark:bg-neutral-700 w-5 h-4 focus:ring-zinc-100 dark:focus:ring-neutral-500 focus:ring-1 focus:ring-offset-0;
 }
 
 .react-flow__controls-button {
@@ -59,5 +55,13 @@ body {
 }
 
 code {
-  @apply bg-slate-200 dark:bg-neutral-600 text-slate-600 dark:text-neutral-200 font-['Zed_Mono'] rounded px-1;
+  @apply bg-zinc-200 dark:bg-neutral-600 text-zinc-600 dark:text-neutral-200 font-['Zed_Mono'] rounded px-1;
+}
+
+label {
+  display: block
+}
+
+.material-symbols-rounded {
+  @apply inline-flex items-center align-middle;
 }

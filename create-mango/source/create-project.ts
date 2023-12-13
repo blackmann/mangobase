@@ -53,10 +53,12 @@ const copyWithTemplate = async (
 }
 
 type Language = 'typescript' | 'javascript'
+type PackageManager = 'npm' | 'yarn'
 
 interface Options {
 	language: Language
 	projectName: string
+	packageManager: PackageManager
 }
 
 async function createProject(options: Options) {
@@ -119,6 +121,12 @@ async function createProject(options: Options) {
 								variables
 							)
 
+							await copyWithTemplate(
+								fromPath('../_common/Dockerfile'),
+								toPath(projectDirectoryPath, 'Dockerfile'),
+								variables
+							)
+
 							await fs.copyFile(
 								fromPath('../_common/_gitattributes'),
 								toPath(projectDirectoryPath, '.gitattributes')
@@ -157,6 +165,11 @@ async function createProject(options: Options) {
 								fromPath('tsconfig.json'),
 								toPath(projectDirectoryPath, 'tsconfig.json')
 							)
+
+							await fs.copyFile(
+								fromPath('build.js'),
+								toPath(projectDirectoryPath, 'build.js')
+							)
 						},
 					},
 				])
@@ -166,22 +179,31 @@ async function createProject(options: Options) {
 			title: 'Install dependencies',
 			async task() {
 				const packages = [
-					'mangobase',
 					'@mangobase/express',
-					'express',
 					'@mangobase/mongodb',
-					'mongodb',
 					'@next/env',
-					'jose',
+					'express',
+					'mangobase',
+					'mongodb',
 				]
-				await execaInDirectory('npm', ['install', ...packages])
+
+				await execaInDirectory(options.packageManager, [
+					getAddCommand(options.packageManager),
+					...packages,
+				])
+
+				await execaInDirectory(options.packageManager, [
+					getAddCommand(options.packageManager),
+					getDevOption(options.packageManager),
+					'tsx',
+				])
 
 				if (typescript) {
-					await execaInDirectory('npm', [
-						'install',
-						'--save-dev',
+					await execaInDirectory(options.packageManager, [
+						getAddCommand(options.packageManager),
+						getDevOption(options.packageManager),
 						'typescript',
-						'ts-node',
+						'esbuild',
 					])
 				}
 			},
@@ -208,4 +230,21 @@ async function createProject(options: Options) {
 	return await tasks.run()
 }
 
-export { createProject, Options as CreateProjectOptions, Language }
+function getAddCommand(pm: PackageManager) {
+	if (pm === 'npm') {
+		return 'install'
+	}
+
+	return 'add'
+}
+
+function getDevOption(pm: PackageManager) {
+	return pm === 'npm' ? '--save-dev' : '-D'
+}
+
+export {
+	createProject,
+	Options as CreateProjectOptions,
+	Language,
+	PackageManager,
+}

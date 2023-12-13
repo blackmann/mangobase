@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import AVATAR_COLORS from '../lib/avatar-colors'
+import AVATAR_COLORS from '@/lib/avatar-colors'
 import Avatar from 'boring-avatars'
 import React from 'preact/compat'
 import app from '../mangobase-app'
@@ -50,8 +50,8 @@ function AdminLayout() {
             <li key={link.href}>
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
-                  clsx('text-slate-400 dark:text-neutral-500 p-2 flex', {
-                    'text-slate-700 dark:!text-neutral-300 ': isActive,
+                  clsx('text-zinc-400 dark:text-neutral-500 p-2 flex', {
+                    'text-zinc-700 dark:!text-neutral-300 ': isActive,
                   })
                 }
                 to={link.href}

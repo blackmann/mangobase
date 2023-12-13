@@ -1,2 +1,1 @@
-export { default as MongoDb } from './mongodb'
-export { MongoCursor } from './mongodb'
+export { MongoDb, MongoCursor } from './mongodb.js'

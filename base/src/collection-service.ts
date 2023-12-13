@@ -1,8 +1,8 @@
-import App, { Service } from './app'
-import { BadRequest, MethodNotAllowed } from './errors'
-import Collection, { Filter } from './collection'
-import Schema, { Definition, ValidationError } from './schema'
-import type { Context } from './context'
+import { App, type Service } from './app.js'
+import { BadRequest, MethodNotAllowed } from './errors.js'
+import { Collection, type Filter } from './collection.js'
+import { type Definition, Schema, ValidationError } from './schema.js'
+import type { Context } from './context.js'
 
 const ALLOWED_FILTERS = [
   '$limit',
@@ -27,12 +27,15 @@ class CollectionService implements Service {
       schema: schema
         ? Promise.resolve(schema)
         : (async () => {
-            const { schema } = await app.manifest.collection(name)
-            if (!schema) {
+            const collection = await app.manifest.collection(name)
+            if (!collection) {
               throw new Error(`no collection with \`${name}\` exists`)
             }
 
-            return new Schema(schema, { parser: app.database.cast })
+            return new Schema(collection.schema, {
+              getRef: (name) => app.manifest.getSchemaRef(name).schema,
+              parser: app.database.cast,
+            })
           })(),
     })
   }
@@ -228,4 +231,4 @@ class CollectionService implements Service {
   }
 }
 
-export default CollectionService
+export { CollectionService }

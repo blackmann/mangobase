@@ -23,7 +23,7 @@ export default defineConfig({
             { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Recap on REST', link: '/guide/rest' },
             { text: 'Dashboard', link: '/guide/dashboard' },
-            { text: 'Development & Production', link: '/guide/dev-prod' },
+            { text: 'Deployment', link: '/guide/deployment' },
           ],
         },
         {
@@ -57,14 +57,22 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
-    outline: [2,4]
+    outline: [2, 4],
   },
   head: [
+    [
+      'meta',
+      {
+        property: 'og:image',
+        content: 'https://github.com/blackmann/mangobase/raw/master/assets/ss-dark.png'
+      }
+    ],
     [
       'script',
       {
         async: '',
-        src: 'https://analytics.umami.is/script.js" data-website-id="6cc8bf19-147d-45a2-b7c9-75b7c1b607bf',
+        src: 'https://analytics.umami.is/script.js',
+        'data-website-id': '6cc8bf19-147d-45a2-b7c9-75b7c1b607bf',
       },
     ],
   ],

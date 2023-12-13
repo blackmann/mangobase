@@ -1,4 +1,4 @@
-import * as errors from './errors'
+import * as errors from './errors.js'
 import {
   BadRequest,
   Conflict,
@@ -6,22 +6,23 @@ import {
   MethodNotAllowed,
   NotFound,
   ServiceError,
-} from './errors'
-import { Database, Migration } from './database'
-import type { HookConfig, HookFn, Hooks } from './hook'
-import Manifest, { CollectionConfig } from './manifest'
-import Schema, { ValidationError } from './schema'
-import dbMigrations, { saveMigration } from './db-migrations'
-import logger, { logEnd, logStart } from './logger'
-import { onDev, unexposed } from './lib/api-paths'
-import CollectionService from './collection-service'
-import type { Context } from './context'
-import HooksRegistry from './hooks-registry'
-import Method from './method'
-import { baseAuthentication } from './authentication'
+} from './errors.js'
+import { type CollectionConfig, Manifest } from './manifest.js'
+import { Database, Migration, MigrationStep } from './database.js'
+import type { HookConfig, HookFn, Hooks } from './hook.js'
+import { Schema, ValidationError } from './schema.js'
+import dbMigrations, { saveMigration } from './db-migrations.js'
+import logger, { logEnd, logStart } from './logger.js'
+import { onDev, unexposed } from './lib/api-paths.js'
+import { CollectionService } from './collection-service.js'
+import type { Context } from './context.js'
+import { HooksRegistry } from './hooks-registry.js'
+import { Method } from './method.js'
+import { baseAuthentication } from './authentication.js'
 import { createRouter } from 'radix3'
-import randomStr from './lib/random-str'
-import users from './users'
+import randomStr from './lib/random-str.js'
+import url from 'url'
+import users from './users.js'
 
 const INTERNAL_PATHS = [
   'collections',
@@ -34,7 +35,13 @@ const STATIC_PATHS = ['/assets/', '/zed-mono/']
 
 const DEV = process.env.NODE_ENV !== 'production'
 
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+
 type Handle = (ctx: Context, app: App) => Promise<Context>
+
+interface WithSchema {
+  schema: Schema
+}
 
 interface Service {
   handle: Handle
@@ -220,7 +227,7 @@ class AnonymouseService implements Service {
   }
 }
 
-const collectionsService: Service & { schema: Schema } = {
+const collectionsService: Service & WithSchema = {
   async handle(ctx: Context, app: App) {
     if (ctx.method !== 'get' && ctx.user?.role !== 'dev') {
       throw new errors.Unauthorized()
@@ -243,10 +250,19 @@ const collectionsService: Service & { schema: Schema } = {
         const validData = this.schema.validate(ctx.data, true)
         Schema.validateSchema(validData.schema)
 
+        // no migrations expected on create,
+        // migrationSteps is not persisted
         const { migrationSteps, ...data } = validData
 
-        const collection = await app.manifest.collection(data.name, data)
-        await app.database.syncIndex(collection.name, collection.indexes)
+        const collection = (await app.manifest.collection(data.name, data))!
+
+        const createCollectionStep: MigrationStep = {
+          collection: validData,
+          name: data.name,
+          type: 'create-collection',
+        }
+
+        await handleMigration([createCollectionStep], app)
 
         app.use(collection.name, new CollectionService(app, collection.name))
 
@@ -301,29 +317,14 @@ const collectionsService: Service & { schema: Schema } = {
           app.leave(existing.name)
         }
 
-        const collection = await app.manifest.collection(
+        // [ ] Remove/add collection from schema refs based on `collection.template`
+
+        const collection = (await app.manifest.collection(
           collectionConfig.name,
           collectionConfig
-        )
+        ))!
 
-        if (migrationSteps.length) {
-          let lastVersion =
-            (await app.manifest.getLastMigrationCommit())?.version || 0
-
-          const version = ++lastVersion
-          const migration: Migration = {
-            id: `${version.toString().padStart(4, '0')}_${randomStr(8)}`,
-            steps: migrationSteps,
-            version,
-          }
-
-          await app.database.migrate(migration)
-          await app.manifest.commitMigration(migration)
-
-          await saveMigration(app, migration)
-        }
-
-        await app.database.syncIndex(collection.name, collection.indexes)
+        await handleMigration(migrationSteps, app)
 
         await app.installCollection(collection)
 
@@ -348,29 +349,37 @@ const collectionsService: Service & { schema: Schema } = {
     exposed: { defaultValue: true, type: 'boolean' },
     indexes: {
       defaultValue: [],
-      schema: {
-        item: {
-          schema: {
-            fields: { schema: { item: { type: 'string' } }, type: 'array' },
-            options: {
-              schema: { unique: { type: 'boolean' } },
-              type: 'object',
+      items: {
+        schema: {
+          fields: {
+            items: {
+              items: [
+                { description: 'field', type: 'string' },
+                { description: 'sort', type: 'number' },
+              ],
+              type: 'array',
             },
+            type: 'array',
           },
-          type: 'object',
+          options: {
+            schema: {
+              sparse: { type: 'boolean' },
+              unique: { type: 'boolean' },
+            },
+            type: 'object',
+          },
         },
+        type: 'object',
       },
       type: 'array',
     },
     migrationSteps: {
       defaultValue: [],
-      schema: {
-        item: {
-          schema: {
-            // [ ] Provide schema definitions
-          },
-          type: 'object',
+      items: {
+        schema: {
+          // [ ] Provide schema definitions
         },
+        type: 'object',
       },
       type: 'array',
     },
@@ -444,6 +453,13 @@ const hooksService: Service = {
 
         // reinstall collection with hooks
         const collection = await app.manifest.collection(collectionName)
+
+        if (!collection) {
+          throw new NotFound(
+            `No collection with name \`${collectionName}\` found`
+          )
+        }
+
         await app.installCollection(collection)
 
         ctx.result = await app.manifest.getHooks(collectionName)
@@ -463,6 +479,79 @@ const hooksService: Service = {
       }
     }
   },
+}
+
+const schemaRefsService: Service & WithSchema = {
+  async handle(ctx, app) {
+    switch (ctx.method) {
+      case 'find': {
+        ctx.result = await app.manifest.schemaRefs()
+        return ctx
+      }
+
+      case 'create': {
+        const data = this.schema.validate(ctx.data, true)
+        Schema.validateSchema(data.schema)
+        ctx.result = await app.manifest.schemaRef(data.name, data)
+        return ctx
+      }
+
+      case 'get': {
+        const nameParts: (string | undefined)[] = [
+          ctx.query.$scope as string | undefined,
+          ctx.params!.id,
+        ]
+
+        const refName = nameParts.filter(Boolean).join('/')
+
+        const ref = await app.manifest.schemaRef(refName)
+
+        if (!ref) {
+          throw new NotFound(`No schema ref with name \`${refName}\` found`)
+        }
+
+        ctx.result = {
+          ...ref,
+          $usages: await app.manifest.getSchemaRefUsages(refName),
+        }
+
+        return ctx
+      }
+
+      case 'patch': {
+        const existing = await app.manifest.schemaRef(ctx.params!.id)
+        if (!existing) {
+          throw new NotFound(
+            `No schema ref with name \`${ctx.params!.id}\` found`
+          )
+        }
+
+        const data = this.schema.validate(ctx.data, false, true)
+        if (data.schema) {
+          Schema.validateSchema(data.schema)
+        }
+
+        if (data.name && existing.name !== data.name) {
+          await app.manifest.renameSchemaRef(existing.name, data.name)
+        }
+
+        ctx.result = await app.manifest.schemaRef(data.name, {
+          ...existing,
+          ...data,
+        })
+
+        return ctx
+      }
+
+      default: {
+        throw new MethodNotAllowed()
+      }
+    }
+  },
+  schema: new Schema({
+    name: { required: true, type: 'string' },
+    schema: { required: true, type: 'any' },
+  }),
 }
 
 interface Options {
@@ -504,6 +593,7 @@ class App {
       this.addService(onDev('hooks'), hooksService)
       this.addService(onDev('editors'), editorService)
       this.addService(onDev('dev-setup'), devSetupService)
+      this.addService(onDev('schema-refs'), schemaRefsService)
 
       await this.internalPlug(logger)
       await this.internalPlug(users)
@@ -704,6 +794,28 @@ class App {
   }
 }
 
-export default App
-export { Pipeline, INTERNAL_PATHS }
+async function handleMigration(migrationSteps: MigrationStep[], app: App) {
+  if (migrationSteps.length) {
+    let lastVersion =
+      (await app.manifest.getLastMigrationCommit())?.version || 0
+
+    const version = ++lastVersion
+    const migration: Migration = {
+      id: uniqueId(version),
+      steps: migrationSteps,
+      version,
+    }
+
+    await app.database.migrate(migration)
+    await app.manifest.commitMigration(migration)
+
+    await saveMigration(app, migration)
+  }
+}
+
+function uniqueId(version: number) {
+  return `${version.toString().padStart(4, '0')}_${randomStr(8)}`
+}
+
+export { App, Pipeline, INTERNAL_PATHS }
 export type { Handle, Service }

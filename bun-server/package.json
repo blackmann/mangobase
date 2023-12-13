@@ -1,11 +1,14 @@
 {
   "name": "@mangobase/bun",
   "module": "src/index.ts",
-  "version": "0.2.2",
+  "version": "0.8.1",
+  "repository": "https://github.com/blackmann/mangobase",
+  "homepage": "https://degreat.co.uk/mangobase",
   "type": "module",
   "main": "dist/index.js",
   "files": [
-    "dist/"
+    "dist/",
+    "README.md"
   ],
   "scripts": {
     "build": "node ./build.js && tsc -p tsconfig.build.json",
@@ -15,7 +18,7 @@
   "devDependencies": {
     "bun-types": "latest",
     "esbuild": "^0.19.3",
-    "mangobase": "^0.2.2"
+    "mangobase": "^0.8.1"
   },
   "peerDependencies": {
     "mangobase": "*",

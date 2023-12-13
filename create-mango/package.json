@@ -1,8 +1,10 @@
 {
   "name": "create-mango",
-  "version": "0.0.18",
+  "version": "0.8.1",
   "license": "MIT",
   "bin": "dist/cli.js",
+  "repository": "https://github.com/blackmann/mangobase",
+  "homepage": "https://degreat.co.uk/mangobase",
   "type": "module",
   "engines": {
     "node": ">=16"
@@ -16,7 +18,8 @@
     "prepare": "yarn clean && yarn build && yarn copy-files"
   },
   "files": [
-    "dist"
+    "dist",
+    "readme.md"
   ],
   "dependencies": {
     "@types/listr": "^0.14.5",

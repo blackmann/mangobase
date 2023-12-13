@@ -1,7 +1,7 @@
-import type App from './app'
-import { Migration } from './database'
-import { SchemaDefinitions } from './schema'
-import getCollection from './lib/get-collection'
+import { type App } from './app.js'
+import type { Migration } from './database.js'
+import { type SchemaDefinitions } from './schema.js'
+import getCollection from './lib/get-collection.js'
 
 const migrationSchema: SchemaDefinitions = {
   id: { required: true, type: 'string' },
@@ -20,7 +20,7 @@ async function dbMigrations(app: App) {
       schema: migrationSchema,
     })
 
-    await app.database.syncIndex(collectionName, indexes)
+    await app.database.addIndexes(collectionName, indexes)
   }
 
   const migrationsCollection = getCollection(

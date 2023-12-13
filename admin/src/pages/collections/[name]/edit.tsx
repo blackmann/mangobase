@@ -4,10 +4,10 @@ import {
   useRouteLoaderData,
 } from 'react-router-dom'
 import Collection from '../../../client/collection'
-import CollectionForm from '../../../components/collection-form'
-import { CollectionRouteData } from '../../../routes'
+import CollectionForm from '@/components/collection-form'
+import type { CollectionRouteData } from '../../../routes'
 
-function Edit() {
+function Component() {
   const { collection } = useRouteLoaderData('collection') as CollectionRouteData
   const revalidator = useRevalidator()
 
@@ -22,7 +22,13 @@ function Edit() {
     navigate(`/collections/${collection.name}`, { replace: true })
   }
 
-  return <CollectionForm collection={collection} onHide={goBack} />
+  return (
+    <CollectionForm
+      collection={collection}
+      key={collection.name}
+      onHide={goBack}
+    />
+  )
 }
 
-export default Edit
+export { Component }

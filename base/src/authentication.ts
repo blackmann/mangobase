@@ -1,18 +1,18 @@
-import * as jose from 'jose'
 import {
   BadRequest,
   MethodNotAllowed,
   ServiceError,
   Unauthorized,
-} from './errors'
-import { CollectionHooks, HOOKS_STUB } from './manifest'
-import { Hook, HookFn } from './hook'
-import { onDev, unexposed } from './lib/api-paths'
-import type App from './app'
-import CollectionService from './collection-service'
-import { SchemaDefinitions } from './schema'
+} from './errors.js'
+import { CollectionHooks, HOOKS_STUB } from './manifest.js'
+import { Hook, HookFn } from './hook.js'
+import { SignJWT, jwtVerify } from 'jose'
+import { onDev, unexposed } from './lib/api-paths.js'
+import type { App } from './app.js'
+import { CollectionService } from './collection-service.js'
+import { SchemaDefinitions } from './schema.js'
 import bcrypt from 'bcryptjs'
-import { context } from './context'
+import { context } from './context.js'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
 
@@ -113,9 +113,9 @@ const CreatePasswordAuthCredential: Hook = {
 
 /** This is the primary authentication mechanism */
 async function baseAuthentication(app: App) {
+  const name = 'auth-credentials'
   const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
 
-  const name = 'auth-credentials'
   if (!(await app.manifest.collection(name))) {
     const index = [{ fields: ['user'], options: { unique: true } }]
     await app.manifest.collection(name, {
@@ -125,7 +125,7 @@ async function baseAuthentication(app: App) {
       schema: authCredentialsSchema,
     })
 
-    await app.database.syncIndex(name, index)
+    await app.database.addIndexes(name, index)
   }
 
   app.hooksRegistry.register(
@@ -144,15 +144,18 @@ async function baseAuthentication(app: App) {
       throw new MethodNotAllowed()
     }
 
-    if (!(ctx.data?.username && ctx.data?.password)) {
-      throw new BadRequest('`username` and `password` required')
+    if (!((ctx.data?.username || ctx.data?.email) && ctx.data?.password)) {
+      throw new BadRequest('`username`/`email` and `password` required')
     }
 
     const usersService = app.service('users') as CollectionService
     const {
       data: [user],
     } = await usersService.collection.find({
-      query: { username: ctx.data.username },
+      query: {
+        // [ ] Support casting in $or queries
+        $or: [{ username: ctx.data.username }, { email: ctx.data.email }],
+      },
     })
 
     if (!user) {
@@ -176,7 +179,8 @@ async function baseAuthentication(app: App) {
 
     // [ ] Sign with distinction for dev access
     // [ ] Use `expiresIn` settings from dashboard
-    const jwt = await new jose.SignJWT({ user: user._id })
+    const sign = new SignJWT({ user: user._id })
+    const jwt: string = await sign
       .setExpirationTime('7d')
       .setProtectedHeader({ alg: 'HS256' })
       .sign(secretKey)
@@ -257,8 +261,13 @@ function checkAuth(): HookFn {
     if (authHeader) {
       const [, token] = (authHeader as string).split(' ')
       try {
-        const { payload } = await jose.jwtVerify(token, secretKey)
-        const { user: userId } = payload
+        interface JWTStructure {
+          user: string
+        }
+
+        const {
+          payload: { user: userId },
+        } = await jwtVerify<JWTStructure>(token, secretKey)
 
         const usersCollection = (app.service('users') as CollectionService)
           .collection

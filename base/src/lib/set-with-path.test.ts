@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import setWithPath from './set-with-path'
+import setWithPath from './set-with-path.js'
 
 const data = {
   address: {

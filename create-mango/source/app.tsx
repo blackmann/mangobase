@@ -5,6 +5,7 @@ import TextInput from 'ink-text-input'
 import {
 	CreateProjectOptions,
 	Language,
+	PackageManager,
 	createProject,
 } from './create-project.js'
 
@@ -16,9 +17,10 @@ type Props = {
 }
 
 const LANGUAGE_SELECT = 1
-const DESTINATION_SELECT = 2
-const CONFIRM_OPTIONS = 3
-const CREATE_PROJECT = 4
+const PACKAGE_MANAGER_SELECT = 2
+const DESTINATION_SELECT = 3
+const CONFIRM_OPTIONS = 4
+const CREATE_PROJECT = 5
 
 const languageOptions = [
 	{
@@ -31,9 +33,21 @@ const languageOptions = [
 	},
 ]
 
+const packageManagerOptions = [
+	{
+		label: 'NPM',
+		value: 'npm',
+	},
+	{
+		label: 'Yarn',
+		value: 'yarn',
+	},
+]
+
 function Wizard() {
 	const [stage, setStage] = React.useState(LANGUAGE_SELECT)
 	const languageSelection = React.useRef<string>()
+	const packageManagerSelection = React.useRef<string>()
 	const [projectName, setProjectName] = React.useState('')
 
 	useInput((_, key) => {
@@ -48,6 +62,11 @@ function Wizard() {
 
 	function handleLanguageSelect({ value }: { value: string }) {
 		languageSelection.current = value
+		setStage(PACKAGE_MANAGER_SELECT)
+	}
+
+	function handlePackageManagerSelect({ value }: { value: string }) {
+		packageManagerSelection.current = value
 		setStage(DESTINATION_SELECT)
 	}
 
@@ -64,6 +83,18 @@ function Wizard() {
 			<>
 				<Text>[🈷️] What language do you prefer?</Text>
 				<SelectInput items={languageOptions} onSelect={handleLanguageSelect} />
+			</>
+		)
+	}
+
+	if (stage === PACKAGE_MANAGER_SELECT) {
+		return (
+			<>
+				<Text>[🚌] Package Manager?</Text>
+				<SelectInput
+					items={packageManagerOptions}
+					onSelect={handlePackageManagerSelect}
+				/>
 			</>
 		)
 	}
@@ -107,6 +138,7 @@ function Wizard() {
 		<CreateProject
 			projectName={projectName}
 			language={languageSelection.current as Language}
+			packageManager={packageManagerSelection.current as PackageManager}
 		/>
 	)
 }

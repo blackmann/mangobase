@@ -1,16 +1,25 @@
-import { Index, Migration } from './database'
-import { SchemaDefinitions, findRelations } from './schema'
-import { Conflict } from './errors'
-import { HookConfig } from './hook'
-import Method from './method'
+import { Index, Migration } from './database.js'
+import { SchemaDefinitions, findRelations } from './schema.js'
+import { Conflict } from './errors.js'
+import { HookConfig } from './hook.js'
+import { Method } from './method.js'
 import fs from 'fs/promises'
-import setWithPath from './lib/set-with-path'
+import { getRefUsage } from './lib/get-ref-usage.js'
+import setWithPath from './lib/set-with-path.js'
 
 const COLLECTIONS_FILE = 'collections.json'
 const HOOKS_FILE = 'hooks.json'
 const EDITORS_FILE = 'editors.json'
+const SCHEMA_REFS_FILE = 'schema-refs.json'
 
 const MIGRATION_FILENAME_REG = /migration\.\d{4}\.json/
+
+interface Ref {
+  name: string
+  schema: SchemaDefinitions
+}
+
+type Refs = Record<string, Ref>
 
 interface CollectionConfig {
   name: string
@@ -45,6 +54,7 @@ class Manifest {
   private collectionsIndex: Record<CollectionName, CollectionConfig> = {}
   private hooksIndex: Record<CollectionName, Hooks> = {}
   private editorsIndex: Record<CollectionName, Editor> = {}
+  private refs: Refs = {}
 
   private initialize: Promise<void>
 
@@ -57,20 +67,48 @@ class Manifest {
   }
 
   private async load() {
-    try {
-      await Promise.allSettled([
-        this.loadCollections(),
-        this.loadHooks(),
-        this.loadEditors(),
-      ])
-    } catch (err) {
-      if (err instanceof Error && err.message.includes('ENOENT')) {
-        // Ignore, file doesn't exist
-        // [ ] Make resilient, each load, each try
-        return
-      }
+    const settled = await Promise.allSettled([
+      (async () => {
+        await this.loadCollections()
+        // this depends on collections being loaded
+        await this.loadSchemaRefs()
+      })(),
+      this.loadHooks(),
+      this.loadEditors(),
+    ])
 
-      console.error(err)
+    for (const result of settled) {
+      if (result.status === 'rejected') {
+        const err = result.reason
+        if (result.reason instanceof Error && err.message.includes('ENOENT')) {
+          // Ignore, file doesn't exist
+          return
+        }
+
+        console.error('[mangobase-core]', err)
+      }
+    }
+  }
+
+  private async loadSchemaRefs() {
+    const collections = Object.values(this.collectionsIndex)
+    for (const collection of collections) {
+      if (collection.template) {
+        const name = `collections/${collection.name}`
+        this.refs[name] = { name, schema: collection.schema }
+      }
+    }
+
+    const dir = Manifest.getDirectory()
+    const refsJSON = await fs.readFile([dir, SCHEMA_REFS_FILE].join('/'), {
+      encoding: 'utf-8',
+    })
+
+    const refs = JSON.parse(refsJSON) as Refs
+
+    for (const name in refs) {
+      const ref = refs[name]
+      this.refs[name] = ref
     }
   }
 
@@ -119,7 +157,7 @@ class Manifest {
   async collection(
     name: string,
     config?: CollectionConfig
-  ): Promise<CollectionConfig> {
+  ): Promise<CollectionConfig | undefined> {
     await this.init()
 
     if (!config) {
@@ -127,6 +165,11 @@ class Manifest {
     }
 
     this.collectionsIndex[name] = config
+    if (config.template) {
+      const refName = `collections/${name}`
+      this.refs[refName] = { name: refName, schema: config.schema }
+    }
+
     await this.save()
 
     return config
@@ -135,6 +178,11 @@ class Manifest {
   async collections() {
     await this.init()
     return Object.values(this.collectionsIndex)
+  }
+
+  async schemaRefs() {
+    await this.init()
+    return Object.values(this.refs)
   }
 
   async getHooks(collection: string) {
@@ -171,11 +219,46 @@ class Manifest {
     this.editorsIndex[to] = this.editorsIndex[from]
     delete this.editorsIndex[from]
 
+    // rename relations/schemas that make use of collection as a template
+    // for collections
     for (const name in this.collectionsIndex) {
       const schema = this.collectionsIndex[name].schema
-      const usages = findRelations(schema, from)
-      for (const usage of usages) {
-        setWithPath(schema, [...usage, 'relation'], to)
+      const relations = findRelations(schema, from)
+      for (const usage of relations) {
+        setWithPath(schema, usage, to)
+      }
+
+      const references = getRefUsage(`collections/${from}`, schema)
+      for (const ref of references) {
+        setWithPath(schema, ref, `collections/${to}`)
+      }
+    }
+
+    // for schema refs
+    const previousName = `collections/${from}`
+    if (this.getSchemaRef(previousName)) {
+      const name = `collections/${to}`
+      this.refs[name] = {
+        name,
+        schema: this.refs[previousName].schema,
+      }
+
+      delete this.refs[previousName]
+
+      for (const [name, definition] of Object.entries(this.refs)) {
+        if (name.startsWith('collections/')) {
+          continue
+        }
+
+        const relations = findRelations(definition.schema, previousName)
+        for (const usage of relations) {
+          setWithPath(definition.schema, usage, name)
+        }
+
+        const references = getRefUsage(previousName, definition.schema)
+        for (const ref of references) {
+          setWithPath(definition.schema, ref, name)
+        }
       }
     }
 
@@ -255,6 +338,64 @@ class Manifest {
     )
   }
 
+  async schemaRef(name: string, ref?: Ref): Promise<Ref | undefined> {
+    await this.init()
+    if (!ref) {
+      return this.refs[name]
+    }
+
+    this.refs[name] = ref
+    await this.save()
+
+    return ref
+  }
+
+  async renameSchemaRef(from: string, to: string) {
+    if (this.refs[to]) {
+      throw new Conflict(
+        `A schema ref with name \`${to}\` already exists. Cannot rename \`${from}\` to \`${to}\``
+      )
+    }
+
+    for (const [, ref] of Object.entries(this.refs)) {
+      const usages = getRefUsage(from, ref.schema)
+      for (const usage of usages) {
+        setWithPath(ref.schema, usage, to)
+      }
+    }
+
+    for (const [, collection] of Object.entries(this.collectionsIndex)) {
+      const usages = getRefUsage(from, collection.schema)
+      for (const usage of usages) {
+        setWithPath(collection.schema, usage, to)
+      }
+    }
+
+    this.refs[to] = this.refs[from]
+    delete this.refs[from]
+
+    await this.save()
+  }
+
+  async getSchemaRefUsages(refName: string) {
+    const usages: string[] = []
+
+    const collections = await this.collections()
+    for (const collection of collections) {
+      if (getRefUsage(refName, collection.schema).length) {
+        usages.push(`collections/${collection.name}`)
+      }
+    }
+
+    for (const ref of Object.values(this.refs)) {
+      if (getRefUsage(refName, ref.schema).length) {
+        usages.push(ref.name)
+      }
+    }
+
+    return usages
+  }
+
   private getMigrationFileName(version: number) {
     return `migration.${version.toString().padStart(4, '0')}.json`
   }
@@ -277,6 +418,21 @@ class Manifest {
         encoding: 'utf-8',
       })
     }
+
+    // we don't save the refs with those that come from the collections
+    const noCollectionRefs = Object.entries(this.refs).filter(
+      ([key]) => !key.startsWith('collections/')
+    )
+
+    const refsObject = Object.fromEntries(noCollectionRefs)
+    const data = JSON.stringify(refsObject, undefined, 2)
+    await fs.writeFile([dir, SCHEMA_REFS_FILE].join('/'), data, {
+      encoding: 'utf-8',
+    })
+  }
+
+  getSchemaRef(name: string) {
+    return this.refs[name]
   }
 
   static getDirectory() {
@@ -289,6 +445,6 @@ const HOOKS_STUB: Hooks = {
   before: { create: [], find: [], get: [], patch: [], remove: [] },
 }
 
-export default Manifest
+export { Manifest }
 export { HOOKS_STUB }
-export type { CollectionConfig, Hooks as CollectionHooks }
+export type { CollectionConfig, Hooks as CollectionHooks, Ref }

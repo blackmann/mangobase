@@ -1,4 +1,8 @@
-function setWithPath(obj: Record<string, any>, path: string[], value: any) {
+function setWithPath(
+  obj: Record<string, any>,
+  path: (string | number)[],
+  value: any
+) {
   let current = obj
   let i = 0
   for (; i < path.length - 1; i++) {

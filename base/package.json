@@ -1,11 +1,19 @@
 {
   "name": "mangobase",
-  "version": "0.2.2",
+  "version": "0.8.1",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
+  "repository": "https://github.com/blackmann/mangobase",
+  "homepage": "https://degreat.co.uk/mangobase",
+  "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./lib": "./dist/lib/index.js"
+  },
   "scripts": {
     "build": "yarn clean && node ./build.mjs && tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
@@ -13,21 +21,22 @@
     "prepare": "yarn build && yarn copy-admin",
     "test": "vitest"
   },
-  "author": "",
+  "author": "De-Great Yartey <mail@degreat.co.uk>",
   "license": "MIT",
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@vitest/coverage-v8": "^0.34.4",
     "@vitest/ui": "^0.31.0",
     "esbuild": "^0.17.19",
     "eslint-config-base": "*",
     "mongodb-memory-server-core": "8.15.1",
+    "radix3": "^1.0.1",
     "typescript": "^5.0.4",
     "vitest": "^0.34.4"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "jose": "^4.14.6",
-    "radix3": "^1.0.1"
+    "jose": "^5.1.0"
   }
 }

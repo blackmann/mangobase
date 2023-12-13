@@ -1,12 +1,12 @@
-import { Hook, HookFn } from './hook'
-import { MethodNotAllowed } from './errors'
+import type { Hook, HookFn } from './hook.js'
+import { MethodNotAllowed } from './errors.js'
 
 const LogData: Hook = {
   description: 'Logs data. Check logs console.',
   id: 'log-data',
   name: 'Log data',
   run: async (ctx) => {
-    console.log(ctx.path, ctx.method, ctx.data)
+    console.log(`[${new Date().toISOString()}]`, ctx.path, ctx.method, ctx.data)
     return ctx
   },
 }

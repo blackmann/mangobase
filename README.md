@@ -10,4 +10,12 @@ Low-code Javascript backend framework for Node and Bun runtimes. Docs [here](htt
 npm create mango@latest
 ```
 
-![Screenshot](assets/screenshot.png)
+<p align="center">
+  <picture>
+  <source width="830" media="(prefers-color-scheme: dark)" srcset="assets/ss-dark.png">
+			<source width="830" media="(prefers-color-scheme: light)" srcset="assets/ss-light.png">
+			<img width="830" src="assets/ss-light.png" alt="Mangobase dashboard">
+  </picture>
+</p>
+
+See [Contributing](CONTRIBUTING.md) for development guide on how contribute.

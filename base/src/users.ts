@@ -1,5 +1,5 @@
-import App from './app'
-import { SchemaDefinitions } from './schema'
+import { App } from './app.js'
+import { SchemaDefinitions } from './schema.js'
 
 const usersSchema: SchemaDefinitions = {
   avatar: { type: 'string' },
@@ -28,7 +28,7 @@ async function users(app: App) {
       schema: usersSchema,
     })
 
-    await app.database.syncIndex('users', indexes)
+    await app.database.addIndexes('users', indexes)
   }
 }
 

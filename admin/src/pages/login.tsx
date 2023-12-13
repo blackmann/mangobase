@@ -1,10 +1,10 @@
 import { FieldValues, useForm } from 'react-hook-form'
-import AVATAR_COLORS from '../lib/avatar-colors'
+import AVATAR_COLORS from '@/lib/avatar-colors'
 import Avatar from 'boring-avatars'
-import Button from '../components/button'
-import Input from '../components/input'
+import Button from '@/components/button'
+import Input from '@/components/input'
 import React from 'preact/compat'
-import RequestStatus from '../lib/request-status'
+import RequestStatus from '@/lib/request-status'
 import app from '../mangobase-app'
 import { useNavigate } from 'react-router-dom'
 
@@ -66,7 +66,7 @@ function Login() {
             <fieldset className="mt-3 w-full flex flex-col items-center">
               {isNewEnv && (
                 <>
-                  <p className=" text-center text-slate-500 dark:text-neutral-400 mb-4">
+                  <p className=" text-center text-secondary mb-4">
                     Sweet Mango 🥭
                     <br />
                     Be the first dev.

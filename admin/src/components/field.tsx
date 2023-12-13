@@ -1,10 +1,11 @@
 import { RegisterOptions, UseFormRegisterReturn } from 'react-hook-form'
-import fieldTypes, { FieldType } from '../lib/field-types'
+import fieldTypes, { FieldType } from '@/lib/field-types'
+import schemaRefs, { loadSchemaRefs } from '@/data/schema-refs'
 import Button from './button'
 import Chip from './chip'
 import Input from './input'
 import Select from './select'
-import collections from '../data/collections'
+import collections from '@/data/collections'
 
 interface Props {
   onRestore?: VoidFunction
@@ -20,8 +21,10 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
 
   return (
     <div className="flex py-4">
-      <div className="text-slate-400 dark:text-neutral-500 me-2">
-        <FieldIcon type={type} />
+      <div className="text-zinc-400 dark:text-neutral-500 me-2">
+        <span className="material-symbols-rounded">
+          {DATA_TYPE_ICONS[type]}
+        </span>
       </div>
       <div className="flex-1">
         <div>
@@ -49,7 +52,7 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             </label>
 
             <Button
-              className="material-symbols-rounded !bg-slate-200 dark:!bg-neutral-600 text-gray-500 dark:!text-neutral-300"
+              className="material-symbols-rounded !bg-zinc-200 dark:!bg-neutral-700 hover:!bg-zinc-300 dark:hover:!bg-neutral-600 text-sm"
               onClick={removed ? onRestore : onRemove}
               title={removed ? 'Restore' : 'Remove'}
               type="button"
@@ -58,10 +61,10 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             </Button>
           </div>
         </div>
-        <div className="mt-1 d-flex justify-content-between">
-          <div>
-            <label className="me-3">
-              <input
+        <div className="mt-1 flex items-center gap-3 justify-between">
+          <div className="flex gap-4">
+            <label className="inline-flex items-center">
+              <Input
                 disabled={removed}
                 type="checkbox"
                 {...register('required')}
@@ -70,9 +73,9 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
               Required
             </label>
 
-            {type !== 'boolean' && (
-              <label>
-                <input
+            {!['boolean', 'object', 'array'].includes(type) && (
+              <label className="inline-flex items-center">
+                <Input
                   disabled={removed}
                   type="checkbox"
                   {...register('unique')}
@@ -83,27 +86,29 @@ function Field({ onRemove, onRestore, watch, register }: Props) {
             )}
           </div>
 
-          <div className="mt-3">
+          <div>
             {removed && (
-              <Chip className="!bg-yellow-500 !text-white  !rounded-lg !py-0">
+              <Chip className="!bg-orange-500 !text-white !rounded-lg !py-0 text-sm">
                 Removed
               </Chip>
             )}
           </div>
         </div>
 
-        <FieldExtra disabled={removed} type={type} {...{ register, watch }} />
+        <fieldset disabled={removed}>
+          <FieldExtra type={type} {...{ register, watch }} />
+        </fieldset>
       </div>
     </div>
   )
 }
 
 interface FieldExtraProps extends Props {
-  disabled: boolean
   type: FieldType
+  watch: (key: string) => any
 }
 
-function FieldExtra({ disabled, type, register }: FieldExtraProps) {
+function FieldExtra({ type, register, watch }: FieldExtraProps) {
   switch (type) {
     case 'id':
       return (
@@ -111,7 +116,6 @@ function FieldExtra({ disabled, type, register }: FieldExtraProps) {
           Relation
           <Select
             className="ms-2"
-            disabled={disabled}
             {...register('relation', { required: true })}
           >
             {collections.value.map((collection) => (
@@ -122,33 +126,113 @@ function FieldExtra({ disabled, type, register }: FieldExtraProps) {
           </Select>
         </label>
       )
-    // [ ] Object schema menu
+
+    case 'object': {
+      return <SchemaSelect name="schema" register={register} />
+    }
+
+    case 'array': {
+      const type = watch('items.type')
+
+      return (
+        <div className="flex">
+          <label className="me-2">
+            Item
+            <Select
+              className="ms-2"
+              {...register('items.type', { required: true })}
+            >
+              {fieldTypes.map((field) => {
+                if (field.value === 'array') {
+                  // [ ] Should we provide UX for nested arrays? For now no
+                  return null
+                }
+
+                return (
+                  <option key={field.value} value={field.value}>
+                    {field.title}
+                  </option>
+                )
+              })}
+            </Select>
+          </label>
+
+          {type === 'object' && (
+            <SchemaSelect name="items.schema" register={register} />
+          )}
+
+          {type === 'id' && (
+            <label className="ms-2">
+              Relation
+              <Select
+                className="ms-2"
+                {...register('items.relation', { required: true })}
+              >
+                {collections.value.map((collection) => (
+                  <option key={collection.name} value={collection.name}>
+                    {collection.name}
+                  </option>
+                ))}
+              </Select>
+            </label>
+          )}
+        </div>
+      )
+    }
+
     default: {
       return null
     }
   }
 }
 
-function FieldIcon({ type }: { type: string }) {
-  switch (type) {
-    case 'number':
-      return <span className="material-symbols-rounded">123</span>
+interface SchemaSelectProps {
+  name: string
+  register: (name: string, o?: RegisterOptions) => UseFormRegisterReturn
+}
 
-    case 'string':
-      return <span className="material-symbols-rounded">title</span>
+function SchemaSelect({ name, register }: SchemaSelectProps) {
+  return (
+    <div>
+      <label className="flex items-center">
+        Schema
+        <Select className="ms-2" {...register(name, { required: true })}>
+          {schemaRefs.value.map((schema) => (
+            <option key={schema.name} value={schema.name}>
+              {schema.name}
+            </option>
+          ))}
+        </Select>
+        <Button
+          className="!bg-transparent !p-0 leading-none ms-2 material-symbols-rounded text-base"
+          title="Refresh schema list"
+          type="button"
+          onClick={() => loadSchemaRefs()}
+        >
+          refresh
+        </Button>
+      </label>
+      <a
+        className="underline text-secondary"
+        href="/_/settings/schemas"
+        target="_blank"
+      >
+        Add/edit schema from here
+      </a>
+    </div>
+  )
+}
 
-    case 'object':
-      return <span className="material-symbols-rounded">data_object</span>
-
-    case 'array':
-      return <span className="material-symbols-rounded">data_array</span>
-
-    case 'date':
-      return <span className="material-symbols-rounded">calendar_today</span>
-
-    default:
-      return <span className="material-symbols-rounded">emergency</span>
-  }
+const DATA_TYPE_ICONS: Record<string, string> = {
+  any: 'emergency',
+  array: 'data_array',
+  boolean: 'check_box',
+  date: 'calendar_today',
+  file: 'file_copy',
+  id: 'link',
+  number: '123',
+  object: 'data_object',
+  string: 'title',
 }
 
 export default Field

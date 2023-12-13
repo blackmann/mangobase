@@ -1,9 +1,9 @@
-import MongoDB, { MongoCursor } from './mongodb'
+import { MongoCursor, MongoDb } from './mongodb.js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ObjectId } from 'mongodb'
 
 describe('mongodb', () => {
-  const db = new MongoDB(process.env.MONGO_URL as string)
+  const db = new MongoDb(process.env.MONGO_URL as string)
 
   describe('cast', () => {
     it('should cast _id to ObjectId', () => {

@@ -1,7 +1,7 @@
 import { FieldValues, useForm } from 'react-hook-form'
 import { NodeProps, Position, useReactFlow } from 'reactflow'
 import React, { memo } from 'preact/compat'
-import hooksRegistry, { Hook } from '../data/hooks-registry'
+import hooksRegistry, { Hook } from '@/data/hooks-registry'
 import Button from './button'
 import FlowHandle from './flow-handle'
 import SchemaFields from './schema-fields'
@@ -38,8 +38,8 @@ function HookNode({ data, id: nodeId, selected }: NodeProps<Data>) {
   return (
     <div
       className={clsx(
-        'bg-slate-50 dark:bg-neutral-700 w-[20rem] overflow-hidden rounded-md border border-slate-200 dark:border-neutral-600',
-        { 'border-slate-400 dark:!border-neutral-400': selected }
+        'bg-zinc-50 dark:bg-neutral-700 w-[20rem] overflow-hidden rounded-md border border-zinc-200 dark:border-neutral-600',
+        { 'border-zinc-400 dark:!border-neutral-400': selected }
       )}
     >
       <div className="flex items-center py-2">
@@ -50,12 +50,12 @@ function HookNode({ data, id: nodeId, selected }: NodeProps<Data>) {
         />
 
         <header className="flex-1 flex">
-          <div className="me-2 text-slate-500 dark:text-neutral-400">
+          <div className="me-2 text-secondary">
             <span className="material-symbols-rounded">line_start_circle</span>
           </div>
           <div>
             <div>{hookInfo.name}</div>
-            <p className="text-slate-500 dark:text-neutral-400">
+            <p className="text-secondary">
               {hookInfo.description}
             </p>
           </div>

@@ -1,5 +1,5 @@
 import appDevelopers, { loadAppDevelopers } from '../../data/app-developers'
-import AVATAR_COLORS from '../../lib/avatar-colors'
+import AVATAR_COLORS from '@/lib/avatar-colors'
 import Avatar from 'boring-avatars'
 import React from 'preact/compat'
 
@@ -11,7 +11,7 @@ function Devs() {
   return (
     <div className="mt-3">
       <h1 className="font-bold text-lg leading-none">Devs</h1>
-      <p className="text-slate-500 dark:text-neutral-400">
+      <p className="text-secondary">
         Accounts with developer permissions for the app
       </p>
 
@@ -26,7 +26,7 @@ function Devs() {
               />
 
               <div className="-ms-2">
-                <span className="text-slate-500 dark:text-neutral-400">@</span>
+                <span className="text-secondary">@</span>
                 {dev.username}
               </div>
             </div>

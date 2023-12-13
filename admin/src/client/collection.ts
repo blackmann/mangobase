@@ -1,25 +1,27 @@
+import type { Index, SchemaDefinitions } from 'mangobase'
 import type App from './app'
 import { ReactFlowJsonObject } from 'reactflow'
 import qs from 'qs'
 
-type Schema = Record<string, any>
 type Editor = ReactFlowJsonObject
 
 interface CollectionProps {
   name: string
-  schema: Schema
+  schema: SchemaDefinitions
   exposed: boolean
   readOnlySchema?: boolean
   template: boolean
+  indexes: Index[]
 }
 
 class Collection {
   app: App
   name: string
-  schema: Schema
+  schema: SchemaDefinitions
   exposed: boolean
   template: boolean
   readOnlySchema?: boolean
+  indexes: Index[]
 
   constructor(app: App, data: CollectionProps) {
     this.app = app
@@ -29,6 +31,7 @@ class Collection {
     this.exposed = data.exposed
     this.template = data.template
     this.readOnlySchema = data.readOnlySchema
+    this.indexes = data.indexes
   }
 
   private get base() {
@@ -44,6 +47,11 @@ class Collection {
 
     const { data } = await this.app.req.get(endpoint)
     return data
+  }
+
+  async delete(id: string) {
+    const endpoint = `/${this.base}/${id}`
+    await this.app.req.delete(endpoint)
   }
 
   async hooks(): Promise<HooksConfig> {
