@@ -88,8 +88,6 @@ async function createProject(options: Options) {
 
 	const toPath = (rootPath: string, file: string) => path.join(rootPath, file)
 
-	const initGit = await isGitRepository(projectDirectoryPath)
-
 	const tasks = new Listr([
 		{
 			title: 'Copy files',
@@ -176,10 +174,10 @@ async function createProject(options: Options) {
 					'@next/env',
 					'jose',
 				]
-				await execaInDirectory('bun', ['install', ...packages])
+				await execaInDirectory('npm', ['install', ...packages])
 
 				if (typescript) {
-					await execaInDirectory('bun', [
+					await execaInDirectory('npm', [
 						'install',
 						'--save-dev',
 						'typescript',
@@ -196,8 +194,14 @@ async function createProject(options: Options) {
 		},
 		{
 			title: 'Initialize Git repository',
-			enabled: () => initGit,
-			task: () => execa('git', ['init'], { cwd: projectDirectoryPath }),
+			task: async (_, task) => {
+				if (await isGitRepository(projectDirectoryPath)) {
+					task.skip('Already a Git repository')
+					return
+				}
+
+				execa('git', ['init'], { cwd: projectDirectoryPath })
+			},
 		},
 	])
 
