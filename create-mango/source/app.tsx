@@ -103,8 +103,9 @@ function Wizard() {
 		return (
 			<>
 				<Text>[💽] Enter name of this project</Text>
+
 				<Text color={'gray'}>
-					App will be created in a folder with this name in this directory.
+					App will be created in a folder with this name in this directory.{' '}
 				</Text>
 				<TextInput
 					onChange={(value) => setProjectName(value)}
@@ -146,13 +147,19 @@ function CreateProject(options: CreateProjectOptions) {
 	const { exit } = useApp()
 
 	React.useEffect(() => {
-		createProject(options).then(() => {
-			console.log('')
-			console.log('🌵 Done setting up project.')
-			console.log('')
-			console.log('Start project with `npm run dev`')
-			exit()
-		})
+		createProject(options)
+			.then(() => {
+				console.log('')
+				console.log('🌵 Done setting up project.')
+				console.log('')
+				console.log('Start project with `npm run dev`')
+				exit()
+			})
+			.catch((error) => {
+				console.error('')
+				console.error(`❌ ${error.message}`)
+				exit(error)
+			})
 	}, [options])
 
 	return null

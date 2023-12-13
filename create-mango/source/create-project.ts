@@ -19,6 +19,16 @@ function randomStr(length = 16) {
 		.join('')
 }
 
+const isGitRepository = async (directory: string) => {
+	try {
+		return await execa('git', ['rev-parse', '--is-inside-work-tree'], {
+			cwd: directory,
+		}).then(() => true)
+	} catch {
+		return false
+	}
+}
+
 const copyWithTemplate = async (
 	from: string,
 	to: string,
@@ -54,6 +64,15 @@ interface Options {
 async function createProject(options: Options) {
 	const projectDirectoryPath = path.join(process.cwd(), options.projectName)
 	const pkgName = slugify(path.basename(projectDirectoryPath))
+
+	if (
+		await fs
+			.access(projectDirectoryPath)
+			.then(() => true)
+			.catch(() => false)
+	) {
+		throw new Error('Project directory already exists')
+	}
 
 	const execaInDirectory = (file: string, args: string[], options = {}) =>
 		execa(file, args, {
@@ -193,6 +212,17 @@ async function createProject(options: Options) {
 			title: 'Format code',
 			task() {
 				return execaInDirectory('npx', ['prettier', '--write', '.'])
+			},
+		},
+		{
+			title: 'Initialize Git repository',
+			task: async (_, task) => {
+				if (await isGitRepository(projectDirectoryPath)) {
+					task.skip('Already a Git repository')
+					return
+				}
+
+				execa('git', ['init'], { cwd: projectDirectoryPath })
 			},
 		},
 	])
