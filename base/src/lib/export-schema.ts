@@ -214,14 +214,15 @@ async function exportToTypescript(
         }
       }
       case "string": {
-        const containsEnums:boolean = definition?.enum
-        switch(containsEnums){
-          case true: {
-            const extractedEnums = definition?.enum.map(item => (item))
-            lines.push(`${field}: ${(extractedEnums?.join(' | '))}`)
-          }
-
+        const containsEnums: boolean = definition?.enum
+        if (containsEnums) {
+          const extractedEnums = definition?.enum.map(item => (item))
+          lines.push(`${field}: ${(extractedEnums?.join(' | '))}`)
+          break
         }
+
+        lines.push(i`${field}: ${type}`)
+        break
       }
       default: {
         lines.push(i`${field}: ${type}`)
