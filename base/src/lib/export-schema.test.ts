@@ -41,6 +41,7 @@ describe('export-schema', () => {
       },
       name: { required: true, type: 'string' },
       tags: { items: { type: 'string' }, type: 'array' },
+      gender: { type: 'string', enum: ['male', 'female'] },
     }
 
     it('should return typescript definition [include object schema]', async () => {

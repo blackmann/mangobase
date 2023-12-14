@@ -11,6 +11,7 @@ exports[`export-schema > typescript > should return typescript definition [inclu
   friends_contacts: FriendsContacts[]
   name: string
   tags?: string[]
+  gender?: \\"male\\" | \\"female\\"
 }
 
 interface Address {
@@ -49,6 +50,7 @@ exports[`export-schema > typescript > should return typescript definition [inlin
   }[]
   name: string
   tags?: string[]
+  gender?: \\"male\\" | \\"female\\"
 }
 
 "
