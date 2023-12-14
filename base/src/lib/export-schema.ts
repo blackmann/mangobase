@@ -219,7 +219,11 @@ async function exportToTypescript(
       }
       case 'string': {
         if (definition.enum) {
-          lines.push(i`${field}: ${definition.enum.map(e => (e)).join(' | ')}`)
+          lines.push(
+            i`${field}: ${definition.enum
+              .map((e) => "'" + e + "'")
+              .join(' | ')}`
+          )
           break
         }
         lines.push(i`${field}: ${type}`)
