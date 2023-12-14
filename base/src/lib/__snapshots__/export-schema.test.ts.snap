@@ -53,3 +53,35 @@ exports[`export-schema > typescript > should return typescript definition [inlin
 
 "
 `;
+
+exports[`export-schema > typescript > should treat string fields with enums as TS string unions 1`] = `
+"interface Test {
+  _id: string
+  address: {
+    country: {
+      code?: string
+      code?: string
+      title: string
+      title: string
+    }
+    line1: string
+    line1: string
+  }
+  age?: number
+  alive: boolean
+  connection?: string
+  created_at: Date
+  friends_contacts: {
+    email: string
+    email: string
+    name: string
+    name: string
+  }[]
+  name: string
+  name: string
+  tags?: string[]
+  gender?: male | female
+}
+
+"
+`;

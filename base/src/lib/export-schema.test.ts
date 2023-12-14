@@ -41,6 +41,7 @@ describe('export-schema', () => {
       },
       name: { required: true, type: 'string' },
       tags: { items: { type: 'string' }, type: 'array' },
+      gender: { type: 'string', enum: ['male', 'female'] },
     }
 
     it('should return typescript definition [include object schema]', async () => {
@@ -64,6 +65,19 @@ describe('export-schema', () => {
             getRef: async () => ({}),
             includeObjectSchema: true,
             inlineObjectSchema: true,
+            language: 'typescript',
+            name: 'test',
+            schema,
+          })
+        )
+      ).toMatchSnapshot()
+    })
+    it('should treat string fields with enums as TS string unions', async () => {
+      expect(
+        render(
+          await exportSchema({
+            getRef: async () => ({}),
+            includeObjectSchema: true,
             language: 'typescript',
             name: 'test',
             schema,

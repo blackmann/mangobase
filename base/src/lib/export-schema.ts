@@ -1,4 +1,8 @@
-import type { Definition, SchemaDefinitions } from '../schema.js'
+import type {
+  Definition,
+  SchemaDefinitions,
+  DefinitionType,
+} from '../schema.js'
 
 interface TypescriptOptions {
   language: 'typescript'
@@ -213,16 +217,12 @@ async function exportToTypescript(
           break
         }
       }
-      case "string": {
-        const containsEnums: boolean = definition?.enum
-        if (containsEnums) {
-          const extractedEnums = definition?.enum.map(item => (item))
-          lines.push(`${field}: ${(extractedEnums?.join(' | '))}`)
+      case 'string': {
+        if (definition.enum) {
+          lines.push(i`${field}: ${definition.enum.map(e => (e)).join(' | ')}`)
           break
         }
-
         lines.push(i`${field}: ${type}`)
-        break
       }
       default: {
         lines.push(i`${field}: ${type}`)
