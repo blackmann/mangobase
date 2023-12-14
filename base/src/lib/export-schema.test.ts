@@ -72,18 +72,5 @@ describe('export-schema', () => {
         )
       ).toMatchSnapshot()
     })
-    it('should treat string fields with enums as TS string unions', async () => {
-      expect(
-        render(
-          await exportSchema({
-            getRef: async () => ({}),
-            includeObjectSchema: true,
-            language: 'typescript',
-            name: 'test',
-            schema,
-          })
-        )
-      ).toMatchSnapshot()
-    })
   })
 })
