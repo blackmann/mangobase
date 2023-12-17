@@ -202,7 +202,7 @@ function FieldExtra({ type, name }: FieldExtraProps) {
       return (
         <div className="mt-2 relative">
           <Button
-            className="absolute !top-[-2rem] !left-[12.55rem] h-6 !rounded-[0.55rem] flex items-center"
+            className="absolute !rounded-lg !top-[-2rem] !left-[12.55rem] h-6 flex items-center"
             type="button"
             variant={showEnumInput ? 'primary' : 'muted'}
             onClick={() => {
