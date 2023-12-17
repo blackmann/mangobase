@@ -120,7 +120,7 @@ interface FieldExtraProps extends Props {
 
 function FieldExtra({ type, name }: FieldExtraProps) {
   const { control, register, watch } = useFormContext()
-  const [chipInputState, setChipInputState] = React.useState(true)
+  const [showEnumInput, setShowEnumInput] = React.useState(false)
 
   function _(key: string) {
     return `${name}.${key}`
@@ -200,27 +200,20 @@ function FieldExtra({ type, name }: FieldExtraProps) {
     case 'string': {
       const chipInputValues = watch(_('enum'))
       return (
-        <div className="mt-2">
+        <div className="mt-2 relative">
           <Button
-            className="absolute !ml-[12.75rem] !mt-[-2rem] h-6 !rounded-[0.55rem] flex items-center"
+            className="absolute !top-[-2rem] !left-[12.55rem] h-6 !rounded-[0.55rem] flex items-center"
             type="button"
-            variant={
-              chipInputValues && chipInputValues.length !== 0
-                ? 'primary'
-                : 'muted'
-            }
+            variant={showEnumInput ? 'primary' : 'muted'}
             onClick={() => {
-              if (
-                (chipInputValues && chipInputValues.length === 0) ||
-                !chipInputValues
-              ) {
-                setChipInputState(!chipInputState)
+              if (!chipInputValues?.length) {
+                setShowEnumInput(!showEnumInput)
               }
             }}
           >
             Enum
           </Button>
-          {chipInputState && (
+          {(showEnumInput || Boolean(chipInputValues?.length)) && (
             <ControlledChipsInput
               placeholder="Enum (optional)"
               control={control}
