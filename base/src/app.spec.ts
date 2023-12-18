@@ -437,7 +437,7 @@ describe('collections', () => {
           data: {
             migrationSteps: [
               {
-                collection: 'mock-template-collection-control',
+                collection: 'mock-template-collection',
                 to: 'mock-template-collection-renamed',
                 type: 'rename-collection',
               },
