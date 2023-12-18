@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.2 (2023-12-18)
+
+### Features
+
+- treat null as empty value ([#34](https://github.com/blackmann/mangobase/issues/34)) ([9850b90](https://github.com/blackmann/mangobase/commit/9850b909e7966e67c60f46d282f678fe06d7ad65))
+
 ## 0.9.1 (2023-12-17)
 
 **Note:** Version bump only for package mangobase
