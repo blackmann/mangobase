@@ -268,7 +268,11 @@ class Schema {
     for (const [key, definition] of Object.entries(this.schema)) {
       const value = res[key]
 
-      if (value === undefined && ignoreMissing) {
+      if (
+        (value === undefined ||
+          (definition.type !== 'any' && value === null)) &&
+        ignoreMissing
+      ) {
         continue
       }
 
@@ -349,6 +353,8 @@ class Schema {
 
       if (validatedValue !== undefined) {
         res[key] = this.cast(validatedValue, definition.type)
+      } else {
+        delete res[key]
       }
     }
 
@@ -387,7 +393,7 @@ class Schema {
     definition: Extract<Definition, { type: 'string' }>,
     useDefault = false
   ) {
-    if (data.value === undefined || data.value === '') {
+    if (checkMissing(data) || data.value === '') {
       if (useDefault && definition.defaultValue) {
         return definition.defaultValue
       }
@@ -421,7 +427,7 @@ class Schema {
     definition: Extract<Definition, { type: 'number' }>,
     useDefault = false
   ) {
-    if (data.value === undefined) {
+    if (checkMissing(data)) {
       if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
@@ -445,7 +451,7 @@ class Schema {
     definition: Extract<Definition, { type: 'boolean' }>,
     useDefault = false
   ) {
-    if (data.value === undefined) {
+    if (checkMissing(data)) {
       if (useDefault && definition.defaultValue !== undefined) {
         return definition.defaultValue
       }
@@ -582,7 +588,7 @@ class Schema {
   }
 
   private validateDate(data: Data, definition: Definition, useDefault = false) {
-    if (data.value === undefined) {
+    if (checkMissing(data)) {
       if (useDefault && definition.defaultValue !== undefined) {
         return new Date(definition.defaultValue)
       }
@@ -814,6 +820,17 @@ function getDate(value: any) {
   }
 
   return date
+}
+
+function checkMissing(data: Data) {
+  if (data.value === undefined) return true
+
+  if (data.value === null) {
+    data.value = undefined
+    return true
+  }
+
+  return false
 }
 
 /**

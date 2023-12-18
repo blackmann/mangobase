@@ -15,6 +15,7 @@ describe('schema', () => {
 
     it('ignores when no value is passed', () => {
       expect(schema.validate({})).toStrictEqual({})
+      expect(schema.validate({ fullname: null })).toStrictEqual({})
     })
 
     describe('when required', () => {
@@ -452,6 +453,10 @@ describe('schema', () => {
       expect(schema.validate({ profile: { name: 'Jane' } })).toStrictEqual({
         profile: { name: 'Jane' },
       })
+
+      expect(schema.validate({ profile: null })).toStrictEqual({
+        profile: null,
+      })
     })
 
     it('ignores when no value is passed', () => {
@@ -466,6 +471,9 @@ describe('schema', () => {
       it('returns correctly', () => {
         expect(schema.validate({ profile: { name: 'Jane' } })).toStrictEqual({
           profile: { name: 'Jane' },
+        })
+        expect(schema.validate({ profile: null })).toStrictEqual({
+          profile: null,
         })
       })
 
