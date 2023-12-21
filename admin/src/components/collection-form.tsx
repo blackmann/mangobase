@@ -18,8 +18,10 @@ import Select from './select'
 import app from '../mangobase-app'
 import { appendIndexFields } from '@/lib/append-index-fields'
 import appendSchemaFields from '@/lib/append-schema-fields'
+import { definitionFromField } from '@/lib/definition-from-field'
 import getNewFieldName from '@/lib/get-new-field-name'
 import { loadCollections } from '@/data/collections'
+import { schemaFromFields } from '@/lib/schema-from-fields'
 
 type ValidatedIndex = Index & { existing?: boolean; removed?: boolean }
 
@@ -215,7 +217,7 @@ function CollectionForm({ collection, onHide }: Props) {
         .map(({ existing, removed, ...index }) => index), // existing and removed don't go to backend
       migrationSteps,
       name,
-      schema: schemaFromForm(fields),
+      schema: schemaFromFields(fields),
       template: options.includes('is-template'),
     }
 
@@ -590,39 +592,6 @@ function prepareMigrations(
   }
 
   return migrationSteps
-}
-
-function schemaFromForm(fields: FieldProps[]) {
-  const schema: Record<string, any> = {}
-  for (const field of fields) {
-    if (field.removed) {
-      continue
-    }
-
-    const [name, definition] = definitionFromField(field)
-
-    if (definition.type === 'string') {
-      if (definition.enum) {
-        if (definition.enum.length === 0) {
-          // remove empty enum list
-          definition.enum = undefined
-        } else {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          definition.enum = definition.enum.map((it) => it.text)
-        }
-      }
-    }
-
-    schema[name] = definition
-  }
-
-  return schema
-}
-
-function definitionFromField(field: FieldProps) {
-  const { name, existing, removed, ...definition } = field
-  return [name, definition] as const
 }
 
 export default CollectionForm

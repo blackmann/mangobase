@@ -782,11 +782,20 @@ class Schema {
             )
           }
 
-          if (definition.enum && definition.enum.length === 0) {
-            throw new ValidationError(
-              fieldPath,
-              '`enum` should have at least one value'
-            )
+          if (definition.enum) {
+            if (definition.enum.length === 0) {
+              throw new ValidationError(
+                fieldPath,
+                '`enum` should have at least one value'
+              )
+            }
+
+            if (!definition.enum.every((item) => typeof item === 'string')) {
+              throw new ValidationError(
+                fieldPath,
+                '`enum` should be an array of strings'
+              )
+            }
           }
 
           break
