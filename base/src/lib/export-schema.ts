@@ -1,8 +1,4 @@
-import type {
-  Definition,
-  SchemaDefinitions,
-  DefinitionType,
-} from '../schema.js'
+import type { Definition, SchemaDefinitions } from '../schema.js'
 
 interface TypescriptOptions {
   language: 'typescript'

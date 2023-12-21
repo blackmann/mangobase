@@ -11,19 +11,20 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom'
-import { Ref, SchemaDefinitions } from 'mangobase'
 import Button from '@/components/button'
 import Chip from '@/components/chip'
 import Field from '@/components/field'
 import { FieldProps } from '@/components/collection-form'
 import Input from '@/components/input'
 import React from 'preact/compat'
+import { Ref } from 'mangobase'
 import app from '../../../mangobase-app'
 import appendSchemaFields from '@/lib/append-schema-fields'
 import getNewFieldName from '@/lib/get-new-field-name'
 import { getSchema } from '@/lib/get-schema'
 import { loadSchemaRefs } from '../../../data/schema-refs'
 import removeFieldsItem from '@/lib/remove-fields-item'
+import { schemaFromFields } from '@/lib/schema-from-fields'
 
 function Component() {
   const formMethods = useForm()
@@ -48,15 +49,9 @@ function Component() {
   // [ ] schema name shouldn't start with 'collections/'. This is reserved
   // for schema related to template collections
   async function submit(data: FieldValues) {
-    const schema: SchemaDefinitions = {}
-
-    for (const { name, ...definition } of data.fields) {
-      schema[name] = definition
-    }
-
     const refData = {
       name: data.name,
-      schema,
+      schema: schemaFromFields(data.fields),
     }
 
     isNew
