@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.3 (2023-12-21)
+
+### Bug Fixes
+
+- render enum as string from schema ref form ([30e5e16](https://github.com/blackmann/mangobase/commit/30e5e161b851b23d5e3353503822a50cf71750c2))
+
 ## 0.9.2 (2023-12-18)
 
 ### Features
