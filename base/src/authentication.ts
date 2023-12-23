@@ -11,7 +11,7 @@ import { onDev, unexposed } from './lib/api-paths.js'
 import type { App } from './app.js'
 import { CollectionService } from './collection-service.js'
 import { SchemaDefinitions } from './schema.js'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import { context } from './context.js'
 
 const ROUNDS = process.env.NODE_ENV !== 'production' ? 8 : 16
