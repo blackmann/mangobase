@@ -799,6 +799,18 @@ describe('schema', () => {
         happy: true,
       })
 
+      expect(
+        schema.castQuery({ 'address.movedOn': '1703376000000' })
+      ).toStrictEqual({
+        'address.movedOn': new Date('2023-12-24'),
+      })
+
+      expect(
+        schema.castQuery({ 'address.movedOn': { $gte: '1703376000000' } })
+      ).toStrictEqual({
+        'address.movedOn': { $gte: new Date('2023-12-24') },
+      })
+
       expect(schema.castQuery({ age: '100' })).toStrictEqual({ age: 100 })
       expect(schema.castQuery({ age: 10 })).toStrictEqual({ age: 10 })
       expect(schema.castQuery({ age: 'b' })).toStrictEqual({ age: 'b' })

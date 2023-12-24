@@ -180,16 +180,12 @@ class Schema {
         }
 
         case 'date': {
-          const date = new Date(value)
           if (typeof value === 'object') {
             this.castOperatorValues(value, 'date', getDate)
             break
           }
 
-          if (isNaN(date.getTime())) {
-            continue
-          }
-
+          const date = getDate(value)
           res[key] = this.cast(date, 'date')
           break
         }
@@ -823,7 +819,8 @@ function getDate(value: any) {
     return value
   }
 
-  const date = new Date(value)
+  const number = Number(value)
+  const date = isNaN(number) ? new Date(value) : new Date(number)
   if (isNaN(date.getTime())) {
     return value
   }
