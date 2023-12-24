@@ -5,7 +5,7 @@ function cleanDate(date: Date | string) {
 }
 
 function cleanTime(date: Date | string) {
-  return dayjs(date).format('hh:mm:ss')
+  return dayjs(date).format('hh:mm:ss A')
 }
 
 export { cleanDate, cleanTime }
