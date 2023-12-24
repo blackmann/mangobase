@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.5 (2023-12-24)
+
+### Bug Fixes
+
+- date query casting ([b579084](https://github.com/blackmann/mangobase/commit/b579084cc5584f5388d960c90dbcaab1f55f49dc))
+
 ## 0.9.4 (2023-12-23)
 
 **Note:** Version bump only for package @mangobase/mongodb

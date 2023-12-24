@@ -1,6 +1,6 @@
 {
   "name": "create-mango",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "license": "MIT",
   "bin": "dist/cli.js",
   "repository": "https://github.com/blackmann/mangobase",
