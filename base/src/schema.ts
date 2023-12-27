@@ -1,3 +1,5 @@
+import { clone } from './lib/clone.js'
+
 const types = [
   'any',
   'array',
@@ -157,7 +159,7 @@ class Schema {
    * With this knowledge, only nested query operators (eg. $in) are also considered.
    */
   castQuery(query: Record<string, any>) {
-    const res = structuredClone(query)
+    const res = clone(query)
 
     for (const [key, value] of Object.entries(res)) {
       const definition = this.getDefinitionAtPath(key)
@@ -259,7 +261,7 @@ class Schema {
       throw new Error('`data` is undefined')
     }
 
-    const res = structuredClone(data)
+    const res = clone(data)
 
     for (const [key, definition] of Object.entries(this.schema)) {
       const value = res[key]

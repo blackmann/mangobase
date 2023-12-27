@@ -861,9 +861,7 @@ describe('schema', () => {
       expect(
         schema.castQuery({ createdAt: { $gte: undefined } })
       ).toStrictEqual({
-        createdAt: {
-          $gte: undefined,
-        },
+        createdAt: {},
       })
 
       expect(schema.castQuery({ createdAt: { $gte: true } })).toStrictEqual({
