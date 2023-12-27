@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.6 (2023-12-27)
+
+### Bug Fixes
+
+- user login query ([14f96fe](https://github.com/blackmann/mangobase/commit/14f96fe70076adab63f0878cb613ff665b34f421))
+
 ## 0.9.5 (2023-12-24)
 
 ### Bug Fixes
