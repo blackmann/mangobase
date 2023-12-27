@@ -149,13 +149,18 @@ async function baseAuthentication(app: App) {
     }
 
     const usersService = app.service('users') as CollectionService
+
+    const query: Record<string, string> = {}
+    if (ctx.data.username) {
+      query['username'] = ctx.data.username
+    } else {
+      query['email'] = ctx.data.email
+    }
+
     const {
       data: [user],
     } = await usersService.collection.find({
-      query: {
-        // [ ] Support casting in $or queries
-        $or: [{ username: ctx.data.username }, { email: ctx.data.email }],
-      },
+      query,
     })
 
     if (!user) {
@@ -258,6 +263,7 @@ function checkAuth(): HookFn {
     checkSecretKeyEnv()
 
     const authHeader = ctx.headers['authorization']
+
     if (authHeader) {
       const [, token] = (authHeader as string).split(' ')
       try {
@@ -275,7 +281,7 @@ function checkAuth(): HookFn {
 
         ctx.user = user
       } catch (err) {
-        console.log(err)
+        console.error('error checking auth', err)
         //
       }
     }
