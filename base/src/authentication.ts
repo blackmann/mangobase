@@ -21,14 +21,23 @@ const authCredentialsSchema: SchemaDefinitions = {
   user: { relation: 'users', required: true, type: 'id' },
 }
 
-const RequirePassword: Hook = {
-  description: 'Require password field. [Base auth]',
-  id: 'auth-require-password',
-  name: 'Require Password',
+const CollectPassword: Hook = {
+  description:
+    'Collects password field if provided. This is used later by `CreatePasswordAuth`. [Base auth]',
+  id: 'auth-collect-password',
+  name: 'Collect Password',
   run: async (ctx) => {
     const password = ctx.data?.['password']
+    if (password === undefined || password === null) {
+      return ctx
+    }
+
     if (typeof password !== 'string') {
       throw new BadRequest('`password` field is required or should be a string')
+    }
+
+    if (password.length < 8) {
+      throw new BadRequest('`password` should be at least 8 characters long')
     }
 
     ctx.locals['password'] = password
@@ -70,6 +79,10 @@ const CreatePasswordAuthCredential: Hook = {
   name: 'Create Password Auth Credential',
   run: async (ctx, _, app) => {
     const password = ctx.locals['password']
+    if (!password) {
+      return ctx
+    }
+
     if (typeof password !== 'string') {
       throw new BadRequest('`password` field is missing')
     }
@@ -113,23 +126,23 @@ const CreatePasswordAuthCredential: Hook = {
 
 /** This is the primary authentication mechanism */
 async function baseAuthentication(app: App) {
-  const name = 'auth-credentials'
+  const collectionName = 'auth-credentials'
   const secretKey = new TextEncoder().encode(process.env.SECRET_KEY!)
 
-  if (!(await app.manifest.collection(name))) {
+  if (!(await app.manifest.collection(collectionName))) {
     const index = [{ fields: ['user'], options: { unique: true } }]
-    await app.manifest.collection(name, {
+    await app.manifest.collection(collectionName, {
       indexes: index,
-      name,
+      name: collectionName,
       readOnlySchema: true,
       schema: authCredentialsSchema,
     })
 
-    await app.database.addIndexes(name, index)
+    await app.database.addIndexes(collectionName, index)
   }
 
   app.hooksRegistry.register(
-    RequirePassword,
+    CollectPassword,
     CreatePasswordAuthCredential,
     RequireAuth,
     AssignAuthUser
@@ -167,7 +180,9 @@ async function baseAuthentication(app: App) {
       throw new BadRequest('Incorrect username/password combination')
     }
 
-    const credentialService = app.service(unexposed(name)) as CollectionService
+    const credentialService = app.service(
+      unexposed(collectionName)
+    ) as CollectionService
 
     const {
       data: [credential],
@@ -226,10 +241,10 @@ async function upsertHooks(app: App) {
 
   if (
     !usersHooks['before']['create'].find(
-      ([hookId]) => hookId === RequirePassword.id
+      ([hookId]) => hookId === CollectPassword.id
     )
   ) {
-    usersHooks.before.create.push([RequirePassword.id])
+    usersHooks.before.create.push([CollectPassword.id])
     dirty = true
   }
 
@@ -312,4 +327,4 @@ function checkSecretKeyEnv() {
   }
 }
 
-export { RequirePassword, baseAuthentication }
+export { CollectPassword, baseAuthentication }

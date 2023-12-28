@@ -5,14 +5,17 @@ const usersSchema: SchemaDefinitions = {
   avatar: { type: 'string' },
   email: { required: true, type: 'string', unique: true },
   fullname: { required: true, type: 'string' },
-  // basic, dev
   // [ ] Prevent anyone from just creating a 'dev' account. Use hook
-  role: { defaultValue: 'basic', required: true, type: 'string' },
+  role: {
+    defaultValue: 'basic',
+    enum: ['dev', 'basic'],
+    required: true,
+    type: 'string',
+  },
   username: { required: true, type: 'string', unique: true },
   verified: { type: 'boolean' },
 }
 
-// [ ] Make collection schema read-only
 async function users(app: App) {
   if (!(await app.manifest.collection('users'))) {
     const indexes = [

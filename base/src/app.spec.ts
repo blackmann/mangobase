@@ -36,7 +36,7 @@ describe('setup', () => {
           data: {
             email: 'mock-11@mail.com',
             fullname: 'Mock User',
-            password: 'hello',
+            password: 'helloworld',
             username: 'mock-1',
           },
           method: 'create',
@@ -60,7 +60,7 @@ describe('setup', () => {
       const res = await app.api(
         context({
           data: {
-            password: 'hello',
+            password: 'helloworld',
             username: 'mock',
           },
           method: 'create',
@@ -77,7 +77,7 @@ describe('setup', () => {
           data: {
             email: 'mock-1@mail.com',
             fullname: 'Mock User',
-            password: 'hello',
+            password: 'helloworld',
             role: 'dev',
             username: 'mock',
           },
@@ -819,7 +819,7 @@ describe('hooks registry', () => {
       'log-data',
       'custom-code',
       'restrict-method',
-      'auth-require-password',
+      'auth-collect-password',
       'create-auth-credential',
       'require-auth',
       'assign-auth-user',
@@ -830,5 +830,69 @@ describe('hooks registry', () => {
         expectedHooks.map((hook) => expect.objectContaining({ id: hook }))
       )
     )
+  })
+})
+
+describe('users/auth service', () => {
+  it('creates user', async () => {
+    const res = await app.api(
+      context({
+        data: {
+          email: 'mockusers1@mail.com',
+          fullname: 'Mock User',
+          password: 'helloworld',
+          username: 'mock-user-1',
+        },
+        method: 'create',
+        path: 'users',
+      })
+    )
+
+    expect(res.statusCode).toBe(201)
+    expect(res.result).toStrictEqual({
+      _id: expect.anything(),
+      created_at: expect.any(Date),
+      email: 'mockusers1@mail.com',
+      fullname: 'Mock User',
+      role: 'basic',
+      updated_at: expect.any(Date),
+      username: 'mock-user-1',
+    })
+  })
+
+  it('returns 400 when password is less than 8 characters', async () => {
+    const res = await app.api(
+      context({
+        data: {
+          email: 'mockuser2@mail.com',
+          fullname: 'Mock User',
+          password: 'hello',
+          username: 'mock-user-2',
+        },
+        method: 'create',
+        path: 'users',
+      })
+    )
+
+    expect(res.statusCode).toBe(400)
+    expect(res.result.error).toStrictEqual(
+      '`password` should be at least 8 characters long'
+    )
+  })
+
+  it('should create user without requiring password', async () => {
+    const res = await app.api(
+      context({
+        data: {
+          email: 'mockusers3@mail.com',
+          fullname: 'Mock User',
+          username: 'mock-user-3',
+        },
+        method: 'create',
+        path: 'users',
+      })
+    )
+
+    expect(res.statusCode).toBe(201)
   })
 })
