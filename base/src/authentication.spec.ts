@@ -31,7 +31,7 @@ describe('authentication', () => {
         data: {
           email: 'mock-1@mail.com',
           fullname: 'Mock User',
-          password: 'hello',
+          password: 'helloworld',
           username: 'mock-1',
         },
         method: 'create',
@@ -47,7 +47,7 @@ describe('authentication', () => {
       const { result } = await app.api(
         context({
           data: {
-            password: 'hello',
+            password: 'helloworld',
             username: 'mock-1',
           },
           method: 'create',
@@ -66,7 +66,7 @@ describe('authentication', () => {
         context({
           data: {
             email: 'mock-1@mail.com',
-            password: 'hello',
+            password: 'helloworld',
           },
           method: 'create',
           path: 'login',
