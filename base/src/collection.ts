@@ -47,7 +47,18 @@ class Collection {
     this.name = name
     this.db = options.db
     this.pagination = options.pagination || DEFAULT_PAGINATION
-    this.schema = options.schema
+    this.schema = options.schema.then((s) => {
+      // include `created_at` and `updated_at`
+      // doing it like this is fine since we're just adding it at the top
+      // level. so it won't affect original schema
+      s.schema = {
+        ...s.schema,
+        created_at: { type: 'date' },
+        updated_at: { type: 'date' },
+      }
+
+      return s
+    })
   }
 
   async create(data: Data | Data[], filter: Filter = {}) {

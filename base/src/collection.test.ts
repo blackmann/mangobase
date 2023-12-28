@@ -62,6 +62,14 @@ describe('collections', () => {
     }),
   })
 
+  describe('schema', () => {
+    it('includes created_at, updated_at fields', async () => {
+      const { schema } = await collection.schema
+      expect(schema['created_at']).toStrictEqual({ type: 'date' })
+      expect(schema['updated_at']).toStrictEqual({ type: 'date' })
+    })
+  })
+
   describe('find', () => {
     it('returns results if there is', async () => {
       const findCursor = getCursor()
