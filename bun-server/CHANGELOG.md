@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.8 (2023-12-28)
+
+### Features
+
+- include timestamp definitions to schema ([a673e99](https://github.com/blackmann/mangobase/commit/a673e99f206b0b2013f14268a0fc177085abd67c))
+
 ## 0.9.7 (2023-12-28)
 
 ### Features
