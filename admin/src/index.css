@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -55,7 +57,7 @@ input[type="checkbox"] {
 }
 
 code {
-  @apply bg-zinc-200 dark:bg-neutral-600 text-zinc-600 dark:text-neutral-200 font-['Zed_Mono'] rounded px-1;
+  @apply bg-zinc-200 dark:bg-neutral-600 text-zinc-600 dark:text-neutral-200 font-['IBM_Plex_Mono'] rounded px-1;
 }
 
 label {
@@ -64,4 +66,12 @@ label {
 
 .material-symbols-rounded {
   @apply inline-flex items-center align-middle;
+}
+
+.cm-editor.cm-focused {
+  @apply outline-none;
+}
+
+.cm-line {
+  @apply font-['IBM_Plex_Mono'];
 }

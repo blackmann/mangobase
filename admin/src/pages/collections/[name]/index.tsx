@@ -1,8 +1,8 @@
 import Button from '@/components/button'
 import CleanDate from '@/components/date'
 import type Collection from '../../../client/collection'
+import FilterInput from '@/components/filter-input'
 import IdTag from '@/components/id-tag'
-import Input from '@/components/input'
 import React from 'preact/compat'
 import Value from '@/components/value'
 import { useForm } from 'react-hook-form'
@@ -13,16 +13,17 @@ export type RouteData = { collection: Collection }
 function Component() {
   const { collection } = useRouteLoaderData('collection') as RouteData
   const [pages, setPages] = React.useState<any[]>([])
+  const [query, setQuery] = React.useState<Record<string, any> | null>(null)
 
   const { register, watch, setValue } = useForm()
 
   const $selected = watch('select')
 
   // [ ]: Properly implement this
-  const loadNext = React.useCallback(async () => {
-    const data = await collection.find()
-    setPages((pages) => [...pages, data])
-  }, [collection])
+  const load = React.useCallback(async () => {
+    const data = await collection.find(query ?? undefined)
+    setPages((pages) => [data])
+  }, [collection, query])
 
   async function handleOnDelete() {
     await Promise.allSettled(
@@ -31,7 +32,7 @@ function Component() {
 
     setValue('select', [])
 
-    await loadNext()
+    await load()
   }
 
   function handleAllToggle(e: React.ChangeEvent<HTMLInputElement>) {
@@ -46,8 +47,8 @@ function Component() {
   }
 
   React.useEffect(() => {
-    loadNext()
-  }, [loadNext])
+    load()
+  }, [load])
 
   React.useEffect(() => {
     setValue('select', undefined)
@@ -64,13 +65,12 @@ function Component() {
 
   return (
     <div className="h-0 flex-1 flex flex-col gap-2">
-      <Input
-        className="w-full block mt-2"
-        type="text"
-        name="search"
-        id="search"
-        placeholder="Filter record. See docs for examples."
-      />
+      <FilterInput key={collection.name} onSubmit={setQuery} />
+      {/* className="w-full block mt-2"
+      type="text"
+      name="search"
+      id="search"
+      placeholder="Filter record. See docs for examples." */}
 
       <div className="h-0 flex-1 overflow-y-auto pe-[1px]">
         <table cellSpacing={0} className="w-full">
@@ -81,6 +81,7 @@ function Component() {
                   type="checkbox"
                   className="ms-1"
                   indeterminate={indeterminate}
+                  checked={selectionCount === currentPageItems?.length}
                   onChange={handleAllToggle}
                 />
               </th>

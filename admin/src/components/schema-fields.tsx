@@ -20,7 +20,7 @@ const EDITOR_OPTIONS = {
   codeLens: false,
   contextmenu: false,
   foldingHighlight: false,
-  fontFamily: 'Zed Mono',
+  fontFamily: 'IBM Plex Mono, Zed Mono, monospace',
   fontLigatures: true,
   fontSize: 14,
   hover: {
