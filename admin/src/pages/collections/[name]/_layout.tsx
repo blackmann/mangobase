@@ -57,7 +57,7 @@ function Component() {
           </Chip>
         </div>
 
-        <div className="mt-2 flex justify-between">
+        <div className="mt-2 flex justify-between items-center">
           <div>
             {links.map((link) => (
               <NavLink
@@ -76,10 +76,17 @@ function Component() {
           </div>
 
           <div className="flex items-center">
+            {/* <button
+              className="material-symbols-rounded text-lg text-secondary hover:bg-zinc-200 dark:hover:bg-neutral-700 rounded-md size-8 inline-flex justify-center items-center"
+              title="Refresh data"
+            >
+              refresh
+            </button> */}
+
             <Popover
               trigger={
                 <button
-                  className="material-symbols-rounded text-lg me-2 text-secondary hover:bg-zinc-200 dark:hover:bg-neutral-700 rounded-md px-0.5"
+                  className="material-symbols-rounded text-lg text-secondary hover:bg-zinc-200 dark:hover:bg-neutral-700 rounded-md size-8 inline-flex justify-center items-center"
                   title="Dev Experience"
                 >
                   data_object
