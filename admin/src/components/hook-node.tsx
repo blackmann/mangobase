@@ -38,7 +38,7 @@ function HookNode({ data, id: nodeId, selected }: NodeProps<Data>) {
   return (
     <div
       className={clsx(
-        'bg-zinc-50 dark:bg-neutral-700 w-[20rem] overflow-hidden rounded-md border border-zinc-200 dark:border-neutral-600',
+        'bg-zinc-50 dark:bg-neutral-700 w-[24rem] overflow-hidden rounded-md border border-zinc-200 dark:border-neutral-600',
         { 'border-zinc-400 dark:!border-neutral-400': selected }
       )}
     >
@@ -55,9 +55,7 @@ function HookNode({ data, id: nodeId, selected }: NodeProps<Data>) {
           </div>
           <div>
             <div>{hookInfo.name}</div>
-            <p className="text-secondary">
-              {hookInfo.description}
-            </p>
+            <p className="text-secondary">{hookInfo.description}</p>
           </div>
         </header>
 

@@ -1,8 +1,8 @@
 import Button from '@/components/button'
 import CleanDate from '@/components/date'
 import type Collection from '../../../client/collection'
+import FilterInput from '@/components/filter-input'
 import IdTag from '@/components/id-tag'
-import Input from '@/components/input'
 import React from 'preact/compat'
 import Value from '@/components/value'
 import { useForm } from 'react-hook-form'
@@ -64,13 +64,12 @@ function Component() {
 
   return (
     <div className="h-0 flex-1 flex flex-col gap-2">
-      <Input
-        className="w-full block mt-2"
-        type="text"
-        name="search"
-        id="search"
-        placeholder="Filter record. See docs for examples."
-      />
+      <FilterInput key={collection.name} />
+      {/* className="w-full block mt-2"
+      type="text"
+      name="search"
+      id="search"
+      placeholder="Filter record. See docs for examples." */}
 
       <div className="h-0 flex-1 overflow-y-auto pe-[1px]">
         <table cellSpacing={0} className="w-full">
@@ -81,6 +80,7 @@ function Component() {
                   type="checkbox"
                   className="ms-1"
                   indeterminate={indeterminate}
+                  checked={selectionCount === currentPageItems?.length}
                   onChange={handleAllToggle}
                 />
               </th>
