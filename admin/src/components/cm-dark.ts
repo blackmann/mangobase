@@ -3,11 +3,9 @@ import { EditorView } from '@codemirror/view'
 import { Extension } from '@codemirror/state'
 import { tags as t } from '@lezer/highlight'
 
-const base00 = '#2E3235',
-  base01 = '#DDDDDD',
+const base01 = '#DDDDDD',
   base02 = '#525252',
   base03 = '#b0b0b0',
-  base04 = '#d0d0d0',
   base05 = '#e0e0e0',
   base06 = '#808080',
   base07 = '#000000',

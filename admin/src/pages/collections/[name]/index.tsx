@@ -22,7 +22,7 @@ function Component() {
   // [ ]: Properly implement this
   const load = React.useCallback(async () => {
     const data = await collection.find(query ?? undefined)
-    setPages((pages) => [data])
+    setPages(() => [data])
   }, [collection, query])
 
   async function handleOnDelete() {
