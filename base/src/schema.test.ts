@@ -355,78 +355,81 @@ describe('schema', () => {
       expect(schema.validate({})).toStrictEqual({})
     })
 
-    describe('getSchemaDefinition', () => {
-      it('throws an error when getRef is not defined', () => {
-        const schema = {
+    it('throws an error when getRef is not defined', () => {
+      const schema = {
+        address: {
+          schema: 'string',
+          type: 'object',
+        },
+      }
+
+      expect(() =>
+        new Schema({
           address: {
             schema: 'string',
             type: 'object',
           },
-        }
+        }).validate(schema)
+      ).toThrow('`getRef` is required when schema is a string.')
+    })
 
-        expect(() =>
-          new Schema({
+    it('throws an error when schema cannot be found', () => {
+      const schema = {
+        address: {
+          schema: 'string',
+          type: 'object',
+        },
+      }
+
+      expect(() =>
+        new Schema(
+          {
             address: {
               schema: 'string',
               type: 'object',
             },
-          }).validate(schema)
-        ).toThrow('`getRef` is required when schema is a string.')
-      })
-
-      it('throws an error when schema cannot be found', () => {
-        const schema = {
-          address: {
-            schema: 'string',
-            type: 'object',
           },
-        }
-
-        expect(() =>
-          new Schema(
-            {
-              address: {
-                schema: 'string',
-                type: 'object',
-              },
+          {
+            getRef: () => {
+              return undefined
             },
-            {
-              getRef: () => {
-                return undefined
-              },
-            }
-          ).validate(schema)
-        ).toThrow('Schema ref with name `string` not found')
-      })
+          }
+        ).validate(schema)
+      ).toThrow('Schema ref with name `string` not found')
+    })
 
-      it('retrieves a valid schema definition', () => {
-        const schema = {
-          address: {
-            schema: 'string',
-            type: 'object',
+    it('returns a valid schema definition when it exists', () => {
+      const schema = {
+        address: {
+          schema: 'string',
+          type: 'object',
+        },
+      }
+
+      expect(
+        new Schema(
+          {
+            address: {
+              schema: 'string',
+              type: 'object',
+            },
           },
-        }
-
-        expect(() =>
-          new Schema(
-            {
-              address: {
-                schema: 'string',
-                type: 'object',
-              },
+          {
+            getRef: () => {
+              return {
+                address: {
+                  schema: 'string',
+                  type: 'object',
+                },
+              }
             },
-            {
-              getRef: () => {
-                return {
-                  address: {
-                    schema: 'string',
-                    type: 'object',
-                  },
-                }
-              },
-            }
-          ).validate(schema)
-        ).not.toThrow()
+          }
+        ).validate(schema)
+      ).toStrictEqual({
+        address: {
+          schema: 'string',
+          type: 'object',
+        },
       })
     })
 
