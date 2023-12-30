@@ -665,9 +665,7 @@ class Schema {
               } catch (err) {
                 if (err instanceof ValidationError) {
                   err.field = `${fieldPath}.${index}.${err.field}`
-                  throw err
                 }
-
                 throw err
               }
             }
