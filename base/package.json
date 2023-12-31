@@ -1,6 +1,6 @@
 {
   "name": "mangobase",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Low-code backend framework",
   "main": "dist/index.js",
   "repository": "https://github.com/blackmann/mangobase",
