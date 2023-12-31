@@ -2,6 +2,11 @@ import { Schema, SchemaDefinitions, findRelations } from './schema.js'
 import { describe, expect, it, test } from 'vitest'
 
 describe('schema', () => {
+  it('throws an error when data is null', () => {
+    const schema = new Schema({})
+    expect(() => schema.validate(null)).toThrow('`data` is undefined')
+  })
+
   describe('string type', () => {
     const schema = new Schema({
       fullname: { type: 'string' },
@@ -348,6 +353,72 @@ describe('schema', () => {
 
     it('ignores when no value is passed', () => {
       expect(schema.validate({})).toStrictEqual({})
+    })
+
+    it('throws an error when getRef is not defined', () => {
+      const schema = {
+        address: {
+          schema: 'string',
+          type: 'object',
+        },
+      }
+
+      expect(() =>
+        new Schema({
+          address: {
+            schema: 'string',
+            type: 'object',
+          },
+        }).validate(schema)
+      ).toThrow('`getRef` is required when schema is a string.')
+    })
+
+    it('throws an error when schema cannot be found', () => {
+      const schema = {
+        address: {
+          schema: 'string',
+          type: 'object',
+        },
+      }
+
+      expect(() =>
+        new Schema(
+          {
+            address: {
+              schema: 'string',
+              type: 'object',
+            },
+          },
+          {
+            getRef: () => {
+              return undefined
+            },
+          }
+        ).validate(schema)
+      ).toThrow('Schema ref with name `string` not found')
+    })
+
+    it('returns a valid schema definition when it exists', () => {
+      expect(
+        new Schema(
+          {
+            address: {
+              schema: 'address',
+              type: 'object',
+            },
+          },
+          {
+            getRef: (name) => {
+              if (name !== 'address') {
+                return
+              }
+              return {
+                line1: { type: 'string' },
+              }
+            },
+          }
+        ).validate({ address: { line1: 'Nii Sai' } })
+      ).toStrictEqual({ address: { line1: 'Nii Sai' } })
     })
 
     describe('when required', () => {
@@ -902,6 +973,7 @@ describe('schema', () => {
     it('validates', () => {
       const schema: SchemaDefinitions = {
         address: {
+          defaultValue: { line1: 'chale' },
           schema: {
             line1: { required: true, type: 'string' },
             line2: { type: 'string' },
@@ -924,6 +996,209 @@ describe('schema', () => {
       }
 
       expect(() => Schema.validateSchema(schema)).not.toThrow()
+    })
+
+    it('throws a validation error when type is unknown', () => {
+      const schema = {
+        stuffs: { type: '' },
+      }
+
+      expect(() =>
+        Schema.validateSchema(schema as unknown as SchemaDefinitions)
+      ).toThrow('`type` is invalid or undefined')
+    })
+
+    describe('object type', () => {
+      it('throws an error when schema definitions is not an object', () => {
+        const schema = [{ stuffs: { type: 'array' } }]
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('schema has to be an object')
+      })
+
+      it('throws a validation error when schema does not exist', () => {
+        const schema = {
+          stuff: {
+            defaultValue: true,
+            type: 'object',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`schema` is required when type is `object`')
+      })
+
+      it('throws a validation error when object schema defaultValue is not an object', () => {
+        const schema = {
+          stuff: {
+            defaultValue: 'man',
+            schema: {},
+            type: 'object',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be an object')
+      })
+
+      it('throws a validation error when object schema defaultValue is an array', () => {
+        const schema = {
+          stuff: {
+            defaultValue: ['man'],
+            schema: {},
+            type: 'object',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be an object')
+      })
+    })
+
+    describe('array type', () => {
+      it('throws a validation error when items is not defined for an array', () => {
+        const schema = {
+          stuffs: { type: 'array' },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`items` is required when type is `array`')
+      })
+
+      it('throws a validation error when defaultValue is not an array', () => {
+        const schema = {
+          stuff: {
+            defaultValue: 'name',
+            items: { defaultValue: 'string', type: 'string' },
+            type: 'array',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be an array')
+      })
+
+      it('throws an error when defaultValue does not match items definition', () => {
+        const schema: SchemaDefinitions = {
+          stuff: {
+            defaultValue: [1, 2, 3, 4],
+            items: { defaultValue: 'string', type: 'string' },
+            type: 'array',
+          },
+        }
+
+        expect(() => Schema.validateSchema(schema)).toThrow(
+          'item: value is not of type `array`'
+        )
+      })
+    })
+
+    describe('boolean type', () => {
+      it('throws a validation error when default value is not boolean', () => {
+        const schema = {
+          stuff: {
+            defaultValue: 'true',
+            type: 'boolean',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be a boolean')
+      })
+    })
+
+    describe('date type', () => {
+      it('throws validation error when default value is not a date', () => {
+        const schema = {
+          stuff: {
+            defaultValue: 'true',
+            type: 'date',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be a valid date')
+      })
+    })
+
+    describe('id type', () => {
+      it('throws a validation error when default value is not a string', () => {
+        const schema = {
+          stuff: {
+            defaultValue: true,
+            type: 'id',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be a string')
+      })
+
+      it('requires a relation when type is id', () => {
+        const schema = {
+          stuff: {
+            defaultValue: '1234',
+            type: 'id',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`relation` is required for type `id`')
+      })
+    })
+
+    describe('number type', () => {
+      it('throws a validation error when defalult value is not a number', () => {
+        const schema = {
+          stuff: {
+            defaultValue: true,
+            type: 'number',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`defaultValue` should be a number')
+      })
+    })
+
+    describe('string type', () => {
+      it('throws a validation error when default value is not a string', () => {
+        const schema = {
+          stuff: {
+            defaultValue: {},
+            type: 'string',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).not.toThrow('`defaultValue` should be an string')
+      })
+
+      it('throws an validation error when enum has no value', () => {
+        const schema = {
+          stuff: {
+            defaultValue: 'string',
+            enum: [],
+            type: 'string',
+          },
+        }
+
+        expect(() =>
+          Schema.validateSchema(schema as unknown as SchemaDefinitions)
+        ).toThrow('`enum` should have at least one value')
+      })
     })
   })
 })
