@@ -69,7 +69,7 @@ function FilterInput({
           bracketMatching(),
           closeBrackets(),
           EditorView.lineWrapping,
-          placeholder(placeholderText ?? 'Enter filter. Eg. { name: "John" }'),
+          placeholder(placeholderText ?? '{name: "John", age: {$gt: 4}}'),
           theme.of(light),
           EditorView.updateListener.of((update: ViewUpdate) => {
             if (update.docChanged) {
@@ -95,12 +95,14 @@ function FilterInput({
   return (
     <div
       className={clsx(
-        'border border-zinc-300 dark:border-neutral-600 rounded-lg p-1 outline-none bg-zinc-200 dark:bg-neutral-700 focus-within:border-zinc-400 dark:focus-within:border-neutral-500 placeholder:text-zinc-400 placeholder:dark:text-neutral-400 focus:ring-0 disabled:opacity-70 flex gap-2 items-center',
+        'border border-zinc-300 dark:border-neutral-600 rounded-lg px-1 outline-none bg-zinc-200 dark:bg-neutral-700 focus-within:border-zinc-400 dark:focus-within:border-neutral-500 placeholder:text-zinc-400 placeholder:dark:text-neutral-400 focus:ring-0 disabled:opacity-70 flex gap-2 items-center',
         className
       )}
     >
       <div>
-        <span className="material-symbols-rounded text-secondary">search</span>
+        <span className="material-symbols-rounded text-secondary text-lg">
+          search
+        </span>
       </div>
 
       <div className="flex-1" ref={parent} />
@@ -114,7 +116,9 @@ function FilterInput({
         )}
       >
         <div className="text-secondary">↵ to search</div>
-        <Button onClick={handleClear}>Clear</Button>
+        <Button className="!py-0" onClick={handleClear}>
+          Clear
+        </Button>
       </div>
     </div>
   )
