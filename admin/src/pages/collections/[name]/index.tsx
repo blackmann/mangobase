@@ -73,10 +73,10 @@ function Component() {
       placeholder="Filter record. See docs for examples." */}
 
       <div className="h-0 flex-1 overflow-y-auto pe-[1px]">
-        <table cellSpacing={0} className="w-full">
-          <thead className="sticky top-0 bg-zinc-100 dark:bg-neutral-800">
+        <table cellSpacing={0} className="w-full border-collapse">
+          <thead className="sticky top-0 bg-zinc-100 dark:bg-neutral-800 z-10">
             <tr>
-              <th>
+              <th className="sticky left-0 bg-zinc-100 dark:bg-neutral-800 z-10">
                 <input
                   type="checkbox"
                   className="ms-1"
@@ -86,7 +86,9 @@ function Component() {
                 />
               </th>
 
-              <th>id</th>
+              <th className="sticky left-10 bg-zinc-100 dark:bg-neutral-800 z-10">
+                _id
+              </th>
 
               {fields.map((field) => (
                 <th key={field}>{field}</th>
@@ -101,10 +103,10 @@ function Component() {
           <tbody>
             {currentPageItems?.map((row: any) => (
               <tr
-                className="transition-background duration-200 hover:bg-zinc-200 hover:bg-opacity-50 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50"
+                className="group transition-background duration-200 hover:bg-zinc-200 hover:bg-opacity-50 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50"
                 key={row._id}
               >
-                <td className="w-[2rem] rounded-s-lg">
+                <td className="w-[2rem] rounded-s-lg sticky left-0 bg-zinc-100 dark:bg-neutral-800 group-hover:bg-[#ececee] dark:group-hover:bg-[#333333] transition-background duration-200">
                   <input
                     type="checkbox"
                     value={row._id}
@@ -112,9 +114,11 @@ function Component() {
                     {...register('select')}
                   />
                 </td>
-                <td>
+
+                <td className="sticky left-10 bg-zinc-100 dark:bg-neutral-800 group-hover:bg-[#ececee] dark:group-hover:bg-[#333333] transition-background duration-200">
                   <IdTag id={row._id} />
                 </td>
+
                 {fields.map((field) => (
                   <td key={`${collection.name}.${field}`}>
                     <Value
