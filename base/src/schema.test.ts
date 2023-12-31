@@ -399,38 +399,26 @@ describe('schema', () => {
     })
 
     it('returns a valid schema definition when it exists', () => {
-      const schema = {
-        address: {
-          schema: 'string',
-          type: 'object',
-        },
-      }
-
       expect(
         new Schema(
           {
             address: {
-              schema: 'string',
+              schema: 'address',
               type: 'object',
             },
           },
           {
-            getRef: () => {
+            getRef: (name) => {
+              if (name !== 'address') {
+                return
+              }
               return {
-                address: {
-                  schema: 'string',
-                  type: 'object',
-                },
+                line1: { type: 'string' },
               }
             },
           }
-        ).validate(schema)
-      ).toStrictEqual({
-        address: {
-          schema: 'string',
-          type: 'object',
-        },
-      })
+        ).validate({ address: { line1: 'Nii Sai' } })
+      ).toStrictEqual({ address: { line1: 'Nii Sai' } })
     })
 
     describe('when required', () => {
@@ -975,6 +963,7 @@ describe('schema', () => {
     it('validates', () => {
       const schema: SchemaDefinitions = {
         address: {
+          defaultValue: { line1: 'chale' },
           schema: {
             line1: { required: true, type: 'string' },
             line2: { type: 'string' },
@@ -1018,7 +1007,7 @@ describe('schema', () => {
         ).toThrow('schema has to be an object')
       })
 
-      it('throws a validation error when default value of an object is incorrect', () => {
+      it('throws a validation error when schema does not exist', () => {
         const schema = {
           stuff: {
             defaultValue: true,
@@ -1031,7 +1020,7 @@ describe('schema', () => {
         ).toThrow('`schema` is required when type is `object`')
       })
 
-      it('throws a validation error when object schema defaultValue doesnt equal an object', () => {
+      it('throws a validation error when object schema defaultValue is not an object', () => {
         const schema = {
           stuff: {
             defaultValue: 'man',
@@ -1045,7 +1034,7 @@ describe('schema', () => {
         ).toThrow('`defaultValue` should be an object')
       })
 
-      it('throws a validation error when object schema defaultValue equals an array', () => {
+      it('throws a validation error when object schema defaultValue is an array', () => {
         const schema = {
           stuff: {
             defaultValue: ['man'],
@@ -1057,22 +1046,6 @@ describe('schema', () => {
         expect(() =>
           Schema.validateSchema(schema as unknown as SchemaDefinitions)
         ).toThrow('`defaultValue` should be an object')
-      })
-
-      it('validates an object schema', () => {
-        const schema = {
-          stuff: {
-            defaultValue: {},
-            schema: {
-              fullname: { defaultValue: 'Mock', type: 'string' },
-            },
-            type: 'object',
-          },
-        }
-
-        expect(() =>
-          Schema.validateSchema(schema as unknown as SchemaDefinitions)
-        ).not.toThrow()
       })
     })
 
@@ -1091,7 +1064,7 @@ describe('schema', () => {
         const schema = {
           stuff: {
             defaultValue: 'name',
-            items: { defaultValue: '5', type: 'string' },
+            items: { defaultValue: 'string', type: 'string' },
             type: 'array',
           },
         }
@@ -1101,14 +1074,10 @@ describe('schema', () => {
         ).toThrow('`defaultValue` should be an array')
       })
 
-      it('throws an error when an array schema cannot be validated', () => {
+      it('throws an error when defaultValue does not match items definition', () => {
         const schema: SchemaDefinitions = {
           stuff: {
-            defaultValue: [
-              {
-                value: '',
-              },
-            ],
+            defaultValue: [1, 2, 3, 4],
             items: { defaultValue: 'string', type: 'string' },
             type: 'array',
           },
@@ -1121,7 +1090,7 @@ describe('schema', () => {
     })
 
     describe('boolean type', () => {
-      it('throws a validation error when default value of a boolean is incorrect', () => {
+      it('throws a validation error when default value is not boolean', () => {
         const schema = {
           stuff: {
             defaultValue: 'true',
@@ -1136,7 +1105,7 @@ describe('schema', () => {
     })
 
     describe('date type', () => {
-      it('throws validation error when default value of a date is incorrect', () => {
+      it('throws validation error when default value is not a date', () => {
         const schema = {
           stuff: {
             defaultValue: 'true',
@@ -1151,7 +1120,7 @@ describe('schema', () => {
     })
 
     describe('id type', () => {
-      it('throws a validation error when default value of an id is incorrect', () => {
+      it('throws a validation error when default value is not a string', () => {
         const schema = {
           stuff: {
             defaultValue: true,
@@ -1179,7 +1148,7 @@ describe('schema', () => {
     })
 
     describe('number type', () => {
-      it('throws a validation error when defalult value of a number is incorrect', () => {
+      it('throws a validation error when defalult value is not a number', () => {
         const schema = {
           stuff: {
             defaultValue: true,
@@ -1194,7 +1163,7 @@ describe('schema', () => {
     })
 
     describe('string type', () => {
-      it('throws a validation error when default value of a string is incorrect', () => {
+      it('throws a validation error when default value is not a string', () => {
         const schema = {
           stuff: {
             defaultValue: {},
