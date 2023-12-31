@@ -59,3 +59,4 @@ async function loadLogStats() {
 
 export default logs
 export { loadLogs, logStats, loadLogStats }
+export type { Log }
