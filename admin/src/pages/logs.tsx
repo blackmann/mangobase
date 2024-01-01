@@ -2,7 +2,7 @@ import logs, { Log, loadLogStats, loadLogs, logStats } from '@/data/logs'
 import BarChart from '@/components/chart'
 import Chip from '@/components/chip'
 import CleanDate from '@/components/date'
-import Input from '@/components/input'
+import FilterInput from '@/components/filter-input'
 import React from 'preact/compat'
 
 function Component() {
@@ -14,13 +14,7 @@ function Component() {
   return (
     <div className="flex flex-col h-screen me-2">
       <h1 className="mt-4 text-2xl">Logs</h1>
-      <Input
-        className="block w-full mt-4"
-        type="search"
-        name="filter"
-        id="filter"
-        placeholder="Filter logs"
-      />
+      <FilterInput placeholder="{status: 400, created_at: {$gt: 170000000}}" />
 
       <div className="relative h-[150px] w-[94vw] mt-3">
         <BarChart

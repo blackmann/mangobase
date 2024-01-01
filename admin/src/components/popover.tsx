@@ -10,7 +10,7 @@ function Popover({ children, trigger }: Props) {
     <RadixPopover.Root>
       <RadixPopover.Trigger>{trigger}</RadixPopover.Trigger>
       <RadixPopover.Portal>
-        <RadixPopover.Content>{children}</RadixPopover.Content>
+        <RadixPopover.Content className="z-50">{children}</RadixPopover.Content>
       </RadixPopover.Portal>
     </RadixPopover.Root>
   )
