@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.11 (2024-01-01)
+
+### Bug Fixes
+
+- z-index for dev ex ([0517f76](https://github.com/blackmann/mangobase/commit/0517f76b45655685b179e28b011d12df1d2c4410))
+
 ## 0.9.10 (2023-12-31)
 
 **Note:** Version bump only for package mangobase-monorepo
