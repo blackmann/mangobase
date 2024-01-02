@@ -6,6 +6,10 @@ export default defineConfig({
   title: 'Mango 🥭',
   description: 'Mangobase: Low-code Javscript backend framework',
   base: '/mangobase/',
+  sitemap: {
+    hostname: 'https://degreat.co.uk/mangobase/',
+    lastmodDateOnly: true,
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
