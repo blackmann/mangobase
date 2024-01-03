@@ -16,7 +16,7 @@ type FilterOperators = '$limit' | '$populate' | '$select' | '$skip' | '$sort'
 
 interface Filter {
   $limit?: number
-  $populate?: string[]
+  $populate?: (string | { collection: string; field: string })[]
   $select?: string[]
   $skip?: number
   $sort?: Record<string, -1 | 1>
