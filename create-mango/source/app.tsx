@@ -171,8 +171,6 @@ export default function App({ destination, flags }: Props) {
 	}
 
 	return (
-		<Text>
-			Hello, <Text color="green">"Hello"</Text>
-		</Text>
+		<Wizard/>
 	)
 }
