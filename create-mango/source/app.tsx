@@ -165,14 +165,6 @@ function CreateProject(options: CreateProjectOptions) {
 	return null
 }
 
-export default function App({ destination, flags }: Props) {
-	if (flags.javascript === undefined && !destination) {
-		return <Wizard />
-	}
-
-	return (
-		<Text>
-			Hello, <Text color="green">"Hello"</Text>
-		</Text>
-	)
+export default function App() {
+	return <Wizard/>
 }
