@@ -170,7 +170,5 @@ export default function App({ destination, flags }: Props) {
 		return <Wizard />
 	}
 
-	return (
-		<Wizard/>
-	)
+	return <Wizard/>
 }
