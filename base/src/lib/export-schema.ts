@@ -231,8 +231,6 @@ async function exportToTypescript(
     }
   }
 
-  lines.push(i`created_at: string`)
-  lines.push(i`updated_at: string`)
   lines.push(`${leading}}`)
 
   const definition = lines.join('\n')
