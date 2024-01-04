@@ -165,10 +165,6 @@ function CreateProject(options: CreateProjectOptions) {
 	return null
 }
 
-export default function App({ destination, flags }: Props) {
-	if (flags.javascript === undefined && !destination) {
-		return <Wizard />
-	}
-
+export default function App() {
 	return <Wizard/>
 }
