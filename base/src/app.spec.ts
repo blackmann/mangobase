@@ -617,6 +617,7 @@ describe('collection service', () => {
             title: { required: true, type: 'string' },
           },
         },
+        headers: { authorization: `Bearer ${devAuthToken}` },
         method: 'create',
         path: 'collections',
       })
@@ -799,6 +800,77 @@ describe('collection service', () => {
     expect(res.result).toStrictEqual({
       details: undefined,
       error: '`create` method not allowed on detail path',
+    })
+  })
+
+  describe('relations', () => {
+    beforeAll(async () => {
+      const { statusCode } = await app.api(
+        context({
+          data: {
+            name: 'discography',
+            schema: {
+              songs: {
+                items: { relation: 'songs', type: 'id' },
+                type: 'array',
+              },
+              year: { required: true, type: 'number' },
+            },
+          },
+          headers: { authorization: `Bearer ${devAuthToken}` },
+          method: 'create',
+          path: 'collections',
+        })
+      )
+
+      assert(statusCode === 201)
+
+      const { result: album } = await app.api(
+        context({
+          data: {
+            streams: 0,
+            title: 'Mock Album',
+          },
+          method: 'create',
+          path: 'albums',
+        })
+      )
+
+      const { result: song } = await app.api(
+        context({
+          data: {
+            album: album._id,
+            title: 'Mock Song 2',
+          },
+          method: 'create',
+          path: 'songs',
+        })
+      )
+
+      await app.api(
+        context({
+          data: {
+            songs: [song._id],
+            year: 2024,
+          },
+          method: 'create',
+          path: 'discography',
+        })
+      )
+    })
+
+    describe('$populate', () => {
+      it('returns populated data', async () => {
+        const { result } = await app.api(
+          context({ path: 'discography', query: { $populate: 'songs' } })
+        )
+
+        expect(result.data[0].songs[0]).toStrictEqual(
+          expect.objectContaining({
+            title: 'Mock Song 2',
+          })
+        )
+      })
     })
   })
 })

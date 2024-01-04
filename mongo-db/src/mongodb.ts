@@ -104,6 +104,7 @@ class MongoCursor implements Cursor {
           return value
         })
         .filter(Boolean)
+        .flat()
 
       if (!ids.length) continue
 

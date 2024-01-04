@@ -175,21 +175,43 @@ class CollectionService implements Service {
           case '$populate': {
             const fields = Array.isArray(value) ? value : [value]
             const schema = await this.collection.schema
+
             filter.$populate = fields.map((field) => {
+              const err = new BadRequest(`Cannot populate field \`${field}\``)
+
               if (!schema) {
-                return field
+                throw err
               }
 
-              const relation = (
-                schema.schema[field] as Extract<Definition, { type: 'id' }>
-              ).relation
+              const definition = schema.schema[field] as Extract<
+                Definition,
+                { type: 'id' | 'array' }
+              >
 
-              if (!relation) {
-                return field
+              if (!definition || !['id', 'array'].includes(definition.type)) {
+                throw err
               }
 
-              return { collection: relation, field }
+              if (definition.type === 'id') {
+                if (!definition.relation) {
+                  throw err
+                }
+
+                return { collection: definition.relation, field }
+              }
+
+              if (
+                // we can't populate tuples
+                Array.isArray(definition.items) ||
+                definition.items.type !== 'id' ||
+                !definition.items.relation
+              ) {
+                throw err
+              }
+
+              return { collection: definition.items.relation, field }
             })
+
             break
           }
 

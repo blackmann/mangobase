@@ -56,7 +56,7 @@ function context(ctx: Partial<Context>): Context {
     method: 'find',
     path: '',
     query: {},
-    url: ' ',
+    url: '/',
     ...ctx,
   }
 }
