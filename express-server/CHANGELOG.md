@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.12 (2024-01-04)
+
+### Features
+
+- populate id arrays ([#46](https://github.com/blackmann/mangobase/issues/46)) ([dfc137d](https://github.com/blackmann/mangobase/commit/dfc137ddbcf1ace4679a017180fa057b46eb8ccd))
+
 ## 0.9.11 (2024-01-01)
 
 ### Bug Fixes
