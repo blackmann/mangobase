@@ -9,13 +9,6 @@ import {
 	createProject,
 } from './create-project.js'
 
-type Props = {
-	flags: {
-		javascript?: boolean
-	}
-	destination?: string
-}
-
 const LANGUAGE_SELECT = 1
 const PACKAGE_MANAGER_SELECT = 2
 const DESTINATION_SELECT = 3
