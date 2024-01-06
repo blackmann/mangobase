@@ -98,8 +98,8 @@ function CodeTab({ collection }: Props) {
       name,
       schema: {
         ...schema,
-        created_at: { required: true, type: 'string' },
-        updated_at: { required: true, type: 'string' },
+        created_at: { required: true, type: 'date' },
+        updated_at: { required: true, type: 'date' },
       },
       ...options,
     })) as ExportResult
