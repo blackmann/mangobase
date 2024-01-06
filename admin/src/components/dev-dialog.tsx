@@ -11,7 +11,6 @@ import Select from './select'
 import clsx from 'clsx'
 import { getSchema } from '@/lib/get-schema'
 import { useForm } from 'react-hook-form'
-import { SchemaDefinitions } from 'mangobase'
 
 const tabs = [
   { id: 'request', title: 'Request' },
@@ -87,11 +86,6 @@ function CodeTab({ collection }: Props) {
 
   const { name, schema } = collection
 
-  const schemaClone = structuredClone(schema)
-
-  Object.assign(schemaClone, { created_at: { required: true, type: 'string' } })
-  Object.assign(schemaClone, { updated_at: { required: true, type: 'string' } })
-
   const $includeObjectFieldSchema = watch('includeObjectSchema')
 
   async function getCode(options: ExportOptionsValues) {
@@ -102,7 +96,11 @@ function CodeTab({ collection }: Props) {
         return (await getSchema(ref)).schema
       },
       name,
-      schema: schemaClone,
+      schema: {
+        ...schema,
+        created_at: { required: true, type: 'string' },
+        updated_at: { required: true, type: 'string' },
+      },
       ...options,
     })) as ExportResult
 
