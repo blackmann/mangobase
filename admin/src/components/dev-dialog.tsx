@@ -84,6 +84,8 @@ function CodeTab({ collection }: Props) {
     useForm<ExportOptionsValues>()
   const [status, setStatus] = React.useState<Status>('idle')
 
+  const { name, schema } = collection
+
   const $includeObjectFieldSchema = watch('includeObjectSchema')
 
   async function getCode(options: ExportOptionsValues) {
@@ -93,8 +95,12 @@ function CodeTab({ collection }: Props) {
       async getRef(ref) {
         return (await getSchema(ref)).schema
       },
-      name: collection.name,
-      schema: collection.schema,
+      name,
+      schema: {
+        ...schema,
+        created_at: { required: true, type: 'date' },
+        updated_at: { required: true, type: 'date' },
+      },
       ...options,
     })) as ExportResult
 
