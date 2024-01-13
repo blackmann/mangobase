@@ -1,0 +1,10 @@
+@media (max-width: 960px) {
+  .VPHero .image {
+    opacity: 0;
+    margin-top: -260px;
+  }
+}
+
+.hidden {
+  display: none;
+}
