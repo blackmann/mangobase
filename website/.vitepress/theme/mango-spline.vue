@@ -12,14 +12,3 @@
   height: 400px;
 }
 </style>
-
-<script>
-let interval = setInterval(() => {
-  const splineView = document.querySelector('spline-viewer');
-
-  if (splineView.shadowRoot.querySelector('#logo')) {
-    splineView.shadowRoot.querySelector('#logo').style.display = 'none';
-    clearInterval(interval);
-  }
-}, 300);
-</script>
