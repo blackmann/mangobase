@@ -5,6 +5,7 @@ import Button from '@/components/button'
 import Input from '@/components/input'
 import React from 'preact/compat'
 import RequestStatus from '@/lib/request-status'
+import { addSnack } from '@/lib/snacks'
 import app from '../mangobase-app'
 import { useNavigate } from 'react-router-dom'
 
@@ -33,8 +34,13 @@ function Login() {
       app.set('auth', data)
 
       navigate('/collections', { replace: true })
-    } catch (err) {
+    } catch (err: any) {
       setStatus('failed')
+      const message = err?.data
+        ? err.data.error
+        : err.message || 'failed to login. check logs or try again!'
+
+      addSnack({ content: message, duration: 2500, type: 'error' })
     }
   }
 

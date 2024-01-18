@@ -15,6 +15,7 @@ import Input from './input'
 import { Link } from 'react-router-dom'
 import React from 'preact/compat'
 import Select from './select'
+import { addSnack } from '@/lib/snacks'
 import app from '../mangobase-app'
 import { appendIndexFields } from '@/lib/append-index-fields'
 import appendSchemaFields from '@/lib/append-schema-fields'
@@ -197,8 +198,23 @@ function CollectionForm({ collection, onHide }: Props) {
     try {
       setSubmitting(true)
       await save(form, indexes)
+
+      const action = collection ? 'updated' : 'created'
+      addSnack({
+        content: `Collection (${form.name}) ${action} successfully`,
+        duration: 2500,
+        type: 'success',
+      })
     } catch (err) {
+      console.error(err)
       setSubmitting(false)
+
+      const action = collection ? 'update' : 'create'
+      addSnack({
+        content: `Failed to ${action} collection. Check logs`,
+        duration: 2500,
+        type: 'error',
+      })
     }
   }
 
