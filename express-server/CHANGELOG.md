@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.9.13 (2024-01-18)
+
+### Features
+
+- snack to show feedback messages ([#49](https://github.com/blackmann/mangobase/issues/49)) ([012b2e7](https://github.com/blackmann/mangobase/commit/012b2e71f8c0c9aac69bb228a7d23b504feedb47))
+
 ## 0.9.12 (2024-01-04)
 
 ### Features
