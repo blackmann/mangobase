@@ -19,18 +19,22 @@ function Component() {
   const links = [
     {
       href: '',
+      icon: 'table_rows',
       title: 'Records',
     },
     {
       href: 'hooks',
+      icon: 'phishing',
       title: 'Hooks',
     },
     {
       href: `/logs/?label[$startswith]=/api/${collection.name}`,
+      icon: 'bug_report',
       title: 'Logs',
     },
     {
       href: 'edit',
+      icon: 'stylus',
       title: 'Edit',
     },
   ]
@@ -62,14 +66,23 @@ function Component() {
             {links.map((link) => (
               <NavLink
                 className={({ isActive }: { isActive: boolean }) =>
-                  clsx('text-secondary me-2 hover:underline', {
-                    'text-zinc-800 dark:!text-neutral-200 underline': isActive,
-                  })
+                  clsx(
+                    'text-zinc-700 dark:text-neutral-200 me-2 rounded-lg px-2 bg-zinc-200 dark:bg-neutral-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 inline-flex items-center gap-1 transition-[background]',
+                    {
+                      ' dark:!text-neutral-200 !bg-blue-600 !text-white':
+                        isActive,
+                    }
+                  )
                 }
                 end
                 key={link.href}
                 to={link.href}
               >
+                <div>
+                  <span className="material-symbols-rounded text-lg">
+                    {link.icon}
+                  </span>
+                </div>
                 {link.title}
               </NavLink>
             ))}
