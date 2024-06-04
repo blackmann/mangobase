@@ -79,5 +79,13 @@ export default defineConfig({
         'data-website-id': '6cc8bf19-147d-45a2-b7c9-75b7c1b607bf',
       },
     ],
+    [
+      'script',
+      {
+        async: '',
+        src: 'https://0.observe.so/script.js',
+        'data-app': 'clws46cwl00go8k13jz4apght',
+      },
+    ],
   ],
 })
